@@ -1,0 +1,3369 @@
+{
+    "info": {
+        "_postman_id": "a955f8fd-63b9-4a54-9122-dcdf7c601d15",
+        "name": "ollie",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "27478166",
+        "_collection_link": "https://restless-comet-66878.postman.co/workspace/yasir~ef811c0c-7414-4ff0-8fe5-bcadda2cd41c/collection/27478166-a955f8fd-63b9-4a54-9122-dcdf7c601d15?action=share&source=collection_link&creator=27478166"
+    },
+    "item": [
+        {
+            "name": "admin",
+            "item": [
+                {
+                    "name": "auth",
+                    "item": [
+                        {
+                            "name": "adminLogin",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "pm.collectionVariables.set(\"token\", pm.response.json().data.adminToken);"
+                                        ],
+                                        "type": "text/javascript",
+                                        "packages": {}
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n\n\"email\":\"admin@example.com\",\n\"password\":\"admin123\",\n\"deviceToken\":\"asdadsa\"\n \n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/auth/adminLogin",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "auth",
+                                        "adminLogin"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "editImage",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "image",
+                                            "type": "file",
+                                            "src": "/Users/mac/Desktop/Screenshot 2025-03-22 at 2.19.33 AM.png"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/auth/editImage",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "auth",
+                                        "editImage"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "changePassword",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"currentpassword\":\"admin123\",\n    \"newpassword\":\"admin1234\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/auth/changePassword",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "auth",
+                                        "changePassword"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "interest",
+                    "item": [
+                        {
+                            "name": "createUserInterest",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"userInterest\":\"pets\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/interest/createUserInterest",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "interest",
+                                        "createUserInterest"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getUserinterest",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/interest/getUserInterest",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "interest",
+                                        "getUserInterest"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "updateUserInterest",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"userInterest\":\"FITNESSss\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/interest/updateUserInterest/2b41adcb-997e-4e51-8519-0094ef249bf3",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "interest",
+                                        "updateUserInterest",
+                                        "2b41adcb-997e-4e51-8519-0094ef249bf3"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "deleteinterest",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/interest/deleteUserInterest/2b41adcb-997e-4e51-8519-0094ef249bf3",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "interest",
+                                        "deleteUserInterest",
+                                        "2b41adcb-997e-4e51-8519-0094ef249bf3"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "post",
+                    "item": [
+                        {
+                            "name": "createpost",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "postTitle",
+                                            "value": "ten",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "postContent",
+                                            "value": "asdasdasdasdasdasdsdsasdasdas",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "image",
+                                            "type": "file",
+                                            "src": "/Users/mac/Desktop/Screenshot 2025-03-12 at 9.06.20 PM.png"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/blog/createPost/8007a5c3-2cf6-4e49-ad72-58df7187d23a",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "createPost",
+                                        "8007a5c3-2cf6-4e49-ad72-58df7187d23a"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getposts",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/blog/getAllPosts",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "getAllPosts"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "updatepost",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "postTitle",
+                                            "value": "helloss",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "postContent",
+                                            "value": "sada",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "image",
+                                            "type": "file",
+                                            "src": "/Users/mac/Desktop/Screenshot 2025-03-22 at 2.19.33 AM.png"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/blog/updatePost/1fe9899b-ffda-40dd-8a70-c23bf3a0ba65",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "updatePost",
+                                        "1fe9899b-ffda-40dd-8a70-c23bf3a0ba65"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "deletepost",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/blog/deletePost/1fe9899b-ffda-40dd-8a70-c23bf3a0ba65",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "deletePost",
+                                        "1fe9899b-ffda-40dd-8a70-c23bf3a0ba65"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "requestpostcategory",
+                    "item": [
+                        {
+                            "name": "createRequestPostCategory",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"postRequestCategory\":\"Other\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/blogRequestCategory/createRequestPostCategory",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "blogRequestCategory",
+                                        "createRequestPostCategory"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getRequestPostCategory",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/blogRequestCategory/getRequestPostCategory",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "blogRequestCategory",
+                                        "getRequestPostCategory"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "updateRequestPostCategory",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"postRequestCategory\":\"Others\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/blogRequestCategory/updateRequestPostCategory/4c104e1c-e83b-46e3-a744-0088073678fa",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "blogRequestCategory",
+                                        "updateRequestPostCategory",
+                                        "4c104e1c-e83b-46e3-a744-0088073678fa"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "deleteRequestPostCategory",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/blogRequestCategory/deleteRequestPostCategory/4c104e1c-e83b-46e3-a744-0088073678fa",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "blogRequestCategory",
+                                        "deleteRequestPostCategory",
+                                        "4c104e1c-e83b-46e3-a744-0088073678fa"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "event",
+                    "item": [
+                        {
+                            "name": "createEvent",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "eventName",
+                                            "value": "Consert Quest",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "eventDescription",
+                                            "value": "asdadasdasdas",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "eventDateAndTime",
+                                            "value": "2025-08-10T10:00:00Z",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "eventAddress",
+                                            "value": "10 Tech Street",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "eventStates",
+                                            "value": "California",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "eventCity",
+                                            "value": "San Francisco",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "eventCountry",
+                                            "value": "USA",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "image",
+                                            "type": "file",
+                                            "src": "/Users/mac/Desktop/Screenshot 2025-03-22 at 3.13.46 AM.png"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/event/createEvent",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "event",
+                                        "createEvent"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "showAllEvents",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/event/showAllEvents",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "event",
+                                        "showAllEvents"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "updateEvent",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "eventName",
+                                            "value": "Talent Quests",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "eventDescription",
+                                            "value": "asdadasdasdasd",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "eventDateAndTime",
+                                            "value": "2025-08-10T10:00:00.000Z",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "eventAddress",
+                                            "value": "123 Tech Streets",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "eventStates",
+                                            "value": "Californias",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "eventCity",
+                                            "value": "San Franciscos",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "eventCountry",
+                                            "value": "USA",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "image",
+                                            "type": "file",
+                                            "src": "/Users/mac/Desktop/Screenshot 2025-04-09 at 3.24.11 AM.png"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/event/updateEvent/bafb57a3-ae9c-4c87-ad77-71069c991801",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "event",
+                                        "updateEvent",
+                                        "bafb57a3-ae9c-4c87-ad77-71069c991801"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "deleteEvent",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/event/deleteEvent/bafb57a3-ae9c-4c87-ad77-71069c991801",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "event",
+                                        "deleteEvent",
+                                        "bafb57a3-ae9c-4c87-ad77-71069c991801"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "content",
+                    "item": [
+                        {
+                            "name": "showAllUsers",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/content/showAllUsers",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "showAllUsers"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "countUsers",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/content/countUsers",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "countUsers"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "androidUsers",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/content/androidUsers",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "androidUsers"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "iosUsers",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/content/iosUsers",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "iosUsers"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "createPrivacyPolicy",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"privacypolicy\":\"asdadasdas\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/content/createPrivacyPolicy",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "createPrivacyPolicy"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "showPrivacyPolicy",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/content/showPrivacyPolicy",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "showPrivacyPolicy"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "updatePrivacyPolicy",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"privacypolicy\":\"asdadasdasd\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/content/updatePrivacyPolicy/2fe88a0d-be11-4fa1-a05e-45d8b9795a0a",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "updatePrivacyPolicy",
+                                        "2fe88a0d-be11-4fa1-a05e-45d8b9795a0a"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "createTermsAndCondition",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"termscondition\":\"sadasdasdas\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/content/createTermsAndCondition",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "createTermsAndCondition"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "showTermsAndCondition",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/content/showTermsAndCondition",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "showTermsAndCondition"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "updateTermsAndCondition",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"termscondition\":\"sadasdasdasd\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/content/updateTermsAndCondition/1b21e089-b6fd-442e-b6f5-4a5e1d194d0e",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "updateTermsAndCondition",
+                                        "1b21e089-b6fd-442e-b6f5-4a5e1d194d0e"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "createFaqs",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"question\": \"What is the capital of Pakistan?\",\n  \"options\": [\n    { \"text\": \"karachi\", \"isCorrect\": false },\n    { \"text\": \"lahore\", \"isCorrect\": false },\n    { \"text\": \"islamabad\", \"isCorrect\": true },\n    { \"text\": \"quetta\", \"isCorrect\": false }\n  ]\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/content/createFaqs",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "createFaqs"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "showFaqs",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/content/showFaqs",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "showFaqs"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "updateFaqs",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"question\": \"What is the capital of India?\",\n  \"options\": [\n    { \"text\": \"mumbai\", \"isCorrect\": false },\n    { \"text\": \"kolkata\", \"isCorrect\": false },\n    { \"text\": \"hyderabad\", \"isCorrect\": true },\n    { \"text\": \"ahmedabad\", \"isCorrect\": false }\n  ]\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/content/updateFaqs/57321160-1288-4633-b23d-512a6c6d9e02",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "updateFaqs",
+                                        "57321160-1288-4633-b23d-512a6c6d9e02"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "deleteFaqs",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/content/deleteFaqs/57321160-1288-4633-b23d-512a6c6d9e02",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "deleteFaqs",
+                                        "57321160-1288-4633-b23d-512a6c6d9e02"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "credit",
+                    "item": [
+                        {
+                            "name": "createcredit",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"credit\":\"250\",\n    \"amount\":250.00\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/credit/createCredit",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "credit",
+                                        "createCredit"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "showCredit",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/credit/showCredit",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "credit",
+                                        "showCredit"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "updateCredit",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"credit\":\"10\",\n    \"amount\":\"10$\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}admin/credit/updateCredit/9a7a4ff6-c197-4d6d-9573-d827e45d5e9f",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "credit",
+                                        "updateCredit",
+                                        "9a7a4ff6-c197-4d6d-9573-d827e45d5e9f"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "deleteCredit",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}admin/credit/deleteCredit/9a7a4ff6-c197-4d6d-9573-d827e45d5e9f",
+                                    "host": [
+                                        "{{localhost}}admin"
+                                    ],
+                                    "path": [
+                                        "credit",
+                                        "deleteCredit",
+                                        "9a7a4ff6-c197-4d6d-9573-d827e45d5e9f"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "user",
+            "item": [
+                {
+                    "name": "auth",
+                    "item": [
+                        {
+                            "name": "userRegister",
+                            "request": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"userEmail\":\"faiz@gmail.com\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/auth/userRegister",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "auth",
+                                        "userRegister"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getinterest",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{localhost}}user/auth/getInterest",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "auth",
+                                        "getInterest"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "userVerifyOtp",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "pm.collectionVariables.set(\"token\", pm.response.json().data.userToken);"
+                                        ],
+                                        "type": "text/javascript",
+                                        "packages": {}
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"otp\":\"139907\",\n    \"userEmail\":\"faiz@gmail.com\",\n    // \"userPhoneNumber\":\"+922332323232\",\n    // \"userFirstName\":\"chamber\",\n    // \"userLastName\":\"saleem\",\n    // \"userDateOfBirth\":\"01-12-1999\",\n    // \"userGender\":\"MALE\",\n    // \"interest\":[\"8007a5c3-2cf6-4e49-ad72-58df7187d23a\"],\n    \"userPassword\":\"faiz123\"\n    // \"userDeviceToken\":\"asdasdadasd\",\n    // \"userDeviceType\":\"IOS\",\n    // \"emergencyContactNumber\":\"+9223131231\",\n    // \"wantDailyActivities\":true,\n    // \"wantDailySupplement\":true,\n    // \"userCity\":\"SanFrancisco\",\n    // \"userStates\":\"California\",\n    // \"userCountry\":\"USA\"\n \n    }",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/auth/userVerifyOtp",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "auth",
+                                        "userVerifyOtp"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "userForgetPassword",
+                            "request": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"userEmail\":\"yasir@gmail.com\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/auth/userForgetPassword",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "auth",
+                                        "userForgetPassword"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "userResetPassword",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"userPassword\":\"yasir@1234\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/auth/userResetPassword",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "auth",
+                                        "userResetPassword"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "userLogin",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "pm.collectionVariables.set(\"token\", pm.response.json().data.userToken);"
+                                        ],
+                                        "type": "text/javascript",
+                                        "packages": {}
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n\"userEmail\":\"faiz@gmail.com\",\n\"userPassword\":\"faiz123\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/auth/userLogin",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "auth",
+                                        "userLogin"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "usereditprofile",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "userFirstName",
+                                            "value": "yasir",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "userLastName",
+                                            "value": "chamber",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "userEmail",
+                                            "value": "yasirsaleem@gmail.com",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "userPhoneNumber",
+                                            "value": "+9212313202",
+                                            "type": "text",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "userDateOfBirth",
+                                            "value": "02-12-1999",
+                                            "type": "text",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "userGender",
+                                            "value": "MALE",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "image",
+                                            "type": "file",
+                                            "src": "/Users/mac/Desktop/Screenshot 2025-03-12 at 9.06.20 PM.png"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/auth/userEditProfile",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "auth",
+                                        "userEditProfile"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "userLogOut",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/auth/userLogOut",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "auth",
+                                        "userLogOut"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "userDeleteAccount",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/auth/userDeleteAcccount",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "auth",
+                                        "userDeleteAcccount"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "createProfile",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "pm.collectionVariables.set(\"token\", pm.response.json().data.userToken);"
+                                        ],
+                                        "type": "text/javascript",
+                                        "packages": {}
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"userPhoneNumber\":\"+922332323232\",\n    \"userFirstName\":\"faiz\",\n    \"userLastName\":\"khan\",\n    \"userDateOfBirth\":\"01-12-1999\",\n    \"userGender\":\"MALE\",\n    \"interest\":[\"ea651e64-563d-4e09-9003-3c3430549327\"],\n    \"userDeviceToken\":\"asdasdadasd\",\n    \"userDeviceType\":\"IOS\",\n    \"emergencyContactNumber\":\"+9223131231\",\n    \"wantDailyActivities\":true,\n    \"wantDailySupplement\":true,\n    \"userCity\":\"SanFrancisco\",\n    \"userStates\":\"California\",\n    \"userCountry\":\"USA\"\n \n    }",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/auth/createProfile",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "auth",
+                                        "createProfile"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "task",
+                    "item": [
+                        {
+                            "name": "createTask",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"taskName\":\"task12\",\n    \"taskDescription\":\"asdasdadaasdsdsdsadasdassda\",\n    \"dateAndTime\": \"2025-05-12T14:30:00Z\"\n}   ",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/task/createUserTask",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "task",
+                                        "createUserTask"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getalltask",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/task/getAllUserTask?page=2",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "task",
+                                        "getAllUserTask"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "2"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "markascompleted",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/task/markAsCompletedTask/2",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "task",
+                                        "markAsCompletedTask",
+                                        "2"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "gettaskbydate",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/task/getTaskByDate?date=12-05-2025&page=2",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "task",
+                                        "getTaskByDate"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "date",
+                                            "value": "12-05-2025"
+                                        },
+                                        {
+                                            "key": "page",
+                                            "value": "2"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "blog",
+                    "item": [
+                        {
+                            "name": "getAllTopics",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/blog/getAllTopics",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "getAllTopics"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getAllBlogByTopics",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "",
+                                        "value": "",
+                                        "type": "text",
+                                        "disabled": true
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/blog/getAllBlogByTopics/3",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "getAllBlogByTopics",
+                                        "3"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "2",
+                                            "disabled": true
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getAllLatestBlog",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/blog/getAllLatestBlog",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "getAllLatestBlog"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "2",
+                                            "disabled": true
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getSingleBlog",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/blog/getSingleBlog/15",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "getSingleBlog",
+                                        "15"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "likeAndUnlikeBlog",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/blog/likeAndUnlikeBlog/15",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "likeAndUnlikeBlog",
+                                        "15"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "saveblog",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/blog/saveBlog/15",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "saveBlog",
+                                        "15"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "showsaveblog",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/blog/showSaveBlog",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "showSaveBlog"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "2",
+                                            "disabled": true
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "commentBlog",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"comment\":\"second comment\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/blog/commentBlog/15",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "commentBlog",
+                                        "15"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "likeAndReplyOnComment",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"like\":true,\n    \"reply\":\"better post\"\n}   ",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/blog/likeAndReplyOnComment/1",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "likeAndReplyOnComment",
+                                        "1"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getcommentlikeandreply",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/blog/getCommentsLikeReply",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "getCommentsLikeReply"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getblogbytype",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/blog/getBlogByType?type=trending",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "getBlogByType"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "type",
+                                            "value": "trending"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getfilterblog",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/blog/getFilterBlog?type=least viewed",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "getFilterBlog"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "type",
+                                            "value": "least viewed"
+                                        },
+                                        {
+                                            "key": "page",
+                                            "value": "2",
+                                            "disabled": true
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "savefavouritetopic",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/blog/saveFavouriteTopic/3",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "saveFavouriteTopic",
+                                        "3"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getFavouriteTopic",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/blog/getFavoriteTopics",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "blog",
+                                        "getFavoriteTopics"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "postrequest",
+                    "item": [
+                        {
+                            "name": "getpostrequestcategory",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/postrequest/getPostRequestCaterogy",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "postrequest",
+                                        "getPostRequestCaterogy"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "createpostrequest",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"dateAndTime\":\"1999-12-01T00:00:00.000Z\",\n    \"postdescription\":\"asdadasdasda\",\n    \"longitude\":77.5946,\n    \"latitude\":12.9716,\n    \"postRequestCategory\":[2]\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/postrequest/createPostRequest",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "postrequest",
+                                        "createPostRequest"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getUserPostRequest",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/postrequest/getUserPostRequest",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "postrequest",
+                                        "getUserPostRequest"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "2",
+                                            "disabled": true
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getAllPostRequest",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/postrequest/getAllPostRequest",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "postrequest",
+                                        "getAllPostRequest"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "2",
+                                            "disabled": true
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "sendVolunteerRequest",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/postrequest/sendVolunteerRequest/1",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "postrequest",
+                                        "sendVolunteerRequest",
+                                        "1"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getAllVolenteerRequest",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/postrequest/getAllVolenteerRequest",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "postrequest",
+                                        "getAllVolenteerRequest"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "2",
+                                            "disabled": true
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "acceptVolunteerRequest",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/postrequest/acceptVolunteerRequest/1",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "postrequest",
+                                        "acceptVolunteerRequest",
+                                        "1"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "markAsCompletedByVolunteer",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/postrequest/markAsCompletedByVolunteer/1",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "postrequest",
+                                        "markAsCompletedByVolunteer",
+                                        "1"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "confirmTaskCompletedByOwner",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/postrequest/confirmTaskCompletedByOwner/1",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "postrequest",
+                                        "confirmTaskCompletedByOwner",
+                                        "1"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getAllVolenteerCompletedPost",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/postrequest/getAllVolenteerCompletedPost/1",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "postrequest",
+                                        "getAllVolenteerCompletedPost",
+                                        "1"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "chat",
+                    "item": [
+                        {
+                            "name": "createchatroom",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "name",
+                                            "value": "yasirsaleem group",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "description",
+                                            "value": "asdadasdasdasdsasdasdasdasd",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "users",
+                                            "value": "[3,4]",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "image",
+                                            "type": "file",
+                                            "src": "/Users/mac/Desktop/Screenshot 2025-03-12 at 9.06.20 PM.png"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/chat/userCreateChatRoom",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "chat",
+                                        "userCreateChatRoom"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getOneToOneChatRooms",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/chat/getOneToOneChatRooms",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "chat",
+                                        "getOneToOneChatRooms"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getGroupChatRooms",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/chat/getGroupChatRooms",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "chat",
+                                        "getGroupChatRooms"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "getFeatureGroups",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/chat/getFeatureGroups",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "chat",
+                                        "getFeatureGroups"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "sendattachment",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "image",
+                                            "type": "file",
+                                            "src": "/Users/mac/Desktop/Screenshot 2025-03-13 at 4.18.38 AM.png"
+                                        },
+                                        {
+                                            "key": "attachmentType",
+                                            "value": "image",
+                                            "type": "text"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/chat/uplaodAttachment/1",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "chat",
+                                        "uplaodAttachment",
+                                        "1"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "post",
+                    "item": [
+                        {
+                            "name": "createuserpost",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "postTitle",
+                                            "value": "asdada",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "postContent",
+                                            "value": "asdaassasa",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "key": "image",
+                                            "type": "file",
+                                            "src": "/Users/mac/Desktop/Screenshot 2025-03-13 at 4.18.38 AM.png"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/post/createUserPost",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "post",
+                                        "createUserPost"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "showUserAllPost",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/post/showUserAllPost",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "post",
+                                        "showUserAllPost"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "2",
+                                            "disabled": true
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "showSingleUserPost",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/post/showSingleUserPost/1",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "post",
+                                        "showSingleUserPost",
+                                        "1"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "updateuserpost",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "postTitle",
+                                            "value": "asda",
+                                            "type": "text",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "postContent",
+                                            "value": "asda",
+                                            "type": "text",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "image",
+                                            "type": "file",
+                                            "src": "/Users/mac/Desktop/Simulator Screenshot - iPhone 16 Pro - 2025-03-06 at 21.10.54.png"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/post/updateUserPost/1",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "post",
+                                        "updateUserPost",
+                                        "1"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "deleteuserpost",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/post/deleteUserPost/1",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "post",
+                                        "deleteUserPost",
+                                        "1"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "likeAndUnlikeUserPost",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/post/likeAndUnlikeUserPost/1",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "post",
+                                        "likeAndUnlikeUserPost",
+                                        "1"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "commentUserPost",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"comment\":\"first comment\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/post/commentUserPost/1",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "post",
+                                        "commentUserPost",
+                                        "1"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "likeAndReplyOnComment",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"like\":true\n    // \"reply\":\"nested reply on comment\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/post/likeAndReplyOnUserPostComment/1",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "post",
+                                        "likeAndReplyOnUserPostComment",
+                                        "1"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "showUserPostCommentLikeReply",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/post/showUserPostCommentLikeReply",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "post",
+                                        "showUserPostCommentLikeReply"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "event",
+                    "item": [
+                        {
+                            "name": "showLatestEvent",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/event/showLatestEvent",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "event",
+                                        "showLatestEvent"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "showAllEventNearBy",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/event/showAllEventNearBy",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "event",
+                                        "showAllEventNearBy"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "2",
+                                            "disabled": true
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "markAsGoing",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/event/markAsGoing/1",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "event",
+                                        "markAsGoing",
+                                        "1"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "showMarkAsGoingEvents",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/event/showMarkAsGoingEvents",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "event",
+                                        "showMarkAsGoingEvents"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "content",
+                    "item": [
+                        {
+                            "name": "userPrivacyPolicy",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/content/userPrivacyPolicy",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "userPrivacyPolicy"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "userTermsCondition",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/content/userTermsCondition",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "userTermsCondition"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "userFaqs",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/content/userFaqs",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "content",
+                                        "userFaqs"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "credit",
+                    "item": [
+                        {
+                            "name": "showUserCredit",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/credit/showUserCredit",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "credit",
+                                        "showUserCredit"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "buyCredit",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/credit/buyCredit/5",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "credit",
+                                        "buyCredit",
+                                        "5"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "checkWalletAmountForCredit",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/credit/checkWalletAmountForCredit/2",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "credit",
+                                        "checkWalletAmountForCredit",
+                                        "2"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "upgradesubscription",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"plan\":\"advance\",\n    \"price\":250\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/credit/upgradeSubscription/1",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "credit",
+                                        "upgradeSubscription",
+                                        "1"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "donateNow",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"amount\":500\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/credit/donateNow",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "credit",
+                                        "donateNow"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "showDonationHistory",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/credit/showDonationHistory",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "credit",
+                                        "showDonationHistory"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "2",
+                                            "disabled": true
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "notification",
+                    "item": [
+                        {
+                            "name": "createnotification",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"title\":\"asdsqad\",\n    \"description\":\"asdads\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{localhost}}user/notification/createNotification",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "notification",
+                                        "createNotification"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "showAllNotification",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/notification/showAllNotification?page=2",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "notification",
+                                        "showAllNotification"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "2"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "readNotification",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/notification/readNotification/2",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "notification",
+                                        "readNotification",
+                                        "2"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "onAndOffNotification",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "x-access-token",
+                                        "value": "{{token}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{localhost}}user/notification/onAndOffNotification",
+                                    "host": [
+                                        "{{localhost}}user"
+                                    ],
+                                    "path": [
+                                        "notification",
+                                        "onAndOffNotification"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "exec": [
+                    ""
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "exec": [
+                    ""
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "localhost",
+            "value": "http://localhost:3000/api/v1/",
+            "type": "string"
+        },
+        {
+            "key": "token",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidXNlclR5cGUiOiJBRE1JTiIsImlhdCI6MTc0NTY4ODQ3OCwiZXhwIjoxNzQ1Nzc0ODc4fQ.T45MPEN-3eugABkIWoZIxzFHSnrOodxuMBf3uhyj7ZI",
+            "type": "string"
+        }
+    ]
+}
