@@ -1,7 +1,8 @@
 class ApiUrls {
   // http://3.96.147.42/api/v1
   // http://192.168.1.20:3000/api/v1
-  static const String baseUrl = 'http://3.96.202.108/api/v1';
+  // http://3.96.202.108/api/v1
+  static const String baseUrl = 'http://192.168.1.28:3000/api/v1';
   static const String registerApi = "/user/auth/userRegister";
   static const String verifyOTPApi = "/user/auth/userVerifyOtp";
   static const String getInterest = "/user/auth/getInterest";
@@ -20,12 +21,17 @@ class ApiUrls {
   static const String getYourInterestedTopics = "/user/blog/getFavoriteTopics";
   static const String getLatestBlogs = "/user/blog/getAllLatestBlog";
   static const String getBlogsByTopics = "/user/blog/getAllBlogByTopics";
+  static const String getBlogsByTopicsOnFilter = "user/blog/getFilterBlog";
   static const String getBlogsDetails = "/user/blog/getSingleBlog";
   static const String blogLikeOrUnlike = "/user/blog/likeAndUnlikeBlog";
-  static const String postLikeOrUnlike = "/user/post/likeAndUnlikeUserPost";
+  static const String postLikeOrUnlike = "/user/post/likeAndUnlikePost";
   static const String commentsOnBlog = "/user/blog/commentBlog";
+  static const String commentsOnPost = "/user/post/comment";
+
   static const String getCommentsOnBlog = "/user/blog/getCommentsLikeReply";
+  static const String getCommentsOnPost = "/user/post/showPostCommentLikeReply";
   static const String likeAndReplyOnComment = "/user/blog/likeAndReplyOnComment";
+  static const String likeAndReplyOnPostComment = "/user/post/likeAndReplyOnComment";
   static const String saveBlog = "/user/blog/saveBlog";
   static const String getLatestEvent = "/user/event/showLatestEvent";
   static const String markAsGoingOnEvent = "/user/event/markAsGoing";

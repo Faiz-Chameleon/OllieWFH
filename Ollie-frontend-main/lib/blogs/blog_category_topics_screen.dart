@@ -13,12 +13,7 @@ class BlogCategoryScreen extends StatefulWidget {
   final BlogsController controller;
   final String category;
   final String topicId;
-  BlogCategoryScreen({
-    super.key,
-    required this.category,
-    required this.controller,
-    required this.topicId,
-  });
+  BlogCategoryScreen({super.key, required this.category, required this.controller, required this.topicId});
 
   @override
   State<BlogCategoryScreen> createState() => _BlogCategoryScreenState();
@@ -35,9 +30,7 @@ class _BlogCategoryScreenState extends State<BlogCategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final BlogCategoryController controller = Get.put(
-      BlogCategoryController(widget.category),
-    );
+    final BlogCategoryController controller = Get.put(BlogCategoryController(widget.category));
 
     return Scaffold(
       backgroundColor: BGcolor,
@@ -66,18 +59,14 @@ class _BlogCategoryScreenState extends State<BlogCategoryScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Color(0xff1e18180d),
-                borderRadius: BorderRadius.circular(12),
-              ),
+              decoration: BoxDecoration(color: Color(0xff1e18180d), borderRadius: BorderRadius.circular(12)),
               child: const Center(
                 child: Text("ADVERTISEMENT", style: TextStyle(color: grey)),
               ),
             ),
             20.verticalSpace,
             Obx(() {
-              if (widget.controller.getBlogsByTopicsStatus.value ==
-                  RequestStatus.loading) {
+              if (widget.controller.getBlogsByTopicsStatus.value == RequestStatus.loading) {
                 return const Center(child: CircularProgressIndicator());
               }
               return ListView.builder(
@@ -87,48 +76,21 @@ class _BlogCategoryScreenState extends State<BlogCategoryScreen> {
                   final blog = widget.controller.blogsByTopicsList[index];
                   return ListTile(
                     onTap: () {
-                      Get.to(
-                        () => BlogDetailScreen(
-                          controller: widget.controller,
-                          blogId: blog.id,
-                        ),
-                      );
+                      Get.to(() => BlogDetailScreen(controller: widget.controller, blogId: blog.id));
                     },
                     leading: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        blog.image ?? "",
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                      ),
+                      child: Image.network(blog.image ?? "", width: 50, height: 50, fit: BoxFit.cover),
                     ),
-                    title: Text(
-                      blog.title ?? "No title",
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
+                    title: Text(blog.title ?? "No title", style: const TextStyle(fontWeight: FontWeight.w600)),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          widget.category,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.brown,
-                          ),
-                        ),
+                        Text(widget.category, style: const TextStyle(fontSize: 13, color: Colors.brown)),
                         4.verticalSpace,
                         Row(
                           children: [
-                            Text(
-                              widget.controller.timeAgo(
-                                blog.createdAt.toString(),
-                              ),
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                            ),
+                            Text(widget.controller.timeAgo(blog.createdAt.toString()), style: TextStyle(fontSize: 12, color: Colors.grey)),
                             const SizedBox(width: 10),
                             // const Text(
                             //   "6 min read.",
@@ -248,10 +210,7 @@ class _BlogCategoryScreenState extends State<BlogCategoryScreen> {
     );
   }
 
-  void _showSortBottomSheet(
-    BuildContext context,
-    BlogCategoryController controller,
-  ) {
+  void _showSortBottomSheet(BuildContext context, BlogCategoryController controller) {
     Get.bottomSheet(
       Container(
         decoration: const BoxDecoration(
@@ -266,14 +225,8 @@ class _BlogCategoryScreenState extends State<BlogCategoryScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  "Sort By:",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 20),
-                  onPressed: () => Get.back(),
-                ),
+                const Text("Sort By:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                IconButton(icon: const Icon(Icons.close, size: 20), onPressed: () => Get.back()),
               ],
             ),
             const Divider(),
@@ -294,31 +247,33 @@ class _BlogCategoryScreenState extends State<BlogCategoryScreen> {
   }
 
   Widget _sortOption(BlogCategoryController controller, String label) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (controller.selectedSort.value == label)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.brown,
+    return GestureDetector(
+      onTap: () {
+        widget.controller.getBlogsByCategoryOnFilter(label.toLowerCase());
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (controller.selectedSort.value == label)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Text(
+                label,
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.brown),
               ),
             ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(label),
+            trailing: Radio<String>(
+              value: label,
+              groupValue: controller.selectedSort.value,
+              onChanged: (val) => controller.selectedSort.value = val!,
+            ),
+            onTap: () => controller.selectedSort.value = label,
           ),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text(label),
-          trailing: Radio<String>(
-            value: label,
-            groupValue: controller.selectedSort.value,
-            onChanged: (val) => controller.selectedSort.value = val!,
-          ),
-          onTap: () => controller.selectedSort.value = label,
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

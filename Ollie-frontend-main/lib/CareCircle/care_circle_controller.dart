@@ -120,6 +120,11 @@ class CareCircleController extends GetxController {
         interestBasePostList.addAll(parsed.data!);
       }
       interestBastePostStatus.value = RequestStatus.success;
+    } else if (result['success'] == false && result['message'] == "No posts found") {
+      interestBasePostList.clear();
+      interestBastePostStatus.value = RequestStatus.success;
+
+      Get.snackbar("Info", "No posts available for this topic");
     } else {
       interestBastePostStatus.value = RequestStatus.error;
 
@@ -128,16 +133,34 @@ class CareCircleController extends GetxController {
   }
 
   var likeOrUnlikePostStatus = RequestStatus.idle.obs;
-  Future<void> likeOrUnlikePost(String blogId) async {
+  Future<void> likeOrUnlikePost(data, int index) async {
     likeOrUnlikePostStatus.value = RequestStatus.loading;
 
-    final result = await careCircleRepository.likeOrUnlikePost(blogId);
+    final result = await careCircleRepository.likeOrUnlikePost(data);
     if (result['success'] == true) {
+      if (result["data"]["action"] == "liked") {
+        interestBasePostList[index].isLikePost = true;
+        interestBasePostList[index].cCount?.userpostlikes = (interestBasePostList[index].cCount?.userpostlikes ?? 0) + 1;
+        interestBasePostList.refresh();
+      } else if (result["data"]["action"] == "unliked") {
+        interestBasePostList[index].isLikePost = false;
+        if (interestBasePostList[index].cCount?.userpostlikes != null && interestBasePostList[index].cCount!.userpostlikes! > 0) {
+          interestBasePostList[index].cCount?.userpostlikes = (interestBasePostList[index].cCount?.userpostlikes ?? 0) - 1;
+          interestBasePostList.refresh();
+        }
+      }
       likeOrUnlikePostStatus.value = RequestStatus.success;
     } else {
       likeOrUnlikePostStatus.value = RequestStatus.error;
       Get.snackbar("Error", result['message'] ?? "Something went wrong");
     }
+  }
+
+  void savePostToUpdate(int index) {
+    // Toggle the value
+    interestBasePostList[index].isSavePost = true;
+    // Refresh the list to notify listeners
+    interestBasePostList.refresh();
   }
 
   var saveAndUnsavePostStatus = RequestStatus.idle.obs;
@@ -146,7 +169,7 @@ class CareCircleController extends GetxController {
 
     final result = await careCircleRepository.saveAndUnsavePost(postId);
     if (result['success'] == true) {
-      interestBasePostList[index].isSavePost = true;
+      savePostToUpdate(index);
       saveAndUnsavePostStatus.value = RequestStatus.success;
     } else {
       saveAndUnsavePostStatus.value = RequestStatus.error;
@@ -170,12 +193,14 @@ class CareCircleController extends GetxController {
       }
       getYourPostAsInteresStatus.value = RequestStatus.success;
     } else if (result['success'] == false && result['message'] == "User has no selected interests") {
+      getYourPostAsInteresStatus.value = RequestStatus.success;
+
+      Get.snackbar("No Interests", "Please select your interests to see posts.");
+    } else if (result['success'] == false && result['message'] == "No posts found") {
       /// Special case: no selected interests
       getYourPostAsInteresStatus.value = RequestStatus.success;
-      // or create a custom state like RequestStatus.noInterest
 
-      /// You can show a custom UI message in the view:
-      Get.snackbar("No Interests", "Please select your interests to see posts.");
+      Get.snackbar("Success", "No posts found");
     } else {
       getYourPostAsInteresStatus.value = RequestStatus.error;
 
@@ -196,6 +221,9 @@ class CareCircleController extends GetxController {
       if (parsed.data != null) {
         myGroups.addAll(parsed.data!);
       }
+      getYourGroupsStatus.value = RequestStatus.success;
+    } else if (result['success'] == false && result['message'] == "Group chat rooms not found") {
+      myGroups.clear();
       getYourGroupsStatus.value = RequestStatus.success;
     } else {
       getYourGroupsStatus.value = RequestStatus.error;
@@ -218,6 +246,9 @@ class CareCircleController extends GetxController {
         othersGroups.addAll(parsed.data!);
       }
       getOthersGroupsStatus.value = RequestStatus.success;
+    } else if (result['success'] == false && result["message"] == 'No featured groups found') {
+      othersGroups.clear();
+      getOthersGroupsStatus.value = RequestStatus.success;
     } else {
       getOthersGroupsStatus.value = RequestStatus.error;
 
@@ -227,11 +258,13 @@ class CareCircleController extends GetxController {
 
   var postLoadingStatus = <RxBool>[].obs;
   var postReachOutOnAssistanceStatus = RequestStatus.idle.obs;
-  Future<void> reachOutOnAssistance(String assistancId) async {
+  Future<void> reachOutOnAssistance(String assistancId, int index) async {
     postReachOutOnAssistanceStatus.value = RequestStatus.loading;
 
     final result = await careCircleRepository.reachOutOnAssistanceRequest(assistancId);
     if (result['success'] == true) {
+      othersCreatedAssistance[index].status = "VolunteerRequestSent";
+
       postReachOutOnAssistanceStatus.value = RequestStatus.success;
       Get.snackbar("Success", result['message'] ?? "");
     } else {
@@ -508,3 +541,46 @@ class CareCircleController extends GetxController {
     }
   }
 }
+//likePost
+
+// var headers = {
+//   'x-access-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE2OWZlMjJlLTU5YTktNDg3OS1iMjhiLTQzZTBlOGYyNDU1NSIsInVzZXJUeXBlIjoiVVNFUiIsImlhdCI6MTc1NjM5NDYxOSwiZXhwIjoxNzU2NDgxMDE5fQ.XWHwr5YrAIVt4KtHp-9jpz3n2EhmhUa1MWIgGesRrCQ',
+//   'Content-Type': 'application/json'
+// };
+// var request = http.Request('POST', Uri.parse('http://localhost:3000/api/v1/user/post/likeAndUnlikePost'));
+// request.body = json.encode({
+//   "type": "posts",
+//   "postId": "610fc312-60bf-4848-967a-bace92a1ed19"
+// });
+// request.headers.addAll(headers);
+
+// http.StreamedResponse response = await request.send();
+
+// if (response.statusCode == 200) {
+//   print(await response.stream.bytesToString());
+// }
+// else {
+//   print(response.reasonPhrase);
+// }
+
+//commentpost
+// var headers = {
+//   'x-access-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE2OWZlMjJlLTU5YTktNDg3OS1iMjhiLTQzZTBlOGYyNDU1NSIsInVzZXJUeXBlIjoiVVNFUiIsImlhdCI6MTc1NjM5NDYxOSwiZXhwIjoxNzU2NDgxMDE5fQ.XWHwr5YrAIVt4KtHp-9jpz3n2EhmhUa1MWIgGesRrCQ',
+//   'Content-Type': 'application/json'
+// };
+// var request = http.Request('POST', Uri.parse('http://localhost:3000/api/v1/user/post/comment'));
+// request.body = json.encode({
+//   "comment": "first comment",
+//   "type": "posts",
+//   "postId": "610fc312-60bf-4848-967a-bace92a1ed19"
+// });
+// request.headers.addAll(headers);
+
+// http.StreamedResponse response = await request.send();
+
+// if (response.statusCode == 200) {
+//   print(await response.stream.bytesToString());
+// }
+// else {
+//   print(response.reasonPhrase);
+// }

@@ -10,10 +10,10 @@ class CareCircleRepository {
     return ApiService.postMethod("${ApiUrls.saveBlog}/$id", {}, token: requiredToken);
   }
 
-  Future<Map<String, dynamic>> likeOrUnlikePost(id) async {
+  Future<Map<String, dynamic>> likeOrUnlikePost(data) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    return ApiService.postMethod("${ApiUrls.postLikeOrUnlike}/$id", {}, token: requiredToken);
+    return ApiService.postMethod(ApiUrls.postLikeOrUnlike, data, token: requiredToken);
   }
 
   Future<Map<String, dynamic>> interestBasePostForUser(String interestId) async {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ollie/CareCircle/interests/comments_screen_on_post.dart';
 import 'package:ollie/CareCircle/interests/create_post_screen.dart';
 import 'package:ollie/request_status.dart';
 import '../care_circle_controller.dart';
@@ -133,23 +134,26 @@ class _TopicPostScreenState extends State<TopicPostScreen> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            controller.likeOrUnlikePost(post.id.toString());
+                            var data = {"type": "user-posts", "postId": post.id.toString()};
+                            controller.likeOrUnlikePost(data, index);
                           },
-                          child: const Icon(Icons.thumb_up_alt_outlined, size: 18),
+                          child: Icon(post.isSavePost == false ? Icons.thumb_up_alt_outlined : Icons.thumb_up, size: 18),
                         ),
                         const SizedBox(width: 4),
                         Text(post.cCount?.userpostlikes?.toString() ?? "0"),
 
                         const SizedBox(width: 16),
-                        GestureDetector(
-                          onTap: () => showCommentsBottomSheet(context),
-                          child: Row(
-                            children: [
-                              Icon(Icons.comment_outlined, size: 18),
-                              SizedBox(width: 4),
-                              Text(post.cCount?.userpostcomments != null ? post.cCount!.userpostcomments.toString() : "0"),
-                            ],
-                          ),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Get.to(() => CommentsScreenOnPost(postId: post.id.toString()));
+                              },
+                              child: Icon(Icons.comment_outlined, size: 18),
+                            ),
+                            SizedBox(width: 4),
+                            Text(post.cCount?.userpostcomments != null ? post.cCount!.userpostcomments.toString() : "0"),
+                          ],
                         ),
                         const SizedBox(width: 16),
                         const Icon(Icons.remove_red_eye_outlined, size: 18),

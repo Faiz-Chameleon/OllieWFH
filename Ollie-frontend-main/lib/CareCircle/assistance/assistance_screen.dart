@@ -801,7 +801,7 @@ class _Assistance_screenState extends State<Assistance_screen> {
                               onPressed: () async {
                                 widget.controller.postLoadingStatus[index].value = true;
                                 if (otherAssistanceData.status == "NoRequest") {
-                                  await widget.controller.reachOutOnAssistance(otherAssistanceData.id ?? "");
+                                  await widget.controller.reachOutOnAssistance(otherAssistanceData.id ?? "", index);
                                 } else if (otherAssistanceData.status == "VolunteerRequestSent") {
                                   widget.controller.completeAssistanceByVolunter(otherAssistanceData.id ?? "");
                                 }

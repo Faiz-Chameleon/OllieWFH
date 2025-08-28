@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../Models/comment_model.dart';
-import '../controllers/comment_controller.dart';
-import '../request_status.dart';
+import 'package:ollie/CareCircle/interests/comment_controller_post.dart';
+import 'package:ollie/Models/comment_model.dart';
+import 'package:ollie/request_status.dart';
 
-class CommentTreeScreen extends StatefulWidget {
-  final String blogId;
-
-  const CommentTreeScreen({super.key, required this.blogId});
+class CommentsScreenOnPost extends StatefulWidget {
+  final String postId;
+  const CommentsScreenOnPost({super.key, required this.postId});
 
   @override
-  State<CommentTreeScreen> createState() => _CommentTreeScreenState();
+  State<CommentsScreenOnPost> createState() => _CommentsScreenOnPostState();
 }
 
-class _CommentTreeScreenState extends State<CommentTreeScreen> {
-  late CommentController controller;
+class _CommentsScreenOnPostState extends State<CommentsScreenOnPost> {
+  late CommentsOnPost controller;
 
   @override
   void initState() {
     super.initState();
     // Initialize the controller
-    controller = Get.put(CommentController());
+    controller = Get.put(CommentsOnPost());
     // Load comments from API
-    controller.loadComments(widget.blogId);
+    controller.loadComments(widget.postId);
   }
 
   @override
@@ -68,7 +67,7 @@ class _CommentTreeScreenState extends State<CommentTreeScreen> {
     );
   }
 
-  Widget _buildCommentSection(Comment comment, CommentController controller) {
+  Widget _buildCommentSection(Comment comment, CommentsOnPost controller) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       child: Column(
@@ -87,7 +86,7 @@ class _CommentTreeScreenState extends State<CommentTreeScreen> {
     );
   }
 
-  Widget _buildCommentItem(Comment comment, CommentController controller, {bool isMainComment = false, Comment? parentComment}) {
+  Widget _buildCommentItem(Comment comment, CommentsOnPost controller, {bool isMainComment = false, Comment? parentComment}) {
     return Container(
       margin: EdgeInsets.only(left: isMainComment ? 0 : 32, top: isMainComment ? 0 : 8),
       child: Row(
@@ -188,7 +187,7 @@ class _CommentTreeScreenState extends State<CommentTreeScreen> {
     );
   }
 
-  Widget _buildMessageInput(CommentController controller) {
+  Widget _buildMessageInput(CommentsOnPost controller) {
     return SafeArea(
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -211,15 +210,6 @@ class _CommentTreeScreenState extends State<CommentTreeScreen> {
             Row(
               children: [
                 // Attachment button
-                // // GestureDetector(
-                // //   onTap: () {
-                // //     // Handle attachment
-                // //   },
-                // //   child: Container(
-                // //     padding: const EdgeInsets.all(8),
-                // //     child: Icon(Icons.attach_file, color: Colors.grey[600], size: 20),
-                // //   ),
-                // ),
 
                 // Message input field
                 Expanded(
@@ -250,7 +240,7 @@ class _CommentTreeScreenState extends State<CommentTreeScreen> {
                 // Send button
                 Obx(
                   () => GestureDetector(
-                    onTap: controller.mainCommentStatus.value == RequestStatus.loading ? null : () => controller.submitMessage(widget.blogId),
+                    onTap: controller.mainCommentStatus.value == RequestStatus.loading ? null : () => controller.submitMessage(widget.postId),
                     child: Container(
                       width: 36,
                       height: 36,

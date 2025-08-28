@@ -23,34 +23,12 @@ class BlogsController extends GetxController {
     {"title": "Lifestyle"},
   ].obs;
 
-  var topics = [
-    "Wellness Plans",
-    "News",
-    "Food",
-    "Pets",
-    "Fitness",
-    "Healthcare",
-    "Hobbies",
-    "Legal Aid",
-    "News",
-  ].obs;
+  var topics = ["Wellness Plans", "News", "Food", "Pets", "Fitness", "Healthcare", "Hobbies", "Legal Aid", "News"].obs;
 
   var latestBlogs = [
-    {
-      "title": "Here’s What You Need To Know About Dumplings",
-      "category": "Food",
-      "image": "assets/images/Frame 1686560355.png",
-    },
-    {
-      "title": "New Breakthrough in Arthritis Treatment Brings Hope",
-      "category": "News",
-      "image": "assets/images/Frame 1686560354.png",
-    },
-    {
-      "title": "How Sleep Affects Brain Health as You Age",
-      "category": "Healthcare",
-      "image": "assets/images/Frame 1686560367.png",
-    },
+    {"title": "Here’s What You Need To Know About Dumplings", "category": "Food", "image": "assets/images/Frame 1686560355.png"},
+    {"title": "New Breakthrough in Arthritis Treatment Brings Hope", "category": "News", "image": "assets/images/Frame 1686560354.png"},
+    {"title": "How Sleep Affects Brain Health as You Age", "category": "Healthcare", "image": "assets/images/Frame 1686560367.png"},
   ].obs;
 
   Widget tabButton(String title, int index, BlogsController controller) {
@@ -61,11 +39,7 @@ class BlogsController extends GetxController {
           padding: const EdgeInsets.only(right: 20),
           child: Text(
             title,
-            style: TextStyle(
-              color: selectedTab.value == index ? Colors.black : Colors.grey,
-              fontWeight: FontWeight.w600,
-              fontSize: 20,
-            ),
+            style: TextStyle(color: selectedTab.value == index ? Colors.black : Colors.grey, fontWeight: FontWeight.w600, fontSize: 20),
           ),
         ),
       ),
@@ -75,55 +49,30 @@ class BlogsController extends GetxController {
   Widget topicPill(String title) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFECA3),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-      ),
+      decoration: BoxDecoration(color: const Color(0xFFFFECA3), borderRadius: BorderRadius.circular(20)),
+      child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
     );
   }
 
   Widget featuredBlogCard() {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Stack(
             children: [
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
-                child: Image.asset(
-                  "assets/images/Frame 1686560355.png",
-                  height: 200.h,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                child: Image.asset("assets/images/Frame 1686560355.png", height: 200.h, width: double.infinity, fit: BoxFit.cover),
               ),
               Positioned(
                 top: 12,
                 left: 12,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFECA3),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    "Sponsored",
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(color: const Color(0xFFFFECA3), borderRadius: BorderRadius.circular(12)),
+                  child: const Text("Sponsored", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                 ),
               ),
               Positioned(
@@ -131,10 +80,7 @@ class BlogsController extends GetxController {
                 right: 12,
                 child: Container(
                   padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
+                  decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
                   child: const Icon(Icons.bookmark_border, size: 18),
                 ),
               ),
@@ -145,45 +91,20 @@ class BlogsController extends GetxController {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Here’s What You Need To Know About Dumplings",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                ),
+                const Text("Here’s What You Need To Know About Dumplings", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
                 12.verticalSpace,
                 Row(
                   children: [
-                    const Icon(
-                      Icons.person_outline,
-                      size: 16,
-                      color: Colors.grey,
-                    ),
+                    const Icon(Icons.person_outline, size: 16, color: Colors.grey),
                     const SizedBox(width: 4),
-                    const Text(
-                      "Jean Prangley",
-                      style: TextStyle(fontSize: 13, color: Colors.grey),
-                    ),
+                    const Text("Jean Prangley", style: TextStyle(fontSize: 13, color: Colors.grey)),
                     const SizedBox(width: 12),
-                    const Text(
-                      "· 6 min read",
-                      style: TextStyle(fontSize: 13, color: Colors.grey),
-                    ),
+                    const Text("· 6 min read", style: TextStyle(fontSize: 13, color: Colors.grey)),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF3C2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        "Food",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(color: const Color(0xFFFFF3C2), borderRadius: BorderRadius.circular(12)),
+                      child: const Text("Food", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
                     ),
                   ],
                 ),
@@ -202,27 +123,16 @@ class BlogsController extends GetxController {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              imagePath,
-              width: 60,
-              height: 60,
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset(imagePath, width: 60, height: 60, fit: BoxFit.cover),
           ),
           12.horizontalSpace,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
+                Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
                 4.verticalSpace,
-                Text(
-                  "1 day ago · 6 min read",
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                ),
+                Text("1 day ago · 6 min read", style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
               ],
             ),
           ),
@@ -267,9 +177,7 @@ class BlogsController extends GetxController {
   }
 
   String timeAgo(String isoString) {
-    final createdAt = DateTime.parse(
-      isoString,
-    ).toLocal(); // Convert from UTC to local
+    final createdAt = DateTime.parse(isoString).toLocal(); // Convert from UTC to local
     final now = DateTime.now();
     final diff = now.difference(createdAt);
 
@@ -332,6 +240,22 @@ class BlogsController extends GetxController {
       getBlogsByTopicsStatus.value = RequestStatus.success;
     } else {
       getBlogsByTopicsStatus.value = RequestStatus.error;
+      Get.snackbar("Error", result['message'] ?? "message required frontend");
+    }
+  }
+
+  var getBlogsByTopicOnFilterStatus = RequestStatus.idle.obs;
+  RxList<BlogsByItsTopics> blogsByTopicsListOnFilter = <BlogsByItsTopics>[].obs;
+  Future<void> getBlogsByCategoryOnFilter(String topicName) async {
+    getBlogsByTopicOnFilterStatus.value = RequestStatus.loading;
+
+    final result = await blogRepository.getBlogsByItsTopicOnFilter(topicName);
+    if (result['success'] == true) {
+      final blogTopicsModel = AllBlogTopics.fromJson(result);
+      blogsByTopicsListOnFilter.assignAll(blogTopicsModel.data?.blogs ?? []);
+      getBlogsByTopicOnFilterStatus.value = RequestStatus.success;
+    } else {
+      getBlogsByTopicOnFilterStatus.value = RequestStatus.error;
       Get.snackbar("Error", result['message'] ?? "message required frontend");
     }
   }

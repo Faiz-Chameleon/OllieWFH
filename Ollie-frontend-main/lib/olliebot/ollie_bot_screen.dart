@@ -121,21 +121,21 @@ class _OllieScreenState extends State<OllieScreen> {
 
                     Column(
                       children: [
-                        GestureDetector(
-                          onTap: () {
-                            Get.to(() => OllieChatScreen(), transition: Transition.fadeIn); // Navigates to chat screen
-                          },
-                          child: const CircleAvatar(
-                            radius: 30,
-                            backgroundColor: buttonColor,
-                            child: Icon(Icons.mic, size: 28, color: white),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          "Basic Chat",
-                          style: TextStyle(fontSize: 12, color: Black, fontWeight: FontWeight.w500),
-                        ),
+                        // GestureDetector(
+                        //   onTap: () {
+                        //     Get.to(() => OllieChatScreen(), transition: Transition.fadeIn); // Navigates to chat screen
+                        //   },
+                        //   child: const CircleAvatar(
+                        //     radius: 30,
+                        //     backgroundColor: buttonColor,
+                        //     child: Icon(Icons.mic, size: 28, color: white),
+                        //   ),
+                        // ),
+                        // const SizedBox(height: 16),
+                        // Text(
+                        //   "Basic Chat",
+                        //   style: TextStyle(fontSize: 12, color: Black, fontWeight: FontWeight.w500),
+                        // ),
                         const SizedBox(height: 20),
                         GestureDetector(
                           onTap: () {

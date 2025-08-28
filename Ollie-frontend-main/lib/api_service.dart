@@ -4,24 +4,9 @@ import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:ollie/app_urls.dart';
+import 'package:http_parser/http_parser.dart';
 
 class ApiService {
-  // static Future<Map<String, dynamic>> postAPI(
-  //   String endpoint,
-  //   Map<String, dynamic> data,
-  // ) async {
-  //   final response = await http.post(
-  //     Uri.parse('${ApiUrls.baseUrl}$endpoint'),
-  //     headers: {'Content-Type': 'application/json'},
-  //     body: json.encode(data),
-  //   );
-
-  //   if (response.statusCode == 200 || response.statusCode == 201) {
-  //     return json.decode(response.body);
-  //   } else {
-  //     throw Exception('Failed POST to $endpoint: ${response.statusCode}');
-  //   }
-  // }
   static Future<Map<String, dynamic>> postMethod(String endpoint, Map<String, dynamic> data, {String? token}) async {
     var headers = {'Content-Type': 'application/json', if (token != null) 'Authorization': 'Bearer $token'};
 
@@ -122,7 +107,7 @@ class ApiService {
 
     // Add file to the request if available
     if (file != null) {
-      request.files.add(await http.MultipartFile.fromPath('image', file.path));
+      request.files.add(await http.MultipartFile.fromPath('image', file.path, contentType: MediaType('image', 'jpeg')));
     }
 
     request.headers.addAll(headers);
@@ -163,7 +148,7 @@ class ApiService {
 
     // Add image file if available
     if (imageFile != null) {
-      request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+      request.files.add(await http.MultipartFile.fromPath('image', imageFile.path, contentType: MediaType('image', 'jpeg')));
     }
 
     // Add video file if available
@@ -212,7 +197,7 @@ class ApiService {
 
       // Add file if provided
       if (fileKey != null && filePath != null) {
-        request.files.add(await http.MultipartFile.fromPath(fileKey, filePath));
+        request.files.add(await http.MultipartFile.fromPath(fileKey, filePath, contentType: MediaType('image', 'jpeg')));
       }
 
       // Send request
