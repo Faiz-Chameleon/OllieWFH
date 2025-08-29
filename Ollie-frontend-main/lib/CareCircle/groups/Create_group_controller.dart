@@ -4,8 +4,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ollie/CareCircle/care_circle_controller.dart';
+import 'package:ollie/CareCircle/care_circle_screen.dart';
 import 'package:ollie/CareCircle/group_repository.dart';
 import 'package:ollie/CareCircle/groups/groups_screen.dart';
+import 'package:ollie/CareCircle/groups/see_all_groups.dart';
+import 'package:ollie/HomeMain/bottomController.dart';
 import 'package:ollie/request_status.dart';
 
 class CreateGroupController extends GetxController {
@@ -41,11 +45,21 @@ class CreateGroupController extends GetxController {
     if (result['success'] == true) {
       createGrouptRequestStatus.value = RequestStatus.success;
       Get.snackbar("Success", result['message'] ?? "");
-
-      Get.to(() => GroupListScreen(title: "Your Groups"), transition: Transition.fadeIn);
+      clearAll();
+      navigateToCareCircle(1);
     } else {
       createGrouptRequestStatus.value = RequestStatus.error;
       Get.snackbar("Error", result['message'] ?? "Something went wrong");
     }
+  }
+
+  void navigateToCareCircle(int tabIndex) {
+    final bottomController = Get.find<Bottomcontroller>();
+    bottomController.updateIndex(0);
+
+    Get.to(() => Care_Circle_screen());
+
+    final careController = Get.find<CareCircleController>();
+    careController.changeTab(tabIndex);
   }
 }

@@ -236,6 +236,7 @@ class CareCircleController extends GetxController {
 
   var getOthersGroupsStatus = RequestStatus.idle.obs;
   Future<void> fetchOthersGroups() async {
+    final UserController userController = Get.find<UserController>();
     getOthersGroupsStatus.value = RequestStatus.loading;
     final result = await careCircleRepository.getOthersGroups();
     if (result['success'] == true && result['data'] != null) {
@@ -243,7 +244,20 @@ class CareCircleController extends GetxController {
 
       final parsed = MyGroupsModel.fromJson(result);
       if (parsed.data != null) {
-        othersGroups.addAll(parsed.data!);
+        parsed.data!.forEach((group) {
+          bool isParticipant = false;
+
+          for (var user in group.participants?.users ?? []) {
+            if (user.id == userController.user.value?.id) {
+              isParticipant = true;
+              break;
+            }
+          }
+
+          if (!isParticipant) {
+            othersGroups.add(group);
+          }
+        });
       }
       getOthersGroupsStatus.value = RequestStatus.success;
     } else if (result['success'] == false && result["message"] == 'No featured groups found') {
@@ -343,6 +357,9 @@ class CareCircleController extends GetxController {
     if (result['success'] == true) {
       latestEvent.value = LatestEventsData.fromJson(result['data']);
       getLatestEventStatus.value = RequestStatus.success;
+    } else if (result['success'] == false && result["message"] == "Latest event not found or user is not marked as participating") {
+      getLatestEventStatus.value = RequestStatus.success; // You can set it to success because there is no event but not an error.
+      latestEvent.value = LatestEventsData();
     } else {
       getLatestEventStatus.value = RequestStatus.error;
 

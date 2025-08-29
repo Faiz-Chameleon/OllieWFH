@@ -1,38 +1,24 @@
-// ignore_for_file: use_full_hex_values_for_flutter_colors
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:ollie/Constants/Constants.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/blogs/blog_details_screen.dart';
 import 'package:ollie/blogs/blogs_controller.dart';
-import 'package:ollie/blogs/filtered_blogs_screen.dart';
-import 'package:ollie/blogs/topics_controller.dart';
 import 'package:ollie/request_status.dart';
 
-class BlogCategoryScreen extends StatefulWidget {
+class FilteredBlogsScreen extends StatefulWidget {
   final BlogsController controller;
-  final String category;
-  final String topicId;
-  BlogCategoryScreen({super.key, required this.category, required this.controller, required this.topicId});
+  const FilteredBlogsScreen({super.key, required this.controller});
 
   @override
-  State<BlogCategoryScreen> createState() => _BlogCategoryScreenState();
+  State<FilteredBlogsScreen> createState() => _FilteredBlogsScreenState();
 }
 
-class _BlogCategoryScreenState extends State<BlogCategoryScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.controller.getBlogsByCategory(widget.topicId);
-    });
-  }
-
+class _FilteredBlogsScreenState extends State<FilteredBlogsScreen> {
   @override
   Widget build(BuildContext context) {
-    final BlogCategoryController controller = Get.put(BlogCategoryController(widget.category));
-
     return Scaffold(
       backgroundColor: BGcolor,
       appBar: AppBar(
@@ -41,16 +27,6 @@ class _BlogCategoryScreenState extends State<BlogCategoryScreen> {
         backgroundColor: BGcolor,
         elevation: 0,
         leading: BackButton(color: Black),
-        title: Text(
-          widget.category,
-          style: const TextStyle(color: Black, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.tune, color: Black),
-            onPressed: () => _showSortBottomSheet(context, controller),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -67,14 +43,14 @@ class _BlogCategoryScreenState extends State<BlogCategoryScreen> {
             ),
             20.verticalSpace,
             Obx(() {
-              if (widget.controller.getBlogsByTopicsStatus.value == RequestStatus.loading) {
-                return const Center(child: CircularProgressIndicator());
+              if (widget.controller.blogsByTopicsListOnFilter.isEmpty) {
+                return const Center(child: Text("No blogs available"));
               }
               return ListView.builder(
                 shrinkWrap: true,
-                itemCount: widget.controller.blogsByTopicsList.length,
+                itemCount: widget.controller.blogsByTopicsListOnFilter.length,
                 itemBuilder: (context, index) {
-                  final blog = widget.controller.blogsByTopicsList[index];
+                  final blog = widget.controller.blogsByTopicsListOnFilter[index];
                   return ListTile(
                     onTap: () {
                       Get.to(() => BlogDetailScreen(controller: widget.controller, blogId: blog.id));
@@ -87,7 +63,7 @@ class _BlogCategoryScreenState extends State<BlogCategoryScreen> {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.category, style: const TextStyle(fontSize: 13, color: Colors.brown)),
+                        Text(blog.category?.name ?? "", style: const TextStyle(fontSize: 13, color: Colors.brown)),
                         4.verticalSpace,
                         Row(
                           children: [
@@ -204,93 +180,11 @@ class _BlogCategoryScreenState extends State<BlogCategoryScreen> {
               //   }).toList(),
               // );
             }),
+
             100.verticalSpace,
           ],
         ),
       ),
     );
-  }
-
-  void _showSortBottomSheet(BuildContext context, BlogCategoryController controller) {
-    Get.bottomSheet(
-      Container(
-        decoration: const BoxDecoration(
-          color: BGcolor,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text("Sort By:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                IconButton(icon: const Icon(Icons.close, size: 20), onPressed: () => Get.back()),
-              ],
-            ),
-            const Divider(),
-            Obx(
-              () => Column(
-                children: [
-                  _sortOption(controller, "Trending"),
-                  _sortOption(controller, "Most Recent"),
-                  _sortOption(controller, "Most Viewed"),
-                  _sortOption(controller, "Least Viewed"),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _sortOption(BlogCategoryController controller, String label) {
-    return GestureDetector(
-      onTap: () {
-        controller.selectedSort.value = label;
-
-        Get.back();
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (controller.selectedSort.value == label)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Text(
-                label,
-                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.brown),
-              ),
-            ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(label),
-            trailing: Radio<String>(
-              value: label,
-              groupValue: controller.selectedSort.value,
-              onChanged: (val) {
-                if (val != null) {
-                  controller.selectedSort.value = val;
-                  applyFilter(val.toLowerCase());
-                  Get.back(); // Close the bottom sheet
-                }
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void applyFilter(String filter) {
-    debugPrint("Applying filter: $filter for topicId: ${widget.topicId}");
-
-    // Call the API with the appropriate parameters
-    widget.controller.getBlogsByCategoryOnFilter(filter, widget.controller.blogsByTopicsList[0].categoryId ?? "").then((value) {
-      Get.to(() => FilteredBlogsScreen(controller: widget.controller));
-    });
   }
 }

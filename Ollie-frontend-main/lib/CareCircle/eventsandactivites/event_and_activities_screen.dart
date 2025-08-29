@@ -47,6 +47,9 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
                 if (widget.controller.getLatestEventStatus.value == RequestStatus.loading) {
                   return const Center(child: CircularProgressIndicator());
                 }
+                if (widget.controller.latestEvent.value.eventName == null || widget.controller.latestEvent.value.eventName == "") {
+                  return const Center(child: Text("No event available or you're not marked as participating."));
+                }
                 return GestureDetector(
                   onTap: () {
                     Get.to(() => EventDetailsScreen(careCirclecontroller: widget.controller), transition: Transition.fadeIn);

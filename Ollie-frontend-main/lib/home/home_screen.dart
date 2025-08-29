@@ -125,6 +125,7 @@ class _Home_ScreenState extends State<Home_Screen> {
                   // Get.to(() => TodoListScreen(), transition: Transition.fadeIn);
                 },
                 child: Container(
+                  width: 1.sw,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(color: const Color(0xFFFFF1C5), borderRadius: BorderRadius.circular(12)),
                   child: Column(

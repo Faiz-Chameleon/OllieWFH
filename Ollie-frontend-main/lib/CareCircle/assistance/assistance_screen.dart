@@ -771,7 +771,12 @@ class _Assistance_screenState extends State<Assistance_screen> {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        Text(otherAssistanceData.description ?? "", style: TextStyle(fontSize: 13)),
+                        Text(
+                          otherAssistanceData.description ?? "",
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         const SizedBox(height: 10),
                         GoogleMapPreview(latitude: otherAssistanceData.latitude ?? 40.712776, longitude: otherAssistanceData.longitude ?? -74.005974),
                         const SizedBox(height: 10),
@@ -939,7 +944,12 @@ class _Assistance_screenState extends State<Assistance_screen> {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        Text(createdAssistanceRequest.description ?? "", style: TextStyle(fontSize: 13)),
+                        Text(
+                          createdAssistanceRequest.description ?? "",
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         const SizedBox(height: 10),
                         GoogleMapPreview(
                           latitude: createdAssistanceRequest.latitude ?? 40.712776,

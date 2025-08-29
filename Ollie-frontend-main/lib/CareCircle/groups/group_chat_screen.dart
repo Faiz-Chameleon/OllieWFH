@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
+import 'package:ollie/CareCircle/groups/group_members_screen.dart';
 import 'package:ollie/CareCircle/groups/one_to_many_chat_controller.dart';
 import 'package:ollie/Volunteers/one_to_one_chat_controller.dart';
 import 'package:ollie/Volunteers/socket_controller.dart';
@@ -13,7 +14,9 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class GrouoChatScreen extends StatefulWidget {
   final String userName;
-  const GrouoChatScreen({super.key, required this.userName});
+  final dynamic groupDetails;
+
+  const GrouoChatScreen({super.key, required this.userName, required this.groupDetails});
 
   @override
   State<GrouoChatScreen> createState() => _GrouoChatScreenState();
@@ -109,34 +112,39 @@ class _GrouoChatScreenState extends State<GrouoChatScreen> {
         backgroundColor: const Color(0xFFFFF2D9),
         elevation: 0,
         leading: const BackButton(color: Colors.black),
-        title: Row(
-          children: [
-            const CircleAvatar(radius: 16, backgroundImage: AssetImage("assets/icons/Group 1000000907 (1).png")),
-            const SizedBox(width: 8),
-            Text(
-              widget.userName,
-              style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            const Spacer(),
-            // Obx(() {
-            //   final selected = isSelected.value;
-            //   return GestureDetector(
-            //     onTap: () => isSelected.toggle(),
-            //     child: Container(
-            //       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-            //       decoration: BoxDecoration(
-            //         color: selected ? const Color(0xFFF4BD2A) : Colors.transparent,
-            //         border: Border.all(color: const Color(0xFFF4BD2A)),
-            //         borderRadius: BorderRadius.circular(30),
-            //       ),
-            //       child: Text(
-            //         selected ? "Selected" : "Select",
-            //         style: TextStyle(fontWeight: FontWeight.w500, color: selected ? Colors.black : const Color(0xFF9C7D4A), fontSize: 18.sp),
-            //       ),
-            //     ),
-            //   );
-            // }),
-          ],
+        title: GestureDetector(
+          onTap: () {
+            Get.to(() => GroupInfoScreen(groupDetails: widget.groupDetails));
+          },
+          child: Row(
+            children: [
+              const CircleAvatar(radius: 16, backgroundImage: AssetImage("assets/icons/Group 1000000907 (1).png")),
+              const SizedBox(width: 8),
+              Text(
+                widget.userName,
+                style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+              const Spacer(),
+              // Obx(() {
+              //   final selected = isSelected.value;
+              //   return GestureDetector(
+              //     onTap: () => isSelected.toggle(),
+              //     child: Container(
+              //       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+              //       decoration: BoxDecoration(
+              //         color: selected ? const Color(0xFFF4BD2A) : Colors.transparent,
+              //         border: Border.all(color: const Color(0xFFF4BD2A)),
+              //         borderRadius: BorderRadius.circular(30),
+              //       ),
+              //       child: Text(
+              //         selected ? "Selected" : "Select",
+              //         style: TextStyle(fontWeight: FontWeight.w500, color: selected ? Colors.black : const Color(0xFF9C7D4A), fontSize: 18.sp),
+              //       ),
+              //     ),
+              //   );
+              // }),
+            ],
+          ),
         ),
       ),
       body: Column(

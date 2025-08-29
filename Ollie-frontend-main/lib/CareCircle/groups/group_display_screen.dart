@@ -16,7 +16,7 @@ class GroupDisplayPictureScreen extends StatelessWidget {
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
+    final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 25);
     if (picked != null) {
       imageController.selectedImage.value = File(picked.path);
     }

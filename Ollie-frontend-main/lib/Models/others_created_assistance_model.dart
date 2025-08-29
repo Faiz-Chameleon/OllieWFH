@@ -98,7 +98,7 @@ class User {
   String? deviceType;
   String? deviceToken;
   bool? isCreatedProfile;
-  Null? image;
+  String? image;
   String? city;
   String? country;
   String? states;

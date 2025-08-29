@@ -105,7 +105,7 @@ class _EventsNearYouScreenState extends State<EventsNearYouScreen> {
                             children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
-                                child: Image.asset(
+                                child: Image.network(
                                   event.image ?? "https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg",
                                   height: 140.h,
                                   width: double.infinity,

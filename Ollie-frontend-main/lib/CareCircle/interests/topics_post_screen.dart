@@ -82,7 +82,13 @@ class _TopicPostScreenState extends State<TopicPostScreen> {
                   children: [
                     Row(
                       children: [
-                        const CircleAvatar(radius: 16, backgroundImage: AssetImage("assets/icons/Frame 1686560584.png")),
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundImage: NetworkImage(post.user?.image ?? ""),
+                          child: post.user?.image == null || post.user?.image == ""
+                              ? Icon(Icons.person, size: 20) // Default icon when there is no image
+                              : null,
+                        ),
                         const SizedBox(width: 10),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,7 +107,8 @@ class _TopicPostScreenState extends State<TopicPostScreen> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    Text(post.title ?? "", style: const TextStyle(fontSize: 14)),
+                    Text("Title: ${post.title}", style: const TextStyle(fontSize: 14)),
+                    Text('Description: ${post.content}' ?? "", style: const TextStyle(fontSize: 14)),
 
                     if (post.image != null) ...[
                       const SizedBox(height: 10),

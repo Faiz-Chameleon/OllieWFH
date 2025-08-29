@@ -37,16 +37,7 @@ class CreatedAssistanceData {
   String? userId;
   User? user;
 
-  CreatedAssistanceData({
-    this.id,
-    this.scheduledAt,
-    this.description,
-    this.latitude,
-    this.longitude,
-    this.status,
-    this.userId,
-    this.user,
-  });
+  CreatedAssistanceData({this.id, this.scheduledAt, this.description, this.latitude, this.longitude, this.status, this.userId, this.user});
 
   CreatedAssistanceData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -87,7 +78,7 @@ class User {
   String? deviceType;
   String? deviceToken;
   bool? isCreatedProfile;
-  Null? image;
+  String? image;
   String? city;
   String? country;
   String? states;

@@ -9,6 +9,8 @@ import 'package:ollie/CareCircle/groups/create_new_group.dart';
 import 'package:ollie/CareCircle/groups/Create_group_controller.dart';
 import 'package:ollie/CareCircle/groups/group_chat_screen.dart';
 import 'package:ollie/CareCircle/groups/one_to_many_chat_controller.dart';
+import 'package:ollie/CareCircle/groups/only_my_groups.dart';
+import 'package:ollie/CareCircle/groups/see_all_groups.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/HomeMain/HomeMain.dart';
 import 'package:ollie/HomeMain/bottomController.dart';
@@ -37,6 +39,7 @@ class Group_Screen extends StatelessWidget {
                   Get.to(
                     () => GroupListScreen(
                       title: "Featured",
+                      controller: controller,
                       // groups: [
                       //   {'title': 'Tea & Tales', 'image': 'assets/images/Frame 1686560577.png', 'joined': true},
                       //   {'title': 'Memory Lane', 'image': 'assets/images/Frame 73 (2).png', 'joined': false},
@@ -53,7 +56,7 @@ class Group_Screen extends StatelessWidget {
                   } else if (controller.othersGroups.isEmpty) {
                     return Center(child: Text("No Others groups found"));
                   }
-                  final groupsToShow = controller.othersGroups.length > 1 ? controller.othersGroups.sublist(0, 2) : controller.myGroups;
+                  final groupsToShow = controller.othersGroups.isNotEmpty ? controller.othersGroups.sublist(0, 1) : controller.myGroups;
 
                   return SizedBox(
                     height: 230.h,
@@ -69,8 +72,9 @@ class Group_Screen extends StatelessWidget {
 
                         return GestureDetector(
                           onTap: () {
+                            final othersGroup = controller.othersGroups[index];
                             groupChatcontroller.joinGroupChatRoom(othersGroup.id.toString()).then((value) {
-                              Get.to(() => GrouoChatScreen(userName: othersGroup.name ?? ""));
+                              Get.to(() => GrouoChatScreen(userName: othersGroup.name ?? "", groupDetails: othersGroup));
                             });
                             // ;
                           },
@@ -110,8 +114,9 @@ class Group_Screen extends StatelessWidget {
                       : Get.put(CreateGroupController());
 
                   Get.to(
-                    () => GroupListScreen(
+                    () => OnlyYourGroups(
                       title: "Your Groups",
+                      controller: controller,
                       // groups: [
                       //   {
                       //     'title': createController.groupName.value,
@@ -145,15 +150,23 @@ class Group_Screen extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final group = controller.myGroups[index];
 
-                        return Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: _groupCard(
-                            group.name ?? "",
-                            "${group.memberCount.toString()}+",
-                            "View",
-                            group.image ?? "",
-                            group.participants?.users ?? [],
-                            joined: true,
+                        return GestureDetector(
+                          onTap: () {
+                            final group = controller.myGroups[index];
+                            groupChatcontroller.joinGroupChatRoom(group.id.toString()).then((value) {
+                              Get.to(() => GrouoChatScreen(userName: group.name ?? "", groupDetails: group));
+                            });
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: _groupCard(
+                              group.name ?? "",
+                              "${group.memberCount.toString()}+",
+                              "View",
+                              group.image ?? "",
+                              group.participants?.users ?? [],
+                              joined: true,
+                            ),
                           ),
                         );
                       },
@@ -161,17 +174,6 @@ class Group_Screen extends StatelessWidget {
                   );
                 }),
 
-                // SizedBox(
-                //   height: 220.w,
-                //   child: ListView(
-                //     scrollDirection: Axis.horizontal,
-                //     children: [
-                //       _groupCard("Life Stories & Lessons", "4k+", "View", "assets/images/Frame 1686560576.png", joined: true),
-                //       const SizedBox(width: 12),
-                //       _groupCard("Tea & Tales", "4k+", "View", "assets/images/Frame 1686560577.png", joined: true),
-                //     ],
-                //   ),
-                // ),
                 const SizedBox(height: 20),
                 Container(
                   width: double.infinity,
@@ -302,94 +304,6 @@ class Group_Screen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class GroupListScreen extends StatelessWidget {
-  final String title;
-
-  const GroupListScreen({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFFF6E8),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFFF6E8),
-        elevation: 0,
-        centerTitle: false,
-        title: Text(title, style: const TextStyle(color: Colors.black)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            final bottomController = Get.find<Bottomcontroller>();
-            bottomController.updateIndex(1);
-            Get.to(() => ConvexStyledBarScreen(), transition: Transition.fadeIn);
-          },
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: GridView.count(
-          crossAxisCount: 2,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 0.82,
-
-          // children: groups.map((group) {
-          //   final isFile = group['image'].toString().startsWith("/data") || group['image'].toString().startsWith("/var");
-          //   return Container(
-          //     decoration: BoxDecoration(
-          //       color: Colors.white,
-          //       borderRadius: BorderRadius.circular(12),
-          //       border: Border.all(color: Colors.black12),
-          //     ),
-          //     padding: const EdgeInsets.all(12),
-          //     child: Column(
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [
-          //         ClipRRect(
-          //           borderRadius: BorderRadius.circular(8),
-          //           child: isFile
-          //               ? Image.file(File(group['image']), height: 80, width: double.infinity, fit: BoxFit.cover)
-          //               : Image.asset(group['image'], height: 80, width: double.infinity, fit: BoxFit.cover),
-          //         ),
-          //         const SizedBox(height: 8),
-          //         Text(group['title'], style: const TextStyle(fontWeight: FontWeight.bold)),
-          //         const SizedBox(height: 10),
-          //         Row(
-          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //           children: [
-          //             Row(
-          //               children: const [
-          //                 CircleAvatar(radius: 8, backgroundColor: Color(0xFFD6CCBC)),
-          //                 SizedBox(width: 4),
-          //                 CircleAvatar(radius: 8, backgroundColor: Color(0xFFD6CCBC)),
-          //                 SizedBox(width: 4),
-          //                 CircleAvatar(
-          //                   radius: 8,
-          //                   backgroundColor: Color(0xFF3C3129),
-          //                   child: Text("4k+", style: TextStyle(fontSize: 8, color: Colors.white)),
-          //                 ),
-          //               ],
-          //             ),
-          //             Container(
-          //               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          //               decoration: BoxDecoration(
-          //                 color: group['joined'] ? const Color(0xFFF4BD2A) : Colors.orange.shade200,
-          //                 borderRadius: BorderRadius.circular(30),
-          //               ),
-          //               child: Text(group['joined'] ? "View" : "Join", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-          //             ),
-          //           ],
-          //         ),
-          //       ],
-          //     ),
-          //   );
-          // }).toList(),
-        ),
       ),
     );
   }

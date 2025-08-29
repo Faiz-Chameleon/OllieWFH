@@ -25,9 +25,7 @@ class _popular_screenState extends State<popular_screen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.controller.currentTab.value == "popular"
-          ? widget.controller.loadBlogForTab(widget.controller.currentTab.value)
-          : null;
+      widget.controller.currentTab.value == "popular" ? widget.controller.loadBlogForTab(widget.controller.currentTab.value) : null;
     });
   }
 
@@ -45,8 +43,7 @@ class _popular_screenState extends State<popular_screen> {
                 ? widget.controller.trendingBlog.value
                 : widget.controller.recentBlog.value;
 
-            if (widget.controller.getBlogStatus.value ==
-                RequestStatus.loading) {
+            if (widget.controller.getBlogStatus.value == RequestStatus.loading) {
               return Center(child: const CircularProgressIndicator());
             }
 
@@ -56,53 +53,26 @@ class _popular_screenState extends State<popular_screen> {
 
             return GestureDetector(
               onTap: () {
-                Get.to(
-                  () => BlogDetailScreen(
-                    controller: widget.controller,
-                    blogId: blog.blog?.id,
-                  ),
-                );
+                Get.to(() => BlogDetailScreen(controller: widget.controller, blogId: blog.blog?.id));
               },
               child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Stack(
                       children: [
                         ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(20),
-                          ),
-                          child: Image.network(
-                            blog.blog?.image ?? "",
-                            height: 200.h,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                          child: Image.network(blog.blog?.image ?? "", height: 200.h, width: double.infinity, fit: BoxFit.cover),
                         ),
                         Positioned(
                           top: 12,
                           left: 12,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFECA3),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Text(
-                              "Sponsored",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(color: const Color(0xFFFFECA3), borderRadius: BorderRadius.circular(12)),
+                            child: const Text("Sponsored", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                           ),
                         ),
                         Positioned(
@@ -122,26 +92,14 @@ class _popular_screenState extends State<popular_screen> {
                                   fromWhere = "recent";
                                   break;
                                 default:
-                                  fromWhere =
-                                      "unknown"; // Or handle default case
+                                  fromWhere = "unknown"; // Or handle default case
                               }
-                              await widget.controller.saveBlogToggle(
-                                blog.blog?.id ?? "",
-                                fromWhere,
-                              ); // Passing the new save state
+                              await widget.controller.saveBlogToggle(blog.blog?.id ?? "", fromWhere); // Passing the new save state
                             },
                             child: Container(
                               padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                blog.isSaveBlog == true
-                                    ? Icons.bookmark
-                                    : Icons.bookmark_border,
-                                size: 18,
-                              ),
+                              decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                              child: Icon(blog.isSaveBlog == true ? Icons.bookmark : Icons.bookmark_border, size: 18),
                             ),
                           ),
                         ),
@@ -152,56 +110,20 @@ class _popular_screenState extends State<popular_screen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            blog.blog?.title ?? "",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
-                          ),
+                          Text(blog.blog?.title ?? "", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
                           12.verticalSpace,
                           Row(
                             children: [
-                              const Icon(
-                                Icons.person_outline,
-                                size: 16,
-                                color: Colors.grey,
-                              ),
+                              const Icon(Icons.person_outline, size: 16, color: Colors.grey),
                               const SizedBox(width: 4),
-                              Text(
-                                blog.blog?.admin?.name ?? "",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                              Text(blog.blog?.admin?.name ?? "", style: TextStyle(fontSize: 13, color: Colors.grey)),
                               const SizedBox(width: 12),
-                              Text(
-                                widget.controller.timeAgo(
-                                  blog.blog?.createdAt ?? "",
-                                ),
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                              Text(widget.controller.timeAgo(blog.blog?.createdAt ?? ""), style: TextStyle(fontSize: 13, color: Colors.grey)),
                               const Spacer(),
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFF3C2),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  blog.blog?.category?.name ?? "",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(color: const Color(0xFFFFF3C2), borderRadius: BorderRadius.circular(12)),
+                                child: Text(blog.blog?.category?.name ?? "", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
                               ),
                             ],
                           ),
@@ -218,10 +140,7 @@ class _popular_screenState extends State<popular_screen> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Color(0xff1e18180d),
-              borderRadius: BorderRadius.circular(12),
-            ),
+            decoration: BoxDecoration(color: Color(0xff1e18180d), borderRadius: BorderRadius.circular(12)),
             child: const Center(child: Text("ADVERTISEMENT")),
           ),
           20.verticalSpace,
@@ -234,26 +153,19 @@ class _popular_screenState extends State<popular_screen> {
               ),
               GestureDetector(
                 onTap: () {
-                  Get.to(
-                    () => BrowseTopicsScreen(controller: widget.controller),
-                    transition: Transition.fadeIn,
-                  );
+                  Get.to(() => BrowseTopicsScreen(controller: widget.controller), transition: Transition.fadeIn);
                 },
 
                 child: Text(
                   "See All",
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 16.sp,
-                  ),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 16.sp),
                 ),
               ),
             ],
           ),
           12.verticalSpace,
           Obx(() {
-            if (widget.controller.getBlogTopicsStatus.value ==
-                RequestStatus.loading) {
+            if (widget.controller.getBlogTopicsStatus.value == RequestStatus.loading) {
               return Center(child: const CircularProgressIndicator());
             }
 
@@ -265,29 +177,12 @@ class _popular_screenState extends State<popular_screen> {
                     return Padding(
                       padding: const EdgeInsets.only(right: 12),
                       child: GestureDetector(
-                        onTap: () => Get.to(
-                          () => BlogCategoryScreen(
-                            category: topic.name ?? "",
-                            controller: widget.controller,
-                            topicId: topic.id.toString(),
-                          ),
-                        ),
+                        onTap: () =>
+                            Get.to(() => BlogCategoryScreen(category: topic.name ?? "", controller: widget.controller, topicId: topic.id.toString())),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFE08A),
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: Text(
-                            topic.name ?? "",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(color: const Color(0xFFFFE08A), borderRadius: BorderRadius.circular(18)),
+                          child: Text(topic.name ?? "", style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                         ),
                       ),
                     );
@@ -307,17 +202,11 @@ class _popular_screenState extends State<popular_screen> {
               ),
               GestureDetector(
                 onTap: () {
-                  Get.to(
-                    () => LatestBlogsScreen(controller: widget.controller),
-                    transition: Transition.fadeIn,
-                  );
+                  Get.to(() => LatestBlogsScreen(controller: widget.controller), transition: Transition.fadeIn);
                 },
                 child: Text(
                   "See All",
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 16.sp,
-                  ),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 16.sp),
                 ),
               ),
             ],
@@ -334,12 +223,7 @@ class _popular_screenState extends State<popular_screen> {
               children: blogs.take(3).map((blog) {
                 return GestureDetector(
                   onTap: () {
-                    Get.to(
-                      () => BlogDetailScreen(
-                        controller: widget.controller,
-                        blogId: blog.id,
-                      ),
-                    );
+                    Get.to(() => BlogDetailScreen(controller: widget.controller, blogId: blog.id));
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 16),
@@ -353,11 +237,7 @@ class _popular_screenState extends State<popular_screen> {
                             height: 60,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
-                                Image.asset(
-                                  "assets/images/placeholder.png",
-                                  width: 60,
-                                  height: 60,
-                                ), // optional fallback
+                                Image.asset("assets/images/placeholder.png", width: 60, height: 60), // optional fallback
                           ),
                         ),
                         12.horizontalSpace,
@@ -369,17 +249,12 @@ class _popular_screenState extends State<popular_screen> {
                                 blog.title ?? "No title",
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: const TextStyle(fontWeight: FontWeight.w600),
                               ),
                               4.verticalSpace,
                               Text(
                                 "${widget.controller.timeAgo(blog.createdAt ?? "")} · 6 min read", // optional fixed read time
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 13,
-                                ),
+                                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                               ),
                             ],
                           ),

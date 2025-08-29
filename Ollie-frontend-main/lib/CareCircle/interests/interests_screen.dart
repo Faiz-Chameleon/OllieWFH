@@ -55,9 +55,11 @@ class InterestsScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Image.asset(
+                                Image.network(
+                                  fit: BoxFit.fill,
                                   post.image ?? "",
                                   height: 110,
+                                  width: double.infinity,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Container(
                                       height: 110,

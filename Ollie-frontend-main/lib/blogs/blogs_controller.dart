@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ollie/Models/all_blogs_topics_model.dart';
 import 'package:ollie/Models/blog_topics_model.dart';
 import 'package:ollie/Models/blogs_model.dart';
+import 'package:ollie/Models/blogs_on_filters_model.dart';
 import 'package:ollie/Models/complete_blog_detail_model.dart';
 import 'package:ollie/Models/latest_blogs_model.dart';
 import 'package:ollie/blogs/blog_repository.dart';
@@ -245,14 +246,15 @@ class BlogsController extends GetxController {
   }
 
   var getBlogsByTopicOnFilterStatus = RequestStatus.idle.obs;
-  RxList<BlogsByItsTopics> blogsByTopicsListOnFilter = <BlogsByItsTopics>[].obs;
-  Future<void> getBlogsByCategoryOnFilter(String topicName) async {
+  RxList<BlogsOnFiltersData> blogsByTopicsListOnFilter = <BlogsOnFiltersData>[].obs;
+  Future<void> getBlogsByCategoryOnFilter(String topicName, String categoryId) async {
     getBlogsByTopicOnFilterStatus.value = RequestStatus.loading;
 
     final result = await blogRepository.getBlogsByItsTopicOnFilter(topicName);
     if (result['success'] == true) {
-      final blogTopicsModel = AllBlogTopics.fromJson(result);
-      blogsByTopicsListOnFilter.assignAll(blogTopicsModel.data?.blogs ?? []);
+      final blogTopicsModelOnFilter = BlogsOnFilters.fromJson(result);
+      final filteredBlogs = blogTopicsModelOnFilter.data?.where((blog) => blog.categoryId == categoryId).toList() ?? [];
+      blogsByTopicsListOnFilter.assignAll(filteredBlogs);
       getBlogsByTopicOnFilterStatus.value = RequestStatus.success;
     } else {
       getBlogsByTopicOnFilterStatus.value = RequestStatus.error;

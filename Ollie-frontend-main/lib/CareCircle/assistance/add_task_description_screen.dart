@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/CareCircle/assistance/add_location_screen.dart';
 import 'package:ollie/CareCircle/assistance/assistance_controller.dart';
 
 class AddTaskDescriptionScreen extends StatelessWidget {
   AddTaskDescriptionScreen({super.key});
   final Assistance_Controller controller = Get.put(Assistance_Controller());
+  final UserController userController = Get.find<UserController>();
   // final TextEditingController descriptionController = TextEditingController();
 
   final RxBool isNotEmpty = false.obs;
@@ -27,20 +29,12 @@ class AddTaskDescriptionScreen extends StatelessWidget {
                 children: [
                   GestureDetector(
                     onTap: () => Get.back(),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      size: 24,
-                      color: Colors.black,
-                    ),
+                    child: const Icon(Icons.arrow_back, size: 24, color: Colors.black),
                   ),
                   const SizedBox(width: 10),
                   const Text(
                     "Add a description for your task.",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.black),
                   ),
                 ],
               ),
@@ -51,17 +45,12 @@ class AddTaskDescriptionScreen extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 20,
-                    backgroundColor: Colors.white,
-                    child: Image.asset(
-                      "assets/icons/Frame 1686560584.png",
-                      height: 28,
-                    ),
+                    backgroundImage: userController.user.value?.image != null && userController.user.value?.image!.isNotEmpty == true
+                        ? NetworkImage(userController.user.value!.image!)
+                        : const AssetImage("assets/icons/Frame 1686560584.png") as ImageProvider,
                   ),
                   const SizedBox(width: 10),
-                  const Text(
-                    "Julia Michael",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
+                  Text(userController.user.value?.firstName ?? "", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                 ],
               ),
               const SizedBox(height: 20),
@@ -70,18 +59,14 @@ class AddTaskDescriptionScreen extends StatelessWidget {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF6EEDC),
-                  borderRadius: BorderRadius.circular(20),
-                ),
+                decoration: BoxDecoration(color: const Color(0xFFF6EEDC), borderRadius: BorderRadius.circular(20)),
                 child: TextField(
                   controller: controller.descriptionController,
                   maxLines: 5,
                   onChanged: (val) => isNotEmpty.value = val.trim().isNotEmpty,
                   style: const TextStyle(fontSize: 14),
                   decoration: const InputDecoration.collapsed(
-                    hintText:
-                        "I need help with groceries, is anyone available?",
+                    hintText: "I need help with groceries, is anyone available?",
                     hintStyle: TextStyle(color: Colors.black45),
                   ),
                 ),
@@ -96,25 +81,15 @@ class AddTaskDescriptionScreen extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: isNotEmpty.value
                         ? () {
-                            Get.to(
-                              () => AddLocationScreen(),
-                              transition: Transition.fadeIn,
-                            ); // ✅ Navigate to next screen
+                            Get.to(() => AddLocationScreen(), transition: Transition.fadeIn); // ✅ Navigate to next screen
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isNotEmpty.value
-                          ? const Color(0xFF3F362E)
-                          : Colors.grey.shade400,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(40),
-                      ),
+                      backgroundColor: isNotEmpty.value ? const Color(0xFF3F362E) : Colors.grey.shade400,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: const Text(
-                      "Next",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    child: const Text("Next", style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ),
