@@ -40,9 +40,12 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                         decoration: BoxDecoration(color: Colors.green[100], shape: BoxShape.circle),
                         child: const Icon(Icons.people_alt_rounded, size: 40, color: Colors.green),
                       ),
-                      Text("", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      Text(widget.groupDetails.name, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
-                      Text('Group - 19 members', style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+                      Text(
+                        'Group - ${widget.groupDetails.participants.users.length} members',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      ),
                     ],
                   ),
                 ),
@@ -51,7 +54,28 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
             const SizedBox(height: 24),
 
             // Group Description
-            _buildDescriptionSection(),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Group description', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Color(0xff1E18180D),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  child: Row(
+                    children: [
+                      // Icon(Icons.edit, size: 20, color: Colors.grey[600]),
+                      const SizedBox(width: 8),
+                      Text(widget.groupDetails.description, style: TextStyle(color: Colors.black)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 24),
 
             // Settings
@@ -59,7 +83,29 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
             const SizedBox(height: 24),
 
             // Members Section
-            _buildMembersSection(),
+            Container(
+              width: 1.sw,
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(20.r), color: Color(0xff1E18180D)),
+
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 12),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: const Text('Members', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildMemberTile(name: 'You', isYou: true),
+                  _buildMemberTile(name: 'Margaret'),
+                  _buildMemberTile(name: 'Eleanor'),
+                  _buildMemberTile(name: 'Arthur'),
+                  _buildMemberTile(name: 'Gloria'),
+                  const SizedBox(height: 8),
+                  // Text('and 14 more...', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                ],
+              ),
+            ),
           ],
         ),
       ),
