@@ -6,20 +6,36 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ollie/CareCircle/assistance/assistance_controller.dart';
 import 'package:ollie/CareCircle/care_circle_controller.dart';
+import 'package:ollie/CareCircle/interests/comments_screen_on_post.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/Subscription/credits/credits_sreen.dart';
 import 'package:ollie/home/notifications/notificatins_screen.dart';
+import 'package:ollie/request_status.dart';
 import 'package:ollie/widgets/showdilogbox.dart';
 
 import '../../Volunteers/volunteers_scnreen.dart';
 
-class YourPostsScreen extends StatelessWidget {
+class YourPostsScreen extends StatefulWidget {
   YourPostsScreen({super.key});
+
+  @override
+  State<YourPostsScreen> createState() => _YourPostsScreenState();
+}
+
+class _YourPostsScreenState extends State<YourPostsScreen> {
   final Assistance_Controller controller = Get.put(Assistance_Controller());
-  final CareCircleController careControllercontroller = Get.put(
-    CareCircleController(),
-  );
+
+  final CareCircleController careControllercontroller = Get.put(CareCircleController());
+
   final RxBool taskCompleted = false.obs;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      careControllercontroller.yourCreatedPost();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +61,7 @@ class YourPostsScreen extends StatelessWidget {
         elevation: 0,
         title: const Text(
           "Your Posts",
-          style: TextStyle(
-            color: Black,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Black, fontSize: 20, fontWeight: FontWeight.bold),
         ),
         actions: [
           Padding(
@@ -60,38 +72,23 @@ class YourPostsScreen extends StatelessWidget {
                 const SizedBox(width: 10),
                 GestureDetector(
                   onTap: () {
-                    Get.to(
-                      () => NotificationsScreen(),
-                      transition: Transition.fadeIn,
-                    );
+                    Get.to(() => NotificationsScreen(), transition: Transition.fadeIn);
                   },
                   child: Image.asset("assets/icons/Vector (2).png", scale: 4),
                 ),
                 const SizedBox(width: 10),
                 GestureDetector(
                   onTap: () {
-                    Get.to(
-                      () => CreditsSubscriptionScreen(),
-                      transition: Transition.fadeIn,
-                    );
+                    Get.to(() => CreditsSubscriptionScreen(), transition: Transition.fadeIn);
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: kprimaryColor,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(color: kprimaryColor, borderRadius: BorderRadius.circular(20)),
                     child: Row(
                       children: [
                         Image.asset("assets/icons/Vector (1).png", scale: 4),
                         const SizedBox(width: 5),
-                        const Text(
-                          "0",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                        const Text("0", style: TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -108,35 +105,162 @@ class YourPostsScreen extends StatelessWidget {
           children: [
             const SizedBox(height: 20),
             Expanded(
-              child: ListView(
-                children: [
-                  // Obx(
-                  //   () => _buildPostCard(
-                  //     context,
-                  //     userName: "You",
-                  //     time: controller.formattedTime,
-                  //     category: controller.selectedCategory.value,
-                  //     message: "I need help with groceries, is anyone available?",
-                  //     latLng: controller.selectedLatLng.value,
-                  //     completed: taskCompleted.value,
-                  //     onTapComplete: () => taskCompleted.value = true,
-                  //   ),
-                  // ),
-                  const SizedBox(height: 16),
-                  Container(
-                    height: 70.h,
-                    color: Color(0xff1e18180d),
-                    alignment: Alignment.center,
-                    child: const Text(
-                      "ADVERTISEMENT",
-                      style: TextStyle(
-                        letterSpacing: 1,
-                        fontWeight: FontWeight.w500,
+              child: Obx(() {
+                if (careControllercontroller.fetchingYourPostStatus.value == RequestStatus.loading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                // Error
+                if (careControllercontroller.fetchingYourPostStatus.value == RequestStatus.error) {
+                  return const Center(child: Text("Something went wrong"));
+                }
+
+                // No posts
+                if (careControllercontroller.yourPostList.isEmpty) {
+                  return const Center(child: Text("No posts available"));
+                }
+                return ListView.separated(
+                  itemCount: careControllercontroller.yourPostList.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  itemBuilder: (context, index) {
+                    final post = careControllercontroller.yourPostList[index];
+                    return Container(
+                      width: 1.sw,
+                      // height: 350.h,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 16,
+                                backgroundImage: NetworkImage(post.user?.image ?? ""),
+                                child: post.user?.image == null
+                                    ? Icon(Icons.person, size: 20) // Default icon when there is no image
+                                    // ignore: dead_code
+                                    : null,
+                              ),
+                              const SizedBox(width: 10),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(post.user?.firstName ?? "", style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  Text(careControllercontroller.formatDate(post.createdAt ?? ""), style: const TextStyle(fontSize: 12)),
+                                ],
+                              ),
+                              const Spacer(),
+                              PopupMenuButton(
+                                shape: TooltipShapeBorder(),
+                                itemBuilder: (context) => [const PopupMenuItem(value: 'report', child: Text("Report"))],
+                                onSelected: (value) {},
+                                icon: const Icon(Icons.more_horiz, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Text("Title: ${post.title}", style: const TextStyle(fontSize: 14)),
+                          Text('Description: ${post.content}' ?? "", style: const TextStyle(fontSize: 14)),
+
+                          if (post.image != null) ...[
+                            const SizedBox(height: 10),
+                            ClipRRect(borderRadius: BorderRadius.circular(12), child: _buildMediaWidget(post.image.toString())),
+                          ] else ...[
+                            const SizedBox(height: 10),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.asset("assets/images/Card.png", height: 150, width: double.infinity, fit: BoxFit.cover),
+                            ),
+                          ],
+
+                          // if (post.document != null) ...[
+                          //   const SizedBox(height: 10),
+                          //   Row(
+                          //     children: [
+                          //       const Icon(
+                          //         Icons.insert_drive_file,
+                          //         color: Colors.black,
+                          //       ),
+                          //       const SizedBox(width: 8),
+                          //       Expanded(
+                          //         child: Text(post.document!.path.split('/').last),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ],
+                          const SizedBox(height: 12),
+
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   children: [
+                          //     GestureDetector(
+                          //       onTap: () {
+                          //         var data = {"type": "user-posts", "postId": post.id.toString()};
+                          //         careControllercontroller.likeOrUnlikePost(data, index);
+                          //       },
+                          //       child: Icon(Icons.thumb_up_alt_outlined),
+                          //     ),
+                          //     const SizedBox(width: 4),
+                          //     Text(post.cCount?.userpostlikes?.toString() ?? "0"),
+
+                          //     const SizedBox(width: 16),
+                          //     Row(
+                          //       children: [
+                          //         GestureDetector(
+                          //           onTap: () {
+                          //             Get.to(() => CommentsScreenOnPost(postId: post.id.toString()));
+                          //           },
+                          //           child: Icon(Icons.comment_outlined, size: 18),
+                          //         ),
+                          //         SizedBox(width: 4),
+                          //         Text(post.cCount?.userpostcomments != null ? post.cCount!.userpostcomments.toString() : "0"),
+                          //       ],
+                          //     ),
+                          //     const SizedBox(width: 16),
+                          //     const Icon(Icons.remove_red_eye_outlined, size: 18),
+                          //     const SizedBox(width: 4),
+                          //     Text(post.views.toString()),
+                          //     const Spacer(),
+                          //     GestureDetector(
+                          //       onTap: () {
+                          //         careControllercontroller.savePostToggle(post.id.toString(), index);
+                          //       },
+                          //       child: Icon(Icons.bookmark_border, size: 18),
+                          //     ),
+                          //     const SizedBox(width: 4),
+                          //     const Text("Save"),
+                          //   ],
+                          // ),
+                        ],
                       ),
-                    ),
-                  ),
-                ],
-              ),
+                    );
+                  },
+                );
+                // ListView(
+                //   children: [
+                //     // Obx(
+                //     //   () => _buildPostCard(
+                //     //     context,
+                //     //     userName: "You",
+                //     //     time: controller.formattedTime,
+                //     //     category: controller.selectedCategory.value,
+                //     //     message: "I need help with groceries, is anyone available?",
+                //     //     latLng: controller.selectedLatLng.value,
+                //     //     completed: taskCompleted.value,
+                //     //     onTapComplete: () => taskCompleted.value = true,
+                //     //   ),
+                //     // ),
+                //     const SizedBox(height: 16),
+                //     Container(
+                //       height: 70.h,
+                //       color: Color(0xff1e18180d),
+                //       alignment: Alignment.center,
+                //       child: const Text("ADVERTISEMENT", style: TextStyle(letterSpacing: 1, fontWeight: FontWeight.w500)),
+                //     ),
+                //   ],
+                // );
+              }),
             ),
           ],
         ),
@@ -144,197 +268,57 @@ class YourPostsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPostCard(
-    BuildContext context, {
-    required String userName,
-    required String time,
-    required String category,
-    required String message,
-    required LatLng? latLng,
-    required bool completed,
-    required VoidCallback onTapComplete,
-  }) {
+  Widget _buildMediaWidget(String url) {
+    final extension = url.split('.').last.toLowerCase();
+
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(extension)) {
+      // ✅ Image
+      return Image.network(
+        url,
+        height: 150,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return _placeholder();
+        },
+      );
+    } else if (['mp4', 'mov', 'avi', 'mkv'].contains(extension)) {
+      // ✅ Video
+      return Container(
+        height: 150,
+        width: double.infinity,
+        color: Colors.black,
+        child: const Center(child: Icon(Icons.play_circle_fill, color: Colors.white, size: 50)),
+      );
+      // Later: integrate `video_player` package for playback
+    } else if (extension == 'pdf') {
+      // ✅ PDF
+      return Container(
+        height: 150,
+        width: double.infinity,
+        color: Colors.red[100],
+        child: const Center(child: Icon(Icons.picture_as_pdf, color: Colors.red, size: 50)),
+      );
+    } else if (['doc', 'docx'].contains(extension)) {
+      // ✅ Word document
+      return Container(
+        height: 150,
+        width: double.infinity,
+        color: Colors.blue[100],
+        child: const Center(child: Icon(Icons.description, color: Colors.blue, size: 50)),
+      );
+    } else {
+      // ❌ Unknown file type
+      return _placeholder();
+    }
+  }
+
+  Widget _placeholder() {
     return Container(
+      height: 150,
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Color(0xff1e18180d),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const CircleAvatar(
-                radius: 18,
-                backgroundImage: AssetImage(
-                  "assets/icons/Frame 1686560584.png",
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Posted by $userName",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                      ),
-                    ),
-                    Text(
-                      time,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF4EAD6),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  category,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(message, style: const TextStyle(fontSize: 14)),
-          const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: SizedBox(
-              height: 140,
-              width: double.infinity,
-              child: latLng != null
-                  ? GoogleMap(
-                      initialCameraPosition: CameraPosition(
-                        target: latLng,
-                        zoom: 14,
-                      ),
-                      markers: {
-                        Marker(
-                          markerId: const MarkerId("selected"),
-                          position: latLng,
-                        ),
-                      },
-                      zoomControlsEnabled: false,
-                      myLocationEnabled: false,
-                      myLocationButtonEnabled: false,
-                      liteModeEnabled: true,
-                    )
-                  : const Center(child: Text("No Location Available")),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton(
-                onPressed: completed
-                    ? () {}
-                    : onTapComplete, // Keep it enabled but no-op if completed
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: completed
-                      ? const Color(0xFF7FDE90)
-                      : const Color(0xFFF4BD2A),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: Text(
-                  completed ? "Task Completed" : "Mark as Completed",
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-              Container(
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Get.to(
-                          () => VolunteersScreen(
-                            controller: careControllercontroller,
-                            assistanceId: "",
-                          ),
-                          transition: Transition.fadeIn,
-                        );
-                      },
-                      child: Image.asset(
-                        "assets/icons/HandHeart.png",
-                        scale: 3,
-                      ),
-                    ),
-
-                    GestureDetector(
-                      onTapDown: (details) {
-                        // ignore: unused_local_variable
-                        final RenderBox overlay =
-                            Overlay.of(context).context.findRenderObject()
-                                as RenderBox;
-
-                        // Adjust the position: move menu slightly down from the icon
-                        final Offset position = details.globalPosition;
-                        const double menuWidth = 130;
-                        const double menuHeight = 30;
-
-                        showMenu(
-                          context: context,
-                          position: RelativeRect.fromLTRB(
-                            position.dx -
-                                (menuWidth / 2), // center horizontally
-                            position.dy +
-                                20, // push menu 20px down from tap point
-                            position.dx + (menuWidth / 2),
-                            position.dy + menuHeight,
-                          ),
-                          color: white,
-                          shape:
-                              TooltipShapeBorder(), // 👈 your custom shape with center notch
-                          items: [
-                            PopupMenuItem(
-                              value: 0,
-                              height: 25,
-
-                              child: Text(
-                                "Delete Post",
-                                style: TextStyle(
-                                  color: Colors.red.shade600,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ).then((value) {
-                          if (value == 0) {
-                            print("Delete Post");
-                          }
-                        });
-                      },
-                      child: Image.asset(
-                        "assets/icons/DotsThree.png",
-                        scale: 3,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+      color: Colors.grey[300],
+      child: const Icon(Icons.insert_drive_file, color: Colors.grey),
     );
   }
 }

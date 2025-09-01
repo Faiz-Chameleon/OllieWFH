@@ -85,24 +85,33 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
             // Members Section
             Container(
               width: 1.sw,
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(20.r), color: Color(0xff1E18180D)),
-
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(20.r), color: const Color(0xff1E18180D)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 12),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: const Text('Members', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Text('Members', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                   ),
                   const SizedBox(height: 12),
-                  _buildMemberTile(name: 'You', isYou: true),
-                  _buildMemberTile(name: 'Margaret'),
-                  _buildMemberTile(name: 'Eleanor'),
-                  _buildMemberTile(name: 'Arthur'),
-                  _buildMemberTile(name: 'Gloria'),
+
+                  // Use ListView.builder inside a limited height container
+                  SizedBox(
+                    height: 200.h, // adjust height as needed
+                    child: ListView.builder(
+                      itemCount: widget.groupDetails.participants.users.length,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemBuilder: (context, index) {
+                        final member = widget.groupDetails.participants.users[index];
+                        return _buildMemberTile(name: member.firstName.toString());
+                      },
+                    ),
+                  ),
+
                   const SizedBox(height: 8),
-                  // Text('and 14 more...', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                  // You can optionally show "and X more..." if members.length > someNumber
+                  // Text('and ${members.length - 5} more...', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
                 ],
               ),
             ),
@@ -224,7 +233,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
 
   Widget _buildMemberTile({required String name, bool isYou = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
       child: Row(
         children: [
           Container(
@@ -239,12 +248,12 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          Expanded(child: Text(name + (isYou ? ' (You)' : ''), style: const TextStyle(fontSize: 16))),
-          if (isYou)
-            Text(
-              'Admin',
-              style: TextStyle(color: Colors.green[700], fontSize: 14, fontWeight: FontWeight.w500),
-            ),
+          Expanded(child: Text(name, style: const TextStyle(fontSize: 16))),
+          // if (isYou)
+          //   Text(
+          //     'Admin',
+          //     style: TextStyle(color: Colors.green[700], fontSize: 14, fontWeight: FontWeight.w500),
+          //   ),
         ],
       ),
     );

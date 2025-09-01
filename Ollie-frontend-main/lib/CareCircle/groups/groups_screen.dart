@@ -56,7 +56,7 @@ class Group_Screen extends StatelessWidget {
                   } else if (controller.othersGroups.isEmpty) {
                     return Center(child: Text("No Others groups found"));
                   }
-                  final groupsToShow = controller.othersGroups.isNotEmpty ? controller.othersGroups.sublist(0, 1) : controller.myGroups;
+                  final groupsToShow = controller.othersGroups.isNotEmpty ? controller.othersGroups.sublist(0, 2) : controller.myGroups;
 
                   return SizedBox(
                     height: 230.h,

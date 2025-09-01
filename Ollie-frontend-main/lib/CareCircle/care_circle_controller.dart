@@ -11,6 +11,7 @@ import 'package:ollie/Models/nearest_event_model.dart';
 import 'package:ollie/Models/others_created_assistance_model.dart';
 import 'package:ollie/Models/post_with_interest_model.dart';
 import 'package:ollie/Models/volunters_request_model.dart';
+import 'package:ollie/Models/your_post_model.dart';
 import 'package:ollie/request_status.dart';
 
 class PostModel {
@@ -54,7 +55,9 @@ class CareCircleController extends GetxController {
       });
     } else if (selectedTabIndex.value == 2) {
       fetchPostAsPerYourInterest().then((value) {
-        getInterestForPost();
+        getInterestForPost().then((value) {
+          getYourSavedPost();
+        });
       });
     } else if (selectedTabIndex.value == 3) {
       userFetchLatestEvents().then((value) {
@@ -76,6 +79,30 @@ class CareCircleController extends GetxController {
       getBlogTopicsStatus.value = RequestStatus.success;
     } else {
       getBlogTopicsStatus.value = RequestStatus.error;
+
+      Get.snackbar("Error", result['message'] ?? "message required frontend");
+    }
+  }
+
+  RxList yourSavePostList = [].obs;
+  var getYourSavePostStatus = RequestStatus.idle.obs;
+  Future<void> getYourSavedPost() async {
+    getYourSavePostStatus.value = RequestStatus.loading;
+
+    final result = await careCircleRepository.getSavedPosts();
+    if (result['success'] == true) {
+      yourSavePostList.clear();
+      if (result['data'] != null && result['data'].isNotEmpty && result['data'][0].isNotEmpty) {
+        yourSavePostList.value = result['data'][0];
+      } else {
+        // List is empty
+        yourSavePostList.clear();
+        Get.snackbar("Info", "No saved posts found");
+      }
+
+      getYourSavePostStatus.value = RequestStatus.success;
+    } else {
+      getYourSavePostStatus.value = RequestStatus.error;
 
       Get.snackbar("Error", result['message'] ?? "message required frontend");
     }
@@ -554,6 +581,32 @@ class CareCircleController extends GetxController {
       getVoluntersRequesttatus.value = RequestStatus.success;
     } else {
       getVoluntersRequesttatus.value = RequestStatus.error;
+      Get.snackbar("Error", result['message'] ?? "message required frontend");
+    }
+  }
+
+  var yourPostList = <YourPostModelData>[].obs;
+
+  var fetchingYourPostStatus = RequestStatus.idle.obs;
+  Future<void> yourCreatedPost() async {
+    fetchingYourPostStatus.value = RequestStatus.loading;
+    final result = await careCircleRepository.createdPostByUser();
+    if (result['success'] == true && result['data'] != null) {
+      yourPostList.clear();
+
+      final parsed = YourPostModel.fromJson(result);
+      if (parsed.data != null) {
+        yourPostList.addAll(parsed.data!);
+      }
+      fetchingYourPostStatus.value = RequestStatus.success;
+    } else if (result['success'] == false && result['message'] == "No posts found") {
+      yourPostList.clear();
+      fetchingYourPostStatus.value = RequestStatus.success;
+
+      Get.snackbar("Info", "No posts available for this topic");
+    } else {
+      interestBastePostStatus.value = RequestStatus.error;
+
       Get.snackbar("Error", result['message'] ?? "message required frontend");
     }
   }

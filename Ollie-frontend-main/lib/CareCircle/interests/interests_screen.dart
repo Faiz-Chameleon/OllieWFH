@@ -171,35 +171,6 @@ class InterestsScreen extends StatelessWidget {
             );
           }),
 
-          // SingleChildScrollView(
-          //   scrollDirection: Axis.horizontal,
-          //   child: Row(
-          //     children: ["Pets", "Fitness", "Food", "Healthcare"]
-          //         .map(
-          //           (topic) => GestureDetector(
-          //             onTap: () {
-          //               Get.to(() => TopicPostScreen(topic: topic));
-          //             },
-          //             child: Container(
-          //               margin: const EdgeInsets.only(right: 10),
-          //               padding: const EdgeInsets.symmetric(
-          //                 horizontal: 16,
-          //                 vertical: 15,
-          //               ),
-          //               decoration: BoxDecoration(
-          //                 color: const Color(0xFFFFE38E),
-          //                 borderRadius: BorderRadius.circular(15),
-          //               ),
-          //               child: Text(
-          //                 topic,
-          //                 style: const TextStyle(fontWeight: FontWeight.w500),
-          //               ),
-          //             ),
-          //           ),
-          //         )
-          //         .toList(),
-          //   ),
-          // ),
           20.verticalSpace,
 
           // Saved Posts
@@ -217,55 +188,65 @@ class InterestsScreen extends StatelessWidget {
             ],
           ),
           10.verticalSpace,
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: cardbg,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.black12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Obx(() {
+            if (controller.getYourSavePostStatus.value == RequestStatus.loading) {
+              return Center(child: CircularProgressIndicator());
+            } else if (controller.yourSavePostList.isEmpty) {
+              return Center(
+                child: Text("No saved posts found", style: TextStyle(color: Colors.grey)),
+              );
+            } else {
+              return Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: cardbg,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.black12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(radius: 25, backgroundImage: AssetImage("assets/icons/Frame 1686560584.png")),
-                    10.horizontalSpace,
-                    Text("Shelley", style: TextStyle(fontWeight: FontWeight.bold)),
-                    Spacer(),
-                    Icon(Icons.more_horiz),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CircleAvatar(radius: 25, backgroundImage: AssetImage("assets/icons/Frame 1686560584.png")),
+                        10.horizontalSpace,
+                        Text("Shelley", style: TextStyle(fontWeight: FontWeight.bold)),
+                        Spacer(),
+                        Icon(Icons.more_horiz),
+                      ],
+                    ),
+                    10.verticalSpace,
+                    const Text(
+                      "Ever caught your pet doing something hilarious? Tell us the most mischievous thing your pet has ever done!",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    10.verticalSpace,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Icon(Icons.thumb_up_alt_outlined, size: 18),
+                        5.horizontalSpace,
+                        Text("634"),
+                        15.horizontalSpace,
+                        Icon(Icons.chat_bubble_outline, size: 18),
+                        5.horizontalSpace,
+                        Text("634"),
+                        15.horizontalSpace,
+                        Icon(Icons.remove_red_eye_outlined, size: 18),
+                        5.horizontalSpace,
+                        Text("634"),
+                        15.horizontalSpace,
+                        Spacer(),
+                        Icon(Icons.bookmark, size: 18),
+                        Text("Saved"),
+                      ],
+                    ),
                   ],
                 ),
-                10.verticalSpace,
-                const Text(
-                  "Ever caught your pet doing something hilarious? Tell us the most mischievous thing your pet has ever done!",
-                  style: TextStyle(fontSize: 14),
-                ),
-                10.verticalSpace,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Icon(Icons.thumb_up_alt_outlined, size: 18),
-                    5.horizontalSpace,
-                    Text("634"),
-                    15.horizontalSpace,
-                    Icon(Icons.chat_bubble_outline, size: 18),
-                    5.horizontalSpace,
-                    Text("634"),
-                    15.horizontalSpace,
-                    Icon(Icons.remove_red_eye_outlined, size: 18),
-                    5.horizontalSpace,
-                    Text("634"),
-                    15.horizontalSpace,
-                    Spacer(),
-                    Icon(Icons.bookmark, size: 18),
-                    Text("Saved"),
-                  ],
-                ),
-              ],
-            ),
-          ),
+              );
+            }
+          }),
 
           200.verticalSpace,
         ],

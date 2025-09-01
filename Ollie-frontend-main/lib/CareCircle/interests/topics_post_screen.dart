@@ -144,7 +144,7 @@ class _TopicPostScreenState extends State<TopicPostScreen> {
                             var data = {"type": "user-posts", "postId": post.id.toString()};
                             controller.likeOrUnlikePost(data, index);
                           },
-                          child: Icon(post.isSavePost == false ? Icons.thumb_up_alt_outlined : Icons.thumb_up, size: 18),
+                          child: Icon(post.isLikePost == false ? Icons.thumb_up_alt_outlined : Icons.thumb_up, size: 18),
                         ),
                         const SizedBox(width: 4),
                         Text(post.cCount?.userpostlikes?.toString() ?? "0"),

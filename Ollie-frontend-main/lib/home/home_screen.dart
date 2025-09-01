@@ -152,7 +152,7 @@ class _Home_ScreenState extends State<Home_Screen> {
                                     padding: const EdgeInsets.all(3.0),
                                     child: TaskTile(
                                       text: task['taskName'] ?? "No task name",
-                                      isDone: task['isCompleted'] ?? false,
+                                      isDone: task['markAsComplete'] ?? false,
                                       onTap: () => taskController.markTaskAsCompleted(task['id']),
                                     ),
                                   );

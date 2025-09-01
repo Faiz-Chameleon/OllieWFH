@@ -23,6 +23,13 @@ class CareCircleRepository {
     return ApiService.getMethod("${ApiUrls.interestBaseMultiplePost}/$interestId", token: requiredToken);
   }
 
+  Future<Map<String, dynamic>> createdPostByUser() async {
+    final storage = FlutterSecureStorage();
+    final requiredToken = await storage.read(key: 'userToken');
+
+    return ApiService.getMethod(ApiUrls.onlyYourPost, token: requiredToken);
+  }
+
   Future<Map<String, dynamic>> getYourPostAsPerYourInterest() async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
@@ -34,6 +41,12 @@ class CareCircleRepository {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
     return ApiService.getMethod(ApiUrls.getBlogsTopics, token: requiredToken);
+  }
+
+  Future<Map<String, dynamic>> getSavedPosts() async {
+    final storage = FlutterSecureStorage();
+    final requiredToken = await storage.read(key: 'userToken');
+    return ApiService.getMethod(ApiUrls.getSavePost, token: requiredToken);
   }
 
   Future<Map<String, dynamic>> getYourInterestedTopics() async {

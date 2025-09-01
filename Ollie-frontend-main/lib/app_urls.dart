@@ -3,7 +3,7 @@ class ApiUrls {
   // http://192.168.1.20:3000/api/v1
   // http://3.96.202.108/api/v1
   //http://3.96.158.243/api/v1
-  static const String baseUrl = 'http://3.96.158.243/api/v1';
+  static const String baseUrl = 'https://api.theollie.app/api/v1';
   static const String registerApi = "/user/auth/userRegister";
   static const String verifyOTPApi = "/user/auth/userVerifyOtp";
   static const String getInterest = "/user/auth/getInterest";
@@ -19,6 +19,7 @@ class ApiUrls {
   static const String markTaskAsComplete = "/user/task/markAsCompletedTask";
   static const String getBlogsByCategory = "/user/blog/getBlogByType";
   static const String getBlogsTopics = "/user/blog/getAllTopics";
+  static const String getSavePost = "/user/blog/showSaveBlog";
   static const String getYourInterestedTopics = "/user/blog/getFavoriteTopics";
   static const String getLatestBlogs = "/user/blog/getAllLatestBlog";
   static const String getBlogsByTopics = "/user/blog/getAllBlogByTopics";
@@ -55,6 +56,7 @@ class ApiUrls {
   static const String joinGroupChatRoom = "/user/chat/addParticipantinChatRoom";
   static const String postOnYourInteres = "/user/post/showAllPostByUserSelectedInterest";
   static const String interestBaseMultiplePost = "/user/post/showAllPostByInterest";
+  static const String onlyYourPost = "/user/post/showUserAllPost";
   static const String createUserPost = "/user/post/createUserPost";
   static const String getMe = "/user/auth/getMe";
 }

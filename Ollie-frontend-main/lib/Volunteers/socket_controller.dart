@@ -12,7 +12,7 @@ class SocketController extends GetxController {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
     socket = IO.io(
-      'http://3.96.202.108',
+      'https://api.theollie.app',
       IO.OptionBuilder().setTransports(['websocket']).setExtraHeaders({'Authorization': 'Bearer $requiredToken'}).build(),
     );
 
