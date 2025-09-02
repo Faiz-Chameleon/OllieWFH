@@ -62,7 +62,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
                 child: _groupCard(
                   group.name ?? "",
                   "${group.memberCount.toString()}+",
-                  "View",
+                  "Join",
                   group.image ?? "",
                   group.participants?.users ?? [],
                   joined: true,
@@ -80,7 +80,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
     List<String> memberImages = members.isNotEmpty ? membersImages.take(2).map((p) => p.image ?? "").toList() : [];
     return Container(
       width: 195.w,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -93,12 +93,12 @@ class _GroupListScreenState extends State<GroupListScreen> {
             borderRadius: BorderRadius.circular(8),
             child: Image.network(
               imagePath,
-              height: 80,
+              height: 80.h,
               width: double.infinity,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
-                  height: 80,
+                  height: 80.h,
                   width: double.infinity,
                   color: Colors.grey[300],
                   child: Icon(Icons.broken_image, color: Colors.grey[700]),
@@ -106,20 +106,20 @@ class _GroupListScreenState extends State<GroupListScreen> {
               },
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           SizedBox(
             width: 170.w,
             height: 50,
             child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
           SizedBox(
-            height: 25,
+            height: 35.h,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SizedBox(
-                  width: 60,
+                  width: 60.w,
                   child: Stack(
                     children: [
                       if (memberImages.isNotEmpty)

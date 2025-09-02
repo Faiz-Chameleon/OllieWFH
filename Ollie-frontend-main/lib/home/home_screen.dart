@@ -13,7 +13,7 @@ import 'package:ollie/Volunteers/socket_controller.dart';
 import 'package:ollie/home/Dailytask/easy_date_picker_controller.dart';
 import 'package:ollie/home/Dailytask/easy_date_picker_demo.dart';
 import 'package:ollie/home/HomeController.dart';
-import 'package:ollie/home/Dailytask/daily_task_screen.dart';
+
 import 'package:ollie/home/notifications/notificatins_screen.dart';
 import 'package:ollie/home/sos/sos_screen.dart';
 import 'package:ollie/myprofile/my_profile_screen.dart';

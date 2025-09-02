@@ -145,7 +145,7 @@ class Users {
 
 class LastMessage {
   String? id;
-  Null? content;
+  String? content;
   String? attachmentUrl;
   String? attachmentType;
   String? chatRoomId;
@@ -199,7 +199,7 @@ class Sender {
   String? id;
   String? firstName;
   String? lastName;
-  Null? image;
+  String? image;
 
   Sender({this.id, this.firstName, this.lastName, this.image});
 

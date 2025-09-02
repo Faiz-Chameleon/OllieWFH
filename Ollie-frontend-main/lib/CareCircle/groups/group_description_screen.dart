@@ -16,78 +16,81 @@ class GroupDescriptionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: BGcolor,
-      body: Column(
-        children: [
-          Expanded(
-            child: SafeArea(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      40.verticalSpace,
-                      GestureDetector(
-                        onTap: () => Get.back(),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.arrow_back, color: Colors.black),
-                            SizedBox(width: 8),
-                            Text("Create new group", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                          ],
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: BGcolor,
+        body: Column(
+          children: [
+            Expanded(
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        40.verticalSpace,
+                        GestureDetector(
+                          onTap: () => Get.back(),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.arrow_back, color: Colors.black),
+                              SizedBox(width: 8),
+                              Text("Create new group", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                            ],
+                          ),
                         ),
-                      ),
-                      30.verticalSpace,
-                      Text(
-                        "Add group\ndescription",
-                        style: TextStyle(color: HeadingColor, fontSize: 34.sp, fontWeight: FontWeight.bold),
-                      ),
-                      30.verticalSpace,
-                      TextField(
-                        controller: controller.descriptionController,
-                        onChanged: (val) => controller.description.value = val,
-                        maxLines: 5,
-                        minLines: 4,
-                        style: const TextStyle(fontSize: 14),
-                        decoration: InputDecoration(
-                          hintText: "Add a description",
-                          filled: true,
-                          fillColor: const Color(0xFFF4EAD5),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                        30.verticalSpace,
+                        Text(
+                          "Add group\ndescription",
+                          style: TextStyle(color: HeadingColor, fontSize: 34.sp, fontWeight: FontWeight.bold),
                         ),
-                      ),
-                      20.verticalSpace,
-                      Obx(() {
-                        final isActive = controller.description.value.trim().isNotEmpty;
-                        return CustomButton(
-                          text: "Next",
-                          onPressed: isActive
-                              ? () {
-                                  print("Description: ${controller.description.value}");
-                                  Get.to(() => GroupReviewScreen(), transition: Transition.fadeIn);
-                                }
-                              : null,
-                          height: 50.h,
-                          color: isActive ? buttonColor : const Color(0xFFD6CCBC),
-                          textColor: isActive ? Colors.white : Colors.grey,
-                          width: double.infinity,
-                        );
-                      }),
-                      50.verticalSpace,
-                    ],
+                        30.verticalSpace,
+                        TextField(
+                          controller: controller.descriptionController,
+                          onChanged: (val) => controller.description.value = val,
+                          maxLines: 5,
+                          minLines: 4,
+                          style: const TextStyle(fontSize: 14),
+                          decoration: InputDecoration(
+                            hintText: "Add a description",
+                            filled: true,
+                            fillColor: const Color(0xFFF4EAD5),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                          ),
+                        ),
+                        20.verticalSpace,
+                        Obx(() {
+                          final isActive = controller.description.value.trim().isNotEmpty;
+                          return CustomButton(
+                            text: "Next",
+                            onPressed: isActive
+                                ? () {
+                                    print("Description: ${controller.description.value}");
+                                    Get.to(() => GroupReviewScreen(), transition: Transition.fadeIn);
+                                  }
+                                : null,
+                            height: 50.h,
+                            color: isActive ? buttonColor : const Color(0xFFD6CCBC),
+                            textColor: isActive ? Colors.white : Colors.grey,
+                            width: double.infinity,
+                          );
+                        }),
+                        50.verticalSpace,
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
 
-          // Bottom smiley image
-          Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
-        ],
+            // Bottom smiley image
+            Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
+          ],
+        ),
       ),
     );
   }

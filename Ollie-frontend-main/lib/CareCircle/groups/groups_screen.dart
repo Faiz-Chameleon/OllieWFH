@@ -224,7 +224,7 @@ class Group_Screen extends StatelessWidget {
     List<String> memberImages = members.isNotEmpty ? membersImages.take(2).map((p) => p.image ?? "").toList() : [];
     return Container(
       width: 195.w,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -237,12 +237,12 @@ class Group_Screen extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             child: Image.network(
               imagePath,
-              height: 80,
+              height: 80.h,
               width: double.infinity,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
-                  height: 80,
+                  height: 80.h,
                   width: double.infinity,
                   color: Colors.grey[300],
                   child: Icon(Icons.broken_image, color: Colors.grey[700]),
@@ -250,13 +250,13 @@ class Group_Screen extends StatelessWidget {
               },
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           SizedBox(
             width: 170.w,
-            height: 50,
+            height: 50.h,
             child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
           SizedBox(
             height: 25,
             child: Row(

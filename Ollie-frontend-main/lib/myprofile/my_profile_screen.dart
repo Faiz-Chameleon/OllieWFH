@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/Constants/constants.dart';
+import 'package:ollie/myprofile/delete_account_dialouge.dart';
 import '../Subscription/credits/credits_sreen.dart';
 import '../Subscription/wallet/wallet_screen.dart';
 import 'edit_profile_screen.dart';
@@ -155,6 +156,20 @@ class MyProfileScreen extends StatelessWidget {
             _buildTile("Support", "Reach out for assistance anytime.", () => print("Support")),
             _buildTile("Privacy Policy", "Learn how we protect your information.", () => print("Privacy Policy")),
             _buildTile("Terms and Conditions", "Understand the terms of using Ollie.", () => print("Terms")),
+
+            const SizedBox(height: 24),
+            const Text("Delete Account", style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            ListTile(
+              onTap: () {
+                showDeleteAccountDialog(context);
+              },
+              title: Text("Delete Account"),
+              // subtitle: Text(""),
+              // trailing: const Icon(Icons.chevron_right),
+              tileColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
             const SizedBox(height: 45),
           ],
         ),

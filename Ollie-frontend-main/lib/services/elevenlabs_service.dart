@@ -6,7 +6,8 @@ import 'package:path_provider/path_provider.dart';
 
 class ElevenLabsService {
   static const String _baseUrl = 'https://api.elevenlabs.io/v1';
-  static const String _apiKey = 'sk_17ea44ebc250eed72a654a1a7f167bec8ecb9b3132dc5466'; // Replace with your actual API key
+  static const String _apiKey = 'sk_9397cfffae1c9e05795c482352f9b1d546ab90a3f2308fcd';
+  // sk_17ea44ebc250eed72a654a1a7f167bec8ecb9b3132dc5466'; // Replace with your actual API key
 
   AudioPlayer? _audioPlayer;
 
@@ -35,7 +36,7 @@ class ElevenLabsService {
   }) async {
     try {
       // Check if API key is configured
-      if (_apiKey == 'YOUR_ELEVENLABS_API_KEY') {
+      if (_apiKey == 'sk_9397cfffae1c9e05795c482352f9b1d546ab90a3f2308fcd') {
         print('Warning: ElevenLabs API key not configured. Using mock response.');
         return null;
       }

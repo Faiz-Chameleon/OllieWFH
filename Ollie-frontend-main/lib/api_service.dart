@@ -216,4 +216,26 @@ class ApiService {
       return {'success': false, 'message': e.toString()};
     }
   }
+
+  static Future<Map<String, dynamic>> deleteMethod(String endpoint, {Map<String, dynamic> data = const {}, String? token}) async {
+    var headers = {'Content-Type': 'application/json', if (token != null) 'x-access-token': token};
+
+    var request = http.Request('DELETE', Uri.parse('${ApiUrls.baseUrl}$endpoint'));
+    request.body = json.encode(data);
+    request.headers.addAll(headers);
+
+    try {
+      http.StreamedResponse response = await request.send();
+      final responseString = await response.stream.bytesToString();
+      final parsed = json.decode(responseString);
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return {'success': true, 'data': parsed['data'], 'message': parsed['message'] ?? ''};
+      } else {
+        return {'success': false, 'message': parsed['message'] ?? 'Something went wrong'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': e.toString()};
+    }
+  }
 }

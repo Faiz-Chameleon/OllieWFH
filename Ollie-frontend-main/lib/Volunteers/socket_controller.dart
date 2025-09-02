@@ -2,6 +2,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
+//liveurl https://api.theollie.app
+
 class SocketController extends GetxController {
   late IO.Socket socket;
   var isConnected = false.obs;
@@ -12,7 +14,7 @@ class SocketController extends GetxController {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
     socket = IO.io(
-      'https://api.theollie.app',
+      'http://192.168.1.2:3000',
       IO.OptionBuilder().setTransports(['websocket']).setExtraHeaders({'Authorization': 'Bearer $requiredToken'}).build(),
     );
 

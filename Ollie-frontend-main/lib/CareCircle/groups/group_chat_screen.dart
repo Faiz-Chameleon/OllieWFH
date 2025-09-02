@@ -118,7 +118,12 @@ class _GrouoChatScreenState extends State<GrouoChatScreen> {
           },
           child: Row(
             children: [
-              const CircleAvatar(radius: 16, backgroundImage: AssetImage("assets/icons/Group 1000000907 (1).png")),
+              CircleAvatar(
+                radius: 16,
+                backgroundImage: widget.groupDetails.image != null && widget.groupDetails.image!.isNotEmpty
+                    ? NetworkImage(widget.groupDetails.image!)
+                    : AssetImage('assets/icons/Group 1000000907 (1).png') as ImageProvider,
+              ),
               const SizedBox(width: 8),
               Text(
                 widget.userName,

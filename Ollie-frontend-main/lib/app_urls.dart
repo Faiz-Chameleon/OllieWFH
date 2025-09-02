@@ -3,7 +3,8 @@ class ApiUrls {
   // http://192.168.1.20:3000/api/v1
   // http://3.96.202.108/api/v1
   //http://3.96.158.243/api/v1
-  static const String baseUrl = 'https://api.theollie.app/api/v1';
+  // liveURL https://api.theollie.app/api/v1
+  static const String baseUrl = 'http://192.168.1.2:3000/api/v1';
   static const String registerApi = "/user/auth/userRegister";
   static const String verifyOTPApi = "/user/auth/userVerifyOtp";
   static const String getInterest = "/user/auth/getInterest";
@@ -13,6 +14,7 @@ class ApiUrls {
   static const String loginUser = "/user/auth/userLogin";
   static const String createProfile = "/user/auth/createProfile";
   static const String createTask = "/user/task/createUserTask";
+  static const String deleteAccount = "/user/auth/userDeleteAcccount";
   static const String getAllUserTask = "/user/task/getAllUserTask";
   static const String getByDateTask = "/user/task/getTaskByDate";
 

@@ -6,7 +6,8 @@ class ChatbotService {
   // Examples: OpenAI, Claude, or your own AI backend
   //wsec_09f408131472d6767be8084ef61c284785e9c3f05e540ed8b9ebc02a337bfdaf
 
-  static const String _apiKey = 'sk_17ea44ebc250eed72a654a1a7f167bec8ecb9b3132dc5466'; // Replace with your AI service API key
+  static const String _apiKey = 'sk_9397cfffae1c9e05795c482352f9b1d546ab90a3f2308fcd';
+  // sk_17ea44ebc250eed72a654a1a7f167bec8ecb9b3132dc5466'; // Replace with your AI service API key
   static const String _apiUrl = 'https://api.openai.com/v1/chat/completions'; // Example OpenAI endpoint
 
   // Simple response system for demonstration
