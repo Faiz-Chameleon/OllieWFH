@@ -63,7 +63,12 @@ class _VolunteersScreenState extends State<VolunteersScreen> {
                     final name = volunteers[index];
                     return Obx(() {
                       return ListTile(
-                        leading: const CircleAvatar(backgroundColor: Colors.brown),
+                        leading: CircleAvatar(
+                          radius: 16,
+                          backgroundImage: (widget.controller.voluntersRequestsList[index].volunteer?.image?.isNotEmpty ?? false)
+                              ? NetworkImage(widget.controller.voluntersRequestsList[index].volunteer?.image ?? "")
+                              : AssetImage('assets/icons/Group 1000000907 (1).png') as ImageProvider,
+                        ),
                         title: Text(
                           " ${widget.controller.voluntersRequestsList[index].volunteer?.firstName} ${widget.controller.voluntersRequestsList[index].volunteer?.lastName} "
                           "",
@@ -117,7 +122,12 @@ class _VolunteersScreenState extends State<VolunteersScreen> {
                               onTap: () async {
                                 var data = {"userId": widget.controller.voluntersRequestsList[index].volunteerId.toString() ?? ""};
                                 await chatController.createOneOnOneChat(data).then((value) {
-                                  Get.to(() => ChatScreen(userName: ''));
+                                  Get.to(
+                                    () => ChatScreen(
+                                      userName: widget.controller.voluntersRequestsList[index].volunteer?.firstName ?? "",
+                                      userImage: widget.controller.voluntersRequestsList[index].volunteer?.image ?? "",
+                                    ),
+                                  );
                                 });
                               },
                               child: const Icon(Icons.chat, color: Colors.black),

@@ -12,8 +12,7 @@ import 'package:ollie/Models/assistance_reasons_model.dart';
 import 'package:ollie/request_status.dart';
 
 class Assistance_Controller extends GetxController {
-  final AssistanceRepository createAssistanceRepository =
-      AssistanceRepository();
+  final AssistanceRepository createAssistanceRepository = AssistanceRepository();
 
   final TextEditingController descriptionController = TextEditingController();
   final RxBool isExpanded = false.obs;
@@ -50,18 +49,14 @@ class Assistance_Controller extends GetxController {
       selectedTime.value.minute,
     );
 
-    formattedDateAndTime.value = combinedDateTime
-        .toUtc()
-        .toIso8601String()
-        .toString();
+    formattedDateAndTime.value = combinedDateTime.toUtc().toIso8601String().toString();
 
     print("dateAndTime: $formattedDateAndTime");
   }
 
   RxString formattedDateAndTime = "".obs;
 
-  String get formattedDate =>
-      DateFormat('dd-MMM-yyyy').format(selectedDate.value);
+  String get formattedDate => DateFormat('dd-MMM-yyyy').format(selectedDate.value);
 
   String get formattedTime {
     final time = selectedTime.value;
@@ -73,15 +68,24 @@ class Assistance_Controller extends GetxController {
 
   Future<void> setLocationFromLatLng(LatLng latLng) async {
     selectedLatLng.value = latLng;
-    final placemarks = await placemarkFromCoordinates(
-      latLng.latitude,
-      latLng.longitude,
-    );
+    final placemarks = await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
     if (placemarks.isNotEmpty) {
       final p = placemarks.first;
-      selectedAddress.value =
-          "${p.street}, ${p.locality}, ${p.administrativeArea} ${p.postalCode}";
+      selectedAddress.value = "${p.street}, ${p.locality}, ${p.administrativeArea} ${p.postalCode}";
     }
+  }
+
+  clearAssistanceData() {
+    descriptionController.clear();
+    selectedDate.value = DateTime.now();
+    selectedTime.value = TimeOfDay.now();
+    selectedAddress.value = '';
+    selectedLatLng.value = null;
+    selectedLatitude.value = 0.0;
+    selectedLongitude.value = 0.0;
+    selectedCategories.clear();
+    selectedVolunteer.value = '';
+    formattedDateAndTime.value = '';
   }
 
   var createAssistanceStatus = RequestStatus.idle.obs;
@@ -92,10 +96,11 @@ class Assistance_Controller extends GetxController {
     final result = await createAssistanceRepository.userCreateAssistance(data);
 
     if (result['success'] == true) {
+      clearAssistanceData();
       createAssistanceStatus.value = RequestStatus.success;
       final bottomController = Get.find<Bottomcontroller>();
-      bottomController.updateIndex(4);
-      Get.to(() => ConvexStyledBarScreen(), transition: Transition.fadeIn);
+      bottomController.updateIndex(1);
+      Get.offAll(() => ConvexStyledBarScreen(), transition: Transition.fadeIn);
     } else {
       createAssistanceStatus.value = RequestStatus.error;
 
@@ -127,9 +132,7 @@ class Assistance_Controller extends GetxController {
     final result = await createAssistanceRepository.getEachAssistanceReasons();
 
     if (result['success'] == true) {
-      categories = (result['data'] as List)
-          .map((data) => AssistanceReasonsData.fromJson(data))
-          .toList();
+      categories = (result['data'] as List).map((data) => AssistanceReasonsData.fromJson(data)).toList();
       getReasonsForAssistanceStatus.value = RequestStatus.success;
     } else {
       getReasonsForAssistanceStatus.value = RequestStatus.error;

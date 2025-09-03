@@ -12,7 +12,8 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class ChatScreen extends StatefulWidget {
   final String userName;
-  const ChatScreen({super.key, required this.userName});
+  final String userImage;
+  const ChatScreen({super.key, required this.userName, required this.userImage});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -110,31 +111,37 @@ class _ChatScreenState extends State<ChatScreen> {
         leading: const BackButton(color: Colors.black),
         title: Row(
           children: [
-            const CircleAvatar(radius: 16, backgroundImage: AssetImage("assets/icons/Group 1000000907 (1).png")),
+            CircleAvatar(
+              radius: 16,
+              backgroundImage: widget.userImage != null && widget.userImage.isNotEmpty
+                  ? NetworkImage(widget.userImage)
+                  : AssetImage('assets/icons/Group 1000000907 (1).png') as ImageProvider,
+            ),
+
             const SizedBox(width: 8),
             Text(
               widget.userName,
               style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
             ),
-            const Spacer(),
-            Obx(() {
-              final selected = isSelected.value;
-              return GestureDetector(
-                onTap: () => isSelected.toggle(),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: selected ? const Color(0xFFF4BD2A) : Colors.transparent,
-                    border: Border.all(color: const Color(0xFFF4BD2A)),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Text(
-                    selected ? "Selected" : "Select",
-                    style: TextStyle(fontWeight: FontWeight.w500, color: selected ? Colors.black : const Color(0xFF9C7D4A), fontSize: 18.sp),
-                  ),
-                ),
-              );
-            }),
+            // const Spacer(),
+            // Obx(() {
+            //   final selected = isSelected.value;
+            //   return GestureDetector(
+            //     onTap: () => isSelected.toggle(),
+            //     child: Container(
+            //       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+            //       decoration: BoxDecoration(
+            //         color: selected ? const Color(0xFFF4BD2A) : Colors.transparent,
+            //         border: Border.all(color: const Color(0xFFF4BD2A)),
+            //         borderRadius: BorderRadius.circular(30),
+            //       ),
+            //       child: Text(
+            //         selected ? "Selected" : "Select",
+            //         style: TextStyle(fontWeight: FontWeight.w500, color: selected ? Colors.black : const Color(0xFF9C7D4A), fontSize: 18.sp),
+            //       ),
+            //     ),
+            //   );
+            // }),
           ],
         ),
       ),

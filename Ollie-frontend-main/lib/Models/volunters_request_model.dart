@@ -36,15 +36,7 @@ class VolunterRequestsData {
   Post? post;
   Volunteer? volunteer;
 
-  VolunterRequestsData({
-    this.id,
-    this.postId,
-    this.volunteerId,
-    this.status,
-    this.createdAt,
-    this.post,
-    this.volunteer,
-  });
+  VolunterRequestsData({this.id, this.postId, this.volunteerId, this.status, this.createdAt, this.post, this.volunteer});
 
   VolunterRequestsData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -53,9 +45,7 @@ class VolunterRequestsData {
     status = json['status'];
     createdAt = json['createdAt'];
     post = json['post'] != null ? new Post.fromJson(json['post']) : null;
-    volunteer = json['volunteer'] != null
-        ? new Volunteer.fromJson(json['volunteer'])
-        : null;
+    volunteer = json['volunteer'] != null ? new Volunteer.fromJson(json['volunteer']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -84,15 +74,7 @@ class Post {
   String? status;
   String? userId;
 
-  Post({
-    this.id,
-    this.scheduledAt,
-    this.description,
-    this.latitude,
-    this.longitude,
-    this.status,
-    this.userId,
-  });
+  Post({this.id, this.scheduledAt, this.description, this.latitude, this.longitude, this.status, this.userId});
 
   Post.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -129,7 +111,7 @@ class Volunteer {
   String? deviceType;
   String? deviceToken;
   bool? isCreatedProfile;
-  Null? image;
+  String? image;
   String? city;
   String? country;
   String? states;

@@ -50,6 +50,7 @@ class ApiUrls {
   static const String getRequestOfVolunteers = "/user/postrequest/getAllVolenteerRequest";
   static const String acceptVoluntersRequest = "/user/postrequest/acceptVolunteerRequest";
   static const String completeAssistanceByOwner = "/user/postrequest/confirmTaskCompletedByOwner";
+  static const String reportPost = "/user/post/userReportPost";
   static const String createChatRoom = "/user/chat/createOneToOneChatRoom";
   static const String sendAttachementOnChatRoom = "/user/chat/uplaodAttachment";
   static const String createGroups = "/user/chat/createGroupChatRoom";

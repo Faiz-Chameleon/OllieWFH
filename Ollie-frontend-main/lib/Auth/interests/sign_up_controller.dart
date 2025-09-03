@@ -19,16 +19,7 @@ class SignUpController extends GetxController {
 
   final RxString selectedRole = ''.obs;
 
-  final List<String> roleOptions = [
-    'Mom',
-    'Dad',
-    'Auntie',
-    'Uncle',
-    'Grandma',
-    'Grandpa',
-    'Nanny',
-    'Other',
-  ];
+  final List<String> roleOptions = ['Mom', 'Dad', 'Auntie', 'Uncle', 'Grandma', 'Grandpa', 'Nanny', 'Other'];
 
   void selectRole(String role) {
     selectedRole.value = role;
@@ -43,16 +34,10 @@ class SignUpController extends GetxController {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: kprimaryColor,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
+            colorScheme: ColorScheme.light(primary: kprimaryColor, onPrimary: Colors.white, onSurface: Colors.black),
             // ignore: deprecated_member_use
             dialogBackgroundColor: Colors.white,
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: kprimaryColor),
-            ),
+            textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: kprimaryColor)),
           ),
           child: child!,
         );
@@ -74,10 +59,7 @@ class SignUpController extends GetxController {
     if (result['success'] == true) {
       registerStatus.value = RequestStatus.success;
 
-      Get.to(
-        () => Otp_Screen(comesFromWhere: "fromSignUp"),
-        transition: Transition.fadeIn,
-      );
+      Get.to(() => Otp_Screen(comesFromWhere: "fromSignUp"), transition: Transition.fadeIn);
 
       Get.snackbar("Success", result['message'] ?? "User registered");
     } else {

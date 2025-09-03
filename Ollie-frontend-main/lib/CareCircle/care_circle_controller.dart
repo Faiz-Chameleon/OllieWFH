@@ -343,6 +343,7 @@ class CareCircleController extends GetxController {
     final result = await careCircleRepository.acceptRequestOnAssistance(assistancId, data);
     if (result['success'] == true) {
       data["action"] == "reject" ? voluntersRequestsList.removeAt(index) : voluntersRequestsList[index].status = "ReachOut";
+      voluntersRequestsList.refresh();
       acceptVolunterRequestStatus.value = RequestStatus.success;
       Get.snackbar("Success", result['message'] ?? "");
     } else {
@@ -609,6 +610,20 @@ class CareCircleController extends GetxController {
 
       Get.snackbar("Error", result['message'] ?? "message required frontend");
     }
+  }
+
+  var reportPostRequestStatus = RequestStatus.idle.obs;
+  Future<void> postReport(String postId) async {
+    reportPostRequestStatus.value = RequestStatus.loading;
+    final result = await careCircleRepository.userReportPost(postId);
+    if (result['success'] == true) {
+      reportPostRequestStatus.value = RequestStatus.success;
+      Get.snackbar("Success", result['message'] ?? "");
+    } else {
+      reportPostRequestStatus.value = RequestStatus.error;
+      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+    }
+    taskCompleted.value = true;
   }
 }
 //likePost

@@ -69,6 +69,7 @@ dependencies:
   path_provider: ^2.1.2
   web_socket_channel: ^2.4.0
   flutter_image_compress: ^2.4.0
+  country_state_city_picker_2: ^1.0.5
 
 
 dev_dependencies:

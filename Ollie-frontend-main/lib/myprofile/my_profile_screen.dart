@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/myprofile/delete_account_dialouge.dart';
+import 'package:ollie/myprofile/details_privacy_screen.dart';
 import '../Subscription/credits/credits_sreen.dart';
 import '../Subscription/wallet/wallet_screen.dart';
 import 'edit_profile_screen.dart';
@@ -141,14 +142,16 @@ class MyProfileScreen extends StatelessWidget {
             const Text("General", style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             _buildTile(
-              "Edit",
+              "Edit Profile",
               "Adjust your preferences and personal details.",
               () => Get.to(() => EditProfileScreen(), transition: Transition.fadeIn),
             ),
 
-            _buildTile("Privacy", "Manage what you share and how we protect it.", () => print("Privacy")),
-            _buildTile("Account", "Manage your profile and preferences.", () => print("Account")),
+            _buildTile("Privacy", "Manage what you share and how we protect it.", () {
+              Get.to(() => PrivacySecurityScreen());
+            }),
 
+            // _buildTile("Account", "Manage your profile and preferences.", () => print("Account")),
             const SizedBox(height: 24),
             const Text("Help", style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
@@ -165,6 +168,19 @@ class MyProfileScreen extends StatelessWidget {
                 showDeleteAccountDialog(context);
               },
               title: Text("Delete Account"),
+              // subtitle: Text(""),
+              // trailing: const Icon(Icons.chevron_right),
+              tileColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+            const SizedBox(height: 24),
+            const Text("Logout", style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            ListTile(
+              onTap: () {
+                userController.logout();
+              },
+              title: Text("Logout"),
               // subtitle: Text(""),
               // trailing: const Icon(Icons.chevron_right),
               tileColor: Colors.white,

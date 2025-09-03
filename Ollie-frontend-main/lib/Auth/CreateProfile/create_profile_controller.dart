@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:ollie/Auth/auth_repository.dart';
+import 'package:ollie/Auth/interests/Interests_controller.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/HomeMain/HomeMain.dart';
@@ -12,6 +13,9 @@ import 'package:ollie/Models/user_model.dart';
 import 'package:ollie/request_status.dart';
 
 class CreateProfileController extends GetxController {
+  RxString countryValue = "".obs;
+  RxString stateValue = "".obs;
+  RxString cityValue = "".obs;
   final AuthRepository authRepository = AuthRepository();
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
@@ -54,12 +58,29 @@ class CreateProfileController extends GetxController {
 
   var createProfileStatus = RequestStatus.idle.obs;
 
+  clearFields() {
+    final interestController = Get.put(InterestController());
+
+    firstNameController.clear();
+    lastNameController.clear();
+    formattedDateString.value = "";
+    selectedGender.value = "";
+    cityValue.value = "";
+    stateValue.value = "";
+    countryValue.value = "";
+
+    interestController.selectedPhoneNumber.value = "";
+    interestController.selectedAnswer.value = false;
+    interestController.dailyActivityAnswer.value = false;
+  }
+
   void userProfile(data) async {
     createProfileStatus.value = RequestStatus.loading;
 
     final result = await authRepository.createProfile(data);
 
     if (result['success'] == true) {
+      clearFields();
       final userModel = UserModel.fromJson(result);
       final userController = Get.put(UserController());
       if (userModel.data != null) {

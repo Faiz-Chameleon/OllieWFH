@@ -22,10 +22,7 @@ class FinalScreen extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/images/2094.png"),
-            fit: BoxFit.cover,
-          ),
+          image: DecorationImage(image: AssetImage("assets/images/2094.png"), fit: BoxFit.cover),
         ),
         child: SafeArea(
           child: Column(
@@ -40,49 +37,31 @@ class FinalScreen extends StatelessWidget {
                     Text(
                       "That’s it! Ollie’s\ngot your back.\nLet’s begin!",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 55.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
-                      ),
+                      style: TextStyle(fontSize: 55.sp, fontWeight: FontWeight.w700, color: Colors.black),
                     ),
                     30.verticalSpace,
                     Obx(() {
-                      if (controller.createProfileStatus.value ==
-                          RequestStatus.loading) {
+                      if (controller.createProfileStatus.value == RequestStatus.loading) {
                         return CircularProgressIndicator();
                       }
                       return CustomButton(
                         text: "Next",
                         onPressed: () {
                           var data = {
-                            "userPhoneNumber":
-                                controller.phoneController.value.text,
-                            "userFirstName":
-                                controller.firstNameController.value.text,
-                            "userLastName":
-                                controller.lastNameController.value.text,
-                            "userDateOfBirth": controller
-                                .formattedDateString
-                                .value
-                                .toString(),
-                            "userGender": controller.selectedGender.value
-                                .toUpperCase(),
-                            "interest": interestController.selectedInterestIds
-                                .toList(),
+                            "userPhoneNumber": controller.phoneController.value.text,
+                            "userFirstName": controller.firstNameController.value.text,
+                            "userLastName": controller.lastNameController.value.text,
+                            "userDateOfBirth": controller.formattedDateString.value.toString(),
+                            "userGender": controller.selectedGender.value.toUpperCase(),
+                            "interest": interestController.selectedInterestIds.toList(),
                             "userDeviceToken": "test",
-                            "userDeviceType": Platform.isAndroid
-                                ? "ANDROID"
-                                : "IOS",
-                            "emergencyContactNumber":
-                                interestController.selectedPhoneNumber.value,
-                            "wantDailyActivities":
-                                interestController.selectedAnswer.value,
-                            "wantDailySupplement":
-                                interestController.dailyActivityAnswer.value,
-                            "userCity": "SanFrancisco",
-                            "userStates": "California",
-                            "userCountry": "USA",
+                            "userDeviceType": Platform.isAndroid ? "ANDROID" : "IOS",
+                            "emergencyContactNumber": interestController.selectedPhoneNumber.value,
+                            "wantDailyActivities": interestController.selectedAnswer.value,
+                            "wantDailySupplement": interestController.dailyActivityAnswer.value,
+                            "userCity": controller.cityValue.value,
+                            "userStates": controller.stateValue.value,
+                            "userCountry": controller.countryValue.value,
                           };
                           print(data);
                           controller.userProfile(data);

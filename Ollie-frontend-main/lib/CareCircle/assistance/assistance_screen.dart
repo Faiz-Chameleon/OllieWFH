@@ -802,36 +802,35 @@ class _Assistance_screenState extends State<Assistance_screen> {
                             //         ),
                             //       )
                             //     :
-                            ElevatedButton(
-                              onPressed: () async {
-                                widget.controller.postLoadingStatus[index].value = true;
-                                if (otherAssistanceData.status == "NoRequest") {
-                                  await widget.controller.reachOutOnAssistance(otherAssistanceData.id ?? "", index);
-                                } else if (otherAssistanceData.status == "VolunteerRequestSent") {
-                                  widget.controller.completeAssistanceByVolunter(otherAssistanceData.id ?? "");
-                                }
+                            Obx(() {
+                              return ElevatedButton(
+                                onPressed: () async {
+                                  widget.controller.postLoadingStatus[index].value = true;
+                                  if (otherAssistanceData.status == "NoRequest") {
+                                    await widget.controller.reachOutOnAssistance(otherAssistanceData.id ?? "", index);
+                                  } else if (otherAssistanceData.status == "ReachOut") {
+                                    widget.controller.completeAssistanceByVolunter(otherAssistanceData.id ?? "");
+                                  }
 
-                                widget.controller.postLoadingStatus[index].value = false;
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: otherAssistanceData.status == "NoRequest" ? const Color(0xFFF4BD2A) : Colors.green,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                              ),
-                              child: Obx(() {
-                                if (widget.controller.postLoadingStatus[index].value) {
-                                  return const CircularProgressIndicator();
-                                }
-                                return Text(
-                                  otherAssistanceData.status == "NoRequest" ? "Reach Out" : " Volunter Request Sent",
-                                  style: TextStyle(color: Colors.black),
-                                );
-                              }),
-                            ),
+                                  widget.controller.postLoadingStatus[index].value = false;
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: otherAssistanceData.status == "NoRequest" ? const Color(0xFFF4BD2A) : Colors.green,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                ),
+                                child: widget.controller.postLoadingStatus[index].value
+                                    ? const CircularProgressIndicator()
+                                    : Text(
+                                        otherAssistanceData.status == "NoRequest" ? "Reach Out" : " Volunter Request Sent",
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                              );
+                            }),
                             GestureDetector(
                               onTap: () async {
                                 var data = {"userId": otherAssistanceData.user?.id.toString() ?? ""};
                                 await chatController.createOneOnOneChat(data).then((value) {
-                                  Get.to(() => ChatScreen(userName: ''));
+                                  Get.to(() => ChatScreen(userName: '', userImage: ''));
                                 });
                               },
                               child: Obx(() {
@@ -974,7 +973,7 @@ class _Assistance_screenState extends State<Assistance_screen> {
                                   createdAssistanceRequest.status == "NoRequest"
                                       ? "No Request Received"
                                       : createdAssistanceRequest.status == "VolunteerRequestSent"
-                                      ? "Requesr Received"
+                                      ? "Request Received"
                                       : "Mark As Complete",
                                   //  : "Task Completed",
                                   style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w600),

@@ -153,7 +153,9 @@ class _Home_ScreenState extends State<Home_Screen> {
                                     child: TaskTile(
                                       text: task['taskName'] ?? "No task name",
                                       isDone: task['markAsComplete'] ?? false,
-                                      onTap: () => taskController.markTaskAsCompleted(task['id']),
+                                      onTap: () {
+                                        // taskController.markTaskAsCompleted(task['id']);
+                                      },
                                     ),
                                   );
                                 }).toList(),

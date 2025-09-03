@@ -101,7 +101,9 @@ class _TopicPostScreenState extends State<TopicPostScreen> {
                         PopupMenuButton(
                           shape: TooltipShapeBorder(),
                           itemBuilder: (context) => [const PopupMenuItem(value: 'report', child: Text("Report"))],
-                          onSelected: (value) {},
+                          onSelected: (value) {
+                            controller.postReport(post.id ?? "");
+                          },
                           icon: const Icon(Icons.more_horiz, color: Colors.grey),
                         ),
                       ],
