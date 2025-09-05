@@ -7,7 +7,9 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/Models/user_model.dart';
+import 'package:ollie/myprofile/my_profile_screen.dart';
 import 'package:ollie/myprofile/profile_repository.dart';
+import 'package:ollie/request_status.dart';
 
 import '../Subscription/wallet/donate_now_screen.dart';
 
@@ -153,6 +155,23 @@ class ProfileController extends GetxController {
     } else {
       // Handle error
       Get.snackbar("Error", response['message']);
+    }
+  }
+
+  var supportTicketStatus = RequestStatus.idle.obs;
+
+  Future<void> userSubmitTicketOnSupport(data) async {
+    supportTicketStatus.value = RequestStatus.loading;
+
+    final result = await _userRepository.supportFeedback(data);
+    if (result['success'] == true) {
+      supportTicketStatus.value = RequestStatus.success;
+      Get.snackbar("Success", result['message'] ?? "message required frontend");
+      Get.close(1);
+    } else {
+      supportTicketStatus.value = RequestStatus.error;
+
+      Get.snackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 }

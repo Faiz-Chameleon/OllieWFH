@@ -5,6 +5,7 @@ import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/myprofile/delete_account_dialouge.dart';
 import 'package:ollie/myprofile/details_privacy_screen.dart';
+import 'package:ollie/myprofile/support_detailed_screen.dart';
 import '../Subscription/credits/credits_sreen.dart';
 import '../Subscription/wallet/wallet_screen.dart';
 import 'edit_profile_screen.dart';
@@ -156,7 +157,9 @@ class MyProfileScreen extends StatelessWidget {
             const Text("Help", style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             _buildTile("FAQs", "Find answers to your most common questions.", () => print("FAQs")),
-            _buildTile("Support", "Reach out for assistance anytime.", () => print("Support")),
+            _buildTile("Support", "Reach out for assistance anytime.", () {
+              Get.to(() => SupportScreen(), transition: Transition.fadeIn);
+            }),
             _buildTile("Privacy Policy", "Learn how we protect your information.", () => print("Privacy Policy")),
             _buildTile("Terms and Conditions", "Understand the terms of using Ollie.", () => print("Terms")),
 

@@ -41,7 +41,7 @@ class OllieChatController extends GetxController {
   void _initializeElevenLabs() async {
     try {
       // You can load available voices here if needed
-      // final voices = await _elevenLabsService.getVoices();
+      final voices = await _elevenLabsService.getVoices();
       // print('Available voices: ${voices.length}');
     } catch (e) {
       print('Error initializing ElevenLabs: $e');

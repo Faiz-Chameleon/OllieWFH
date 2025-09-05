@@ -8,6 +8,7 @@ class ChatbotService {
 
   static const String _apiKey = 'sk_9397cfffae1c9e05795c482352f9b1d546ab90a3f2308fcd';
   // sk_17ea44ebc250eed72a654a1a7f167bec8ecb9b3132dc5466'; // Replace with your AI service API key
+  //wss://api.elevenlabs.io/v1/convai/conversation/stream
   static const String _apiUrl = 'https://api.openai.com/v1/chat/completions'; // Example OpenAI endpoint
 
   // Simple response system for demonstration

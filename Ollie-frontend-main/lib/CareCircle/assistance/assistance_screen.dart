@@ -649,6 +649,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/CareCircle/assistance/select_category_screen.dart';
 import 'package:ollie/CareCircle/care_circle_controller.dart';
 import 'package:ollie/Constants/Constants.dart';
@@ -805,11 +806,33 @@ class _Assistance_screenState extends State<Assistance_screen> {
                             Obx(() {
                               return ElevatedButton(
                                 onPressed: () async {
+                                  var volunterId;
+                                  final userController = Get.put(UserController());
+                                  final String loggedInUserId = userController.user.value?.id ?? '';
+                                  String targetUserId = loggedInUserId;
+                                  String targetStatus = 'ReachOut';
+
+                                  // Get the index of the matching item
+                                  int? foundIndex = otherAssistanceData.volunteerRequests!.indexWhere(
+                                    (item) => item.volunteerId == targetUserId && item.status == targetStatus,
+                                  );
+
+                                  if (foundIndex != -1) {
+                                    var foundId = otherAssistanceData.volunteerRequests![foundIndex].id;
+                                    volunterId = otherAssistanceData.volunteerRequests![foundIndex].id;
+
+                                    print('Found at index: $foundIndex with ID: $foundId');
+
+                                    // Store the ID wherever you need
+                                    // yourStorageVariable = foundId;
+                                  } else {
+                                    print('No item found with userID $targetUserId and status $targetStatus');
+                                  }
                                   widget.controller.postLoadingStatus[index].value = true;
                                   if (otherAssistanceData.status == "NoRequest") {
                                     await widget.controller.reachOutOnAssistance(otherAssistanceData.id ?? "", index);
                                   } else if (otherAssistanceData.status == "ReachOut") {
-                                    widget.controller.completeAssistanceByVolunter(otherAssistanceData.id ?? "");
+                                    widget.controller.completeAssistanceByVolunter(volunterId ?? "");
                                   }
 
                                   widget.controller.postLoadingStatus[index].value = false;
@@ -821,7 +844,11 @@ class _Assistance_screenState extends State<Assistance_screen> {
                                 child: widget.controller.postLoadingStatus[index].value
                                     ? const CircularProgressIndicator()
                                     : Text(
-                                        otherAssistanceData.status == "NoRequest" ? "Reach Out" : " Volunter Request Sent",
+                                        otherAssistanceData.status == "NoRequest"
+                                            ? "Reach Out"
+                                            : otherAssistanceData.status == "MarkAsCompleted"
+                                            ? "Completed"
+                                            : "Volunter Request Sent",
                                         style: TextStyle(color: Colors.black),
                                       ),
                               );
@@ -960,7 +987,26 @@ class _Assistance_screenState extends State<Assistance_screen> {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                widget.controller.completeTaskByOwner(createdAssistanceRequest.id ?? "");
+                                var volunterId;
+                                final userController = Get.put(UserController());
+
+                                String targetStatus = 'MarkAsCompleted';
+
+                                // Get the index of the matching item
+                                int? foundIndex = createdAssistanceRequest.volunteerRequests!.indexWhere((item) => item.status == targetStatus);
+
+                                if (foundIndex != -1) {
+                                  var foundId = createdAssistanceRequest.volunteerRequests![foundIndex].id;
+                                  volunterId = createdAssistanceRequest.volunteerRequests![foundIndex].id;
+
+                                  print('Found at index: $foundIndex with ID: $foundId');
+
+                                  // Store the ID wherever you need
+                                  // yourStorageVariable = foundId;
+                                } else {
+                                  print('No item found with and status $targetStatus');
+                                }
+                                widget.controller.completeTaskByOwner(volunterId);
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -974,26 +1020,28 @@ class _Assistance_screenState extends State<Assistance_screen> {
                                       ? "No Request Received"
                                       : createdAssistanceRequest.status == "VolunteerRequestSent"
                                       ? "Request Received"
+                                      : createdAssistanceRequest.status == "TaskCompleted"
+                                      ? "Task Completed"
                                       : "Mark As Complete",
                                   //  : "Task Completed",
                                   style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w600),
                                 ),
                               ),
                             ),
-                            PopupMenuButton<String>(
-                              icon: const Icon(Icons.more_horiz),
-                              onSelected: (value) {
-                                if (value == 'delete') {
-                                  // controller.deletePost();
-                                }
-                              },
-                              itemBuilder: (BuildContext context) => [
-                                const PopupMenuItem<String>(
-                                  value: 'delete',
-                                  child: Text('Delete post', style: TextStyle(color: Colors.red)),
-                                ),
-                              ],
-                            ),
+                            // PopupMenuButton<String>(
+                            //   icon: const Icon(Icons.more_horiz),
+                            //   onSelected: (value) {
+                            //     if (value == 'delete') {
+                            //       // controller.deletePost();
+                            //     }
+                            //   },
+                            //   itemBuilder: (BuildContext context) => [
+                            //     const PopupMenuItem<String>(
+                            //       value: 'delete',
+                            //       child: Text('Delete post', style: TextStyle(color: Colors.red)),
+                            //     ),
+                            //   ],
+                            // ),
                           ],
                         ),
                       ],
@@ -1074,3 +1122,23 @@ class GoogleMapPreview extends StatelessWidget {
     );
   }
 }
+
+// var headers = {
+//   'x-access-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImZlMmY5NWE3LWQyNmEtNGU1Mi1hNzkzLTgzYWZkYjAwY2FkNSIsInVzZXJUeXBlIjoiQURNSU4iLCJpYXQiOjE3NTcwMDA0MjUsImV4cCI6MTc1NzA4NjgyNX0.lP3OXwfwSDqL99L7H13rtByOYSo9VkQjmWTiqA25rBc',
+//   'Content-Type': 'application/json'
+// };
+// var request = http.Request('POST', Uri.parse('http://localhost:3000/api/v1/user/auth/submitFeedBack'));
+// request.body = json.encode({
+//   "email": "squeeze1@yopmail.com",
+//   "message": "world hasjdhajdasjdhassadasdasdasdasdada"
+// });
+// request.headers.addAll(headers);
+
+// http.StreamedResponse response = await request.send();
+
+// if (response.statusCode == 200) {
+//   print(await response.stream.bytesToString());
+// }
+// else {
+//   print(response.reasonPhrase);
+// }

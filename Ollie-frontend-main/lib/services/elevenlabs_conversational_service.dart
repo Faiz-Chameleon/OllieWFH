@@ -138,73 +138,55 @@ class ElevenLabsConversationalService {
   }
 
   // Handle incoming WebSocket messages
+
+  // In your ElevenLabsConversationalService class, update the _handleWebSocketMessage method:
+
   void _handleWebSocketMessage(dynamic data) {
     try {
-      print('Received WebSocket message: $data');
-      final message = jsonDecode(data);
+      final message = json.decode(data);
       final type = message['type'];
 
       switch (type) {
+        case 'assistant_message':
+          final text = message['text'];
+          _responseController?.add(text);
+          break;
+
+        case 'tool_calls':
+          final toolCalls = message['tool_calls'];
+          // Convert to proper format and send to controller
+          for (final toolCall in toolCalls) {
+            final formattedToolCall = {
+              'name': toolCall['name'],
+              'parameters': toolCall['parameters'] ?? {},
+              'id': toolCall['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+            };
+            // You'll need to add a tool call stream or callback
+            _handleToolCall(formattedToolCall);
+          }
+          break;
+
         case 'conversation_initiation_metadata':
-          _conversationId = message['conversation_initiation_metadata_event']['conversation_id'];
-          print('Conversation started: $_conversationId');
-          print('🔗 Setting connection status to TRUE');
           _isConnected = true;
           _connectionController?.add(true);
-          print('✅ Connection status updated to TRUE');
-          // Add a small delay to ensure UI updates
-          Future.delayed(Duration(milliseconds: 100));
+          _conversationId = message['conversation_id'];
           break;
 
-        case 'user_transcript':
-          final transcript = message['user_transcription_event']['user_transcript'];
-          print('User transcript received: $transcript');
-          _transcriptController?.add(transcript);
-          break;
-
-        case 'agent_response':
-          final response = message['agent_response_event']['agent_response'];
-          print('Agent response received: $response');
-          _responseController?.add(response);
-          break;
-
-        case 'internal_tentative_agent_response':
-          final tentativeResponse = message['tentative_agent_response_internal_event']['tentative_agent_response'];
-          print('Tentative agent response received: $tentativeResponse');
-          // You can choose to show this or wait for the final response
+        case 'error':
+          final error = message['error'];
+          _transcriptController?.add(error);
           break;
 
         case 'audio':
-          final audioBase64 = message['audio_event']['audio_base_64'];
-          final audioData = base64Decode(audioBase64);
-          print('Audio received, length: ${audioData.length} bytes');
-          _audioController?.add(audioData);
-          _playAudioChunk(audioData);
-          break;
-
-        case 'vad_score':
-          final vadScore = message['vad_score_event']['vad_score'];
-          print('VAD Score: $vadScore');
-          break;
-
-        case 'ping':
-          // Respond to ping with pong
-          final eventId = message['ping_event']['event_id'];
-          _sendPong(eventId);
-          break;
-
-        case 'pong':
-          print('Pong received: ${message['event_id']}');
-          break;
-
-        case 'client_tool_call':
-          final toolCall = message['client_tool_call'];
-          print('Client tool call received: ${toolCall['tool_name']}');
-          break;
-
-        case 'contextual_update':
-          final context = message['contextual_update_event']['text'];
-          print('Contextual update received: $context');
+          final audioData = message['audio'];
+          if (audioData != null) {
+            try {
+              final audioBytes = base64.decode(audioData);
+              _audioController?.add(audioBytes);
+            } catch (e) {
+              print('Error decoding audio: $e');
+            }
+          }
           break;
 
         default:
@@ -212,8 +194,72 @@ class ElevenLabsConversationalService {
       }
     } catch (e) {
       print('Error handling WebSocket message: $e');
+      _transcriptController?.add('Error processing message: $e');
     }
   }
+
+  // Add tool call handling method
+  void _handleToolCall(Map<String, dynamic> toolCall) {
+    // You'll need to implement this based on how you want to handle tool calls
+    print('Tool call received: ${json.encode(toolCall)}');
+    // For now, just send an error response
+    _sendToolResponse(toolCallId: toolCall['id'], output: {'status': 'error', 'message': 'Tool not implemented'});
+  }
+
+  // Add method to send tool responses
+  void _sendToolResponse({required String toolCallId, required Map<String, dynamic> output}) {
+    if (!_isConnected) return;
+
+    try {
+      final message = {'type': 'tool_response', 'tool_call_id': toolCallId, 'output': output};
+      _channel!.sink.add(json.encode(message));
+    } catch (e) {
+      print('Error sending tool response: $e');
+    }
+  }
+  // void _handleWebSocketMessage(dynamic data) {
+  //   try {
+  //     final message = json.decode(data);
+  //     final type = message['type'];
+
+  //     switch (type) {
+  //       case 'assistant_message':
+  //         final text = message['text'];
+  //         _responseController?.add(text);
+  //         break;
+
+  //       case 'tool_calls':
+  //         final toolCalls = message['tool_calls'];
+  //         for (final toolCall in toolCalls) {
+  //           // You'll need to handle tool calls here
+  //           // For now, just print them
+  //           print('Tool call received: $toolCall');
+  //         }
+  //         break;
+
+  //       case 'conversation_initiation_metadata':
+  //         _isConnected = true;
+  //         _connectionController?.add(true);
+  //         break;
+
+  //       case 'error':
+  //         final error = message['error'];
+  //         _transcriptController?.add(error);
+  //         break;
+
+  //       case 'audio':
+  //         final audioData = message['audio'];
+  //         // Handle audio data if needed
+  //         break;
+
+  //       default:
+  //         print('Unknown message type: $type');
+  //     }
+  //   } catch (e) {
+  //     print('Error handling WebSocket message: $e');
+  //     _transcriptController?.add('Error processing message: $e');
+  //   }
+  // }
 
   // Send user audio chunk
   Future<void> sendUserAudio(Uint8List audioData) async {
