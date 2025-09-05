@@ -4,19 +4,30 @@ import 'package:ollie/services/chatbot_service.dart';
 import 'package:ollie/services/elevenlabs_conversational_service.dart';
 import 'package:ollie/services/elevenlabs_service.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'dart:async'; // Added for Timer
+import 'dart:async';
+import 'package:http/http.dart' as http;
 
 // Chat message model
 class ChatMessage {
   final String text;
   final bool isUser;
   final bool isStreaming;
-  ChatMessage({required this.text, required this.isUser, this.isStreaming = false});
+  ChatMessage({
+    required this.text,
+    required this.isUser,
+    this.isStreaming = false,
+  });
 }
 
 // Conversational AI chat controller
 class ConversationalChatController extends GetxController {
-  var messages = <ChatMessage>[ChatMessage(text: "Hi! I'm Ollie, your helpful companion. How can I assist you today?", isUser: false)].obs;
+  var messages = <ChatMessage>[
+    ChatMessage(
+      text:
+          "Hi! I'm Ollie, your helpful companion. How can I assist you today?",
+      isUser: false,
+    ),
+  ].obs;
 
   var currentMessage = ''.obs;
   var isConnected = false.obs;
@@ -27,13 +38,14 @@ class ConversationalChatController extends GetxController {
   var pendingToolCall = Rx<Map<String, dynamic>?>(null);
   var isProcessingTool = false.obs;
 
-  final ElevenLabsConversationalService _conversationalService = ElevenLabsConversationalService();
+  final ElevenLabsConversationalService _conversationalService =
+      ElevenLabsConversationalService();
   final ChatbotService _chatbotService = ChatbotService();
   ElevenLabsService? _elevenLabsService;
   final stt.SpeechToText speech = stt.SpeechToText();
 
   // Configuration
-  var agentId = 'agent_01jx7s6f6afgea3c44dz0r4r68'.obs; // Replace with your agent ID
+  var agentId = 'agent_01jx7s6f6afgea3c44dz0r4r68'.obs;
   var voiceId = '21m00Tcm4TlvDq8ikWAM'.obs;
   var enableVoiceInput = true.obs;
 
@@ -45,58 +57,57 @@ class ConversationalChatController extends GetxController {
 
   Future<void> _initializeConversationalAI() async {
     try {
-      connectionStatus.value = 'Initializing Ollie AI...';
-      print('🔌 Initializing Conversational AI...');
+      connectionStatus.value = 'Connecting to ElevenLabs Conversational AI...';
+      print('🔌 Initializing ElevenLabs Conversational AI...');
+      print('🔑 Agent ID: ${agentId.value}');
 
-      // For free tier, use basic TTS instead of Conversational AI
-      print('ℹ️ Using basic TTS mode (free tier limitation)');
-      connectionStatus.value = 'Connected to Ollie AI (Basic Mode)';
-      isConnected.value = true;
-
-      // Set up basic TTS service
-      _elevenLabsService = ElevenLabsService();
-      print('🔌 Initializing with Agent ID: ${agentId.value}');
-      print('🔑 Using API Key: ${"sk_9397cfffae1c9e05795c482352f9b1d546ab90a3f2308fcd".substring(0, 10)}...');
       await _conversationalService.initialize(
         agentId: agentId.value,
         voiceId: voiceId.value,
         customPrompt:
-            "You are Ollie, a friendly and helpful assistant who helps users stay organized and manage their tasks. Keep responses concise and friendly.",
-        firstMessage: "Hi! I'm Ollie, your helpful companion. How can I assist you today?",
-
+            "You are Ollie, a friendly and helpful AI assistant. Keep responses conversational and helpful.",
+        firstMessage:
+            "Hi! I'm Ollie, your AI assistant. How can I help you today?",
         language: 'en',
       );
-      _setupServiceListeners();
 
-      print('✅ Basic TTS mode initialized successfully');
+      _setupServiceListeners();
+      print('🚀 Conversational AI initialization started...');
     } catch (e) {
-      print('❌ Error initializing: $e');
+      print('❌ Error initializing Conversational AI: $e');
       isConnected.value = false;
-      connectionStatus.value = 'Connection failed - Using fallback mode';
+      connectionStatus.value = 'Failed to connect to Conversational AI';
     }
   }
 
   void _setupServiceListeners() {
-    // Listen to response stream
-    _conversationalService.responseStream.listen((response) {
-      _handleAgentMessage(response);
-    });
-
-    // Listen to connection status
     _conversationalService.connectionStream.listen((connected) {
       isConnected.value = connected;
-      connectionStatus.value = connected ? 'Connected' : 'Disconnected';
       if (connected) {
-        print('✅ Connected to ElevenLabs Conversational AI');
+        connectionStatus.value = 'Connected to ElevenLabs Conversational AI ✅';
+        print('✅ Conversational AI is ready!');
+      } else {
+        connectionStatus.value = 'Disconnected from Conversational AI';
+        print('❌ Conversational AI disconnected');
       }
     });
 
-    // Listen to transcript/errors
-    _conversationalService.transcriptStream.listen((message) {
-      print('Transcript/Error: $message');
-      // Handle errors or transcripts
-      if (message.toLowerCase().contains('error')) {
-        _handleError(message);
+    _conversationalService.responseStream.listen((response) {
+      print('🤖 AI Response: $response');
+      _handleAgentMessage(response);
+    });
+
+    _conversationalService.toolCallStream.listen((toolCall) {
+      print('🔧 Tool call: ${toolCall}');
+      handleToolCall(toolCall);
+    });
+
+    _conversationalService.transcriptStream.listen((transcript) {
+      if (!transcript.toLowerCase().contains('error')) {
+        print('🎤 User said: $transcript');
+        currentTranscript.value = transcript;
+      } else {
+        print('❌ Transcript error: $transcript');
       }
     });
   }
@@ -117,19 +128,88 @@ class ConversationalChatController extends GetxController {
     if (messages.isNotEmpty && messages.last.isStreaming) {
       messages.removeLast();
     }
-    messages.add(ChatMessage(text: "I encountered an error: $error", isUser: false));
+    messages.add(
+      ChatMessage(text: "I encountered an error: $error", isUser: false),
+    );
     isStreaming.value = false;
   }
 
-  void _handleAgentResponse(String response) {
-    // Remove any existing streaming message
+  void sendMessage() async {
+    final message = currentMessage.value.trim();
+    if (message.isEmpty) return;
+
+    messages.add(ChatMessage(text: message, isUser: true));
+    currentMessage.value = '';
+
+    messages.add(ChatMessage(text: '...', isUser: false, isStreaming: true));
+    isStreaming.value = true;
+
+    try {
+      if (isConnected.value) {
+        print('📤 Sending to Conversational AI: "$message"');
+        await _conversationalService.sendTextMessage(message);
+
+        // Extend timeout to 30 seconds for ElevenLabs
+        Timer(Duration(seconds: 30), () {
+          if (isStreaming.value) {
+            print('⚠️ AI response timeout after 30 seconds');
+            _handleTimeout();
+          }
+        });
+      } else {
+        print('❌ Not connected to Conversational AI');
+        _handleNotConnected();
+      }
+    } catch (e) {
+      print('❌ Error sending to Conversational AI: $e');
+      _handleError('Failed to send message: $e');
+    }
+  }
+
+  void _handleTimeout() {
     if (messages.isNotEmpty && messages.last.isStreaming) {
       messages.removeLast();
     }
-
-    // Add the complete response
-    messages.add(ChatMessage(text: response, isUser: false));
+    messages.add(
+      ChatMessage(
+        text: "I'm taking longer than usual to respond. Please try again.",
+        isUser: false,
+      ),
+    );
     isStreaming.value = false;
+  }
+
+  void _handleNotConnected() {
+    if (messages.isNotEmpty && messages.last.isStreaming) {
+      messages.removeLast();
+    }
+    messages.add(
+      ChatMessage(
+        text:
+            "I'm not connected to the AI service right now. Please wait a moment and try again.",
+        isUser: false,
+      ),
+    );
+    isStreaming.value = false;
+  }
+
+  void handleToolCall(Map<String, dynamic> toolCall) {
+    final toolName = toolCall['name'];
+    final parameters = toolCall['parameters'] ?? {};
+    final toolCallId = toolCall['id'];
+
+    print('🔧 AI wants to use tool: $toolName');
+
+    _conversationalService.sendToolResponse(
+      toolCallId: toolCallId,
+      result: {
+        'status': 'acknowledged',
+        'message': 'Tool call received but not implemented yet',
+        'tool': toolName,
+        'parameters': parameters,
+      },
+      success: true,
+    );
   }
 
   void toggleMic() async {
@@ -139,299 +219,49 @@ class ConversationalChatController extends GetxController {
       currentTranscript.value = '';
     } else {
       bool available = await speech.initialize();
-      if (available) {
+      if (available && isConnected.value) {
         isListening.value = true;
         speech.listen(
           onResult: (result) {
-            currentMessage.value = result.recognizedWords;
-            print('Speech recognition: ${result.recognizedWords}');
+            currentTranscript.value = result.recognizedWords;
             if (result.finalResult) {
+              currentMessage.value = result.recognizedWords;
               sendMessage();
             }
           },
+          localeId: 'en_US',
+          listenMode: stt.ListenMode.confirmation,
+        );
+      } else if (!isConnected.value) {
+        print('❌ Voice requires Conversational AI connection');
+        Get.snackbar(
+          'Voice Not Available',
+          'Please wait for AI to connect',
+          snackPosition: SnackPosition.BOTTOM,
         );
       } else {
-        print('Speech recognition not available');
+        print('❌ Speech recognition not available');
         isListening.value = false;
       }
     }
   }
 
-  void handleToolCall(Map<String, dynamic> toolCall) {
-    final toolName = toolCall['name'];
-    final parameters = toolCall['parameters'] ?? {};
-
-    if (toolName == 'create_task') {
-      _handleCreateTaskTool(toolCall);
-    } else {
-      print('⚠️ Unknown tool: $toolName');
-      // Send error response
-      _sendToolResponse(toolCallId: toolCall['id'], output: {'status': 'error', 'message': 'Unknown tool'});
-    }
-  }
-
-  void _sendToolResponse({required String toolCallId, required Map<String, dynamic> output}) {
-    // You'll need to implement this method to send responses back
-    // This depends on how your service handles tool responses
-    print('Sending tool response: $output');
-  }
-
-  void confirmTaskCreation(bool confirm) async {
-    if (pendingToolCall.value == null) return;
-
-    final toolCallId = pendingToolCall.value!['tool_call_id'];
-    final parameters = pendingToolCall.value!['parameters'];
-
-    if (confirm) {
-      // try {
-      //   final taskId = await _createActualTask(parameters);
-
-      //   _sendToolResponse(toolCallId: toolCallId, output: {'status': 'success', 'task_id': taskId, 'message': 'Task created successfully'});
-
-      //   messages.add(ChatMessage(text: '✅ Task created successfully! (ID: $taskId)', isUser: false));
-      // } catch (e) {
-      //   _sendToolResponse(toolCallId: toolCallId, output: {'status': 'error', 'message': 'Failed to create task: $e'});
-
-      //   messages.add(ChatMessage(text: '❌ Failed to create task: $e', isUser: false));
-      // }
-    } else {
-      _sendToolResponse(toolCallId: toolCallId, output: {'status': 'cancelled', 'message': 'User cancelled task creation'});
-
-      messages.add(ChatMessage(text: '❌ Task creation cancelled', isUser: false));
-    }
-
-    pendingToolCall.value = null;
-    isProcessingTool.value = false;
-  }
-
-  void _handleCreateTaskTool(Map<String, dynamic> toolCall) {
-    final parameters = toolCall['parameters'] ?? {};
-    final toolCallId = toolCall['id'];
-
-    pendingToolCall.value = {'tool_call_id': toolCallId, 'parameters': parameters};
-
-    final taskTitle = parameters['title'] ?? 'Untitled Task';
-    final taskDescription = parameters['description'] ?? 'No description';
-    final dueDate = parameters['due_date'] ?? 'No due date';
-
-    final taskMessage =
-        '''
-📋 Task Created:
-Title: $taskTitle
-Description: $taskDescription
-Due Date: $dueDate
-
-Would you like to confirm creating this task?
-''';
-
-    if (messages.isNotEmpty && messages.last.isStreaming) {
-      messages.removeLast();
-    }
-
-    messages.add(
-      ChatMessage(
-        text: taskMessage,
-        isUser: false,
-        // toolCall: {'type': 'create_task', 'parameters': parameters},
-      ),
-    );
-
-    isStreaming.value = false;
-    isProcessingTool.value = true;
-  }
-
-  void sendMessage() async {
-    final message = currentMessage.value.trim();
-    if (message.isEmpty) return;
-
-    // Handle tool confirmation first
-    if (isProcessingTool.value && pendingToolCall.value != null) {
-      final lowerMessage = message.toLowerCase();
-      if (lowerMessage.contains('yes') || lowerMessage.contains('confirm')) {
-        confirmTaskCreation(true);
-      } else if (lowerMessage.contains('no') || lowerMessage.contains('cancel')) {
-        confirmTaskCreation(false);
-      } else {
-        messages.add(ChatMessage(text: "Please respond with 'yes' to confirm or 'no' to cancel the task creation.", isUser: false));
-      }
-      currentMessage.value = '';
-      return;
-    }
-
-    // Add user message
-    messages.add(ChatMessage(text: message, isUser: true));
-    currentMessage.value = '';
-
-    // Add streaming indicator
-    messages.add(ChatMessage(text: '...', isUser: false, isStreaming: true));
-    isStreaming.value = true;
+  void testConnection() async {
+    print('🧪 Testing Conversational AI connection...');
+    connectionStatus.value = 'Testing connection...';
 
     try {
-      if (isConnected.value) {
-        print('📤 Sending to ElevenLabs: "$message"');
-        await _conversationalService.sendTextMessage(message);
+      // Don't await dispose() since it returns void
+      _conversationalService.dispose();
 
-        // Set timeout for response
-        Timer(Duration(seconds: 15), () {
-          if (isStreaming.value) {
-            print('⚠️ No response received within 15 seconds');
-            if (messages.isNotEmpty && messages.last.isStreaming) {
-              messages.removeLast();
-            }
-            messages.add(ChatMessage(text: "I'm having trouble connecting. Please try again.", isUser: false));
-            isStreaming.value = false;
-          }
-        });
-      } else {
-        print('❌ Not connected - using fallback');
-        // Fallback to your existing static response
-        final response = await ChatbotService.getHybridResponse(message);
+      // Add a small delay to ensure cleanup is complete
+      await Future.delayed(Duration(milliseconds: 500));
 
-        if (messages.isNotEmpty && messages.last.isStreaming) {
-          messages.removeLast();
-        }
-
-        messages.add(ChatMessage(text: response, isUser: false));
-        isStreaming.value = false;
-      }
+      await _initializeConversationalAI();
+      print('✅ Connection test completed');
     } catch (e) {
-      print('❌ Error sending message: $e');
-      if (messages.isNotEmpty && messages.last.isStreaming) {
-        messages.removeLast();
-      }
-      messages.add(ChatMessage(text: "Sorry, I encountered an error. Please try again.", isUser: false));
-      isStreaming.value = false;
-    }
-  }
-
-  // void sendMessage() async {
-  //   final message = currentMessage.value.trim();
-  //   if (message.isEmpty) return;
-
-  //   print('📤 Sending message: "$message"');
-  //   print('🔗 Connection status: ${isConnected.value}');
-
-  //   // Add user message
-  //   messages.add(ChatMessage(text: message, isUser: true));
-  //   currentMessage.value = '';
-
-  //   // Add streaming indicator
-  //   messages.add(ChatMessage(text: '...', isUser: false, isStreaming: true));
-  //   isStreaming.value = true;
-
-  //   try {
-  //     if (isConnected.value) {
-  //       print('✅ Connected - using ElevenLabs Conversational AI');
-
-  //       // Send message to ElevenLabs Conversational AI
-  //       await _conversationalService.sendTextMessage(message);
-
-  //       // Note: The response will come back through the onMessage callback
-  //       // We don't remove the streaming indicator here because we wait for the actual response
-  //     } else {
-  //       print('❌ Not connected to ElevenLabs - using fallback response');
-
-  //       // Fallback to your existing static AI response
-  //       final response = await ChatbotService.getHybridResponse(message);
-
-  //       // Remove streaming indicator
-  //       if (messages.isNotEmpty && messages.last.isStreaming) {
-  //         messages.removeLast();
-  //       }
-
-  //       // Add the response
-  //       messages.add(ChatMessage(text: response, isUser: false));
-  //       isStreaming.value = false;
-
-  //       // Play TTS if available
-  //       if (_elevenLabsService != null) {
-  //         try {
-  //           final audioPath = await _elevenLabsService!.textToSpeech(text: response);
-  //           if (audioPath != null) {
-  //             await _elevenLabsService!.playAudio(audioPath);
-  //           }
-  //         } catch (e) {
-  //           print('TTS Error: $e');
-  //         }
-  //       }
-  //     }
-  //   } catch (e) {
-  //     print('❌ Error sending message: $e');
-  //     // Remove streaming indicator and add error message
-  //     if (messages.isNotEmpty && messages.last.isStreaming) {
-  //       messages.removeLast();
-  //     }
-  //     messages.add(ChatMessage(text: "Sorry, I encountered an error. Please try again.", isUser: false));
-  //     isStreaming.value = false;
-  //   }
-  // }
-
-  // void sendMessage() async {
-  //   final message = currentMessage.value.trim();
-  //   if (message.isEmpty) return;
-
-  //   print('📤 Sending message: "$message"');
-  //   print('🔗 Connection status: ${isConnected.value}');
-
-  //   // Add user message
-  //   messages.add(ChatMessage(text: message, isUser: true));
-  //   currentMessage.value = '';
-
-  //   // Add streaming indicator
-  //   messages.add(ChatMessage(text: '...', isUser: false, isStreaming: true));
-  //   isStreaming.value = true;
-
-  //   try {
-  //     if (isConnected.value) {
-  //       print('✅ Connected - using basic TTS mode');
-
-  //       // Get response from chatbot service
-  //       final response = await ChatbotService.getHybridResponse(message);
-
-  //       // Remove streaming indicator
-  //       if (messages.isNotEmpty && messages.last.isStreaming) {
-  //         messages.removeLast();
-  //       }
-
-  //       // Add the response
-  //       messages.add(ChatMessage(text: response, isUser: false));
-  //       isStreaming.value = false;
-
-  //       // Play TTS if available
-  //       if (_elevenLabsService != null) {
-  //         try {
-  //           final audioPath = await _elevenLabsService!.textToSpeech(text: response);
-  //           if (audioPath != null) {
-  //             await _elevenLabsService!.playAudio(audioPath);
-  //           }
-  //         } catch (e) {
-  //           print('TTS Error: $e');
-  //         }
-  //       }
-  //     } else {
-  //       print('❌ Not connected - using fallback response');
-  //       // Fallback to simple response
-  //       await Future.delayed(Duration(seconds: 1));
-  //       if (messages.isNotEmpty && messages.last.isStreaming) {
-  //         messages.removeLast();
-  //       }
-  //       messages.add(ChatMessage(text: "I'm sorry, I'm having trouble connecting right now. Please try again later.", isUser: false));
-  //       isStreaming.value = false;
-  //     }
-  //   } catch (e) {
-  //     print('❌ Error sending message: $e');
-  //     // Remove streaming indicator and add error message
-  //     if (messages.isNotEmpty && messages.last.isStreaming) {
-  //       messages.removeLast();
-  //     }
-  //     messages.add(ChatMessage(text: "Sorry, I encountered an error. Please try again.", isUser: false));
-  //     isStreaming.value = false;
-  //   }
-  // }
-
-  void sendContextualUpdate(String context) async {
-    if (isConnected.value) {
-      await _conversationalService.sendContextualUpdate(context);
+      print('❌ Connection test failed: $e');
+      connectionStatus.value = 'Connection test failed';
     }
   }
 
@@ -441,14 +271,104 @@ Would you like to confirm creating this task?
 
   void setAgentId(String newAgentId) {
     agentId.value = newAgentId;
-    // Reinitialize with new agent
     _initializeConversationalAI();
   }
 
   void setVoiceId(String newVoiceId) {
     voiceId.value = newVoiceId;
-    // Reinitialize with new voice
     _initializeConversationalAI();
+  }
+
+  // Add this method to test with a simple message:
+
+  void sendTestMessage() async {
+    if (!isConnected.value) {
+      print('❌ Not connected for test');
+      return;
+    }
+
+    print('🧪 Sending test message...');
+
+    try {
+      await _conversationalService.sendTextMessage("Hello");
+
+      // Wait 10 seconds for response
+      await Future.delayed(Duration(seconds: 10));
+
+      if (isStreaming.value) {
+        print('⚠️ Test message timeout');
+      }
+    } catch (e) {
+      print('❌ Test message error: $e');
+    }
+  }
+
+  // Add this method to test direct connection:
+
+  void sendSimpleTest() async {
+    if (!isConnected.value) {
+      print('❌ Not connected for simple test');
+      return;
+    }
+
+    print('🧪 Sending simple test message...');
+
+    // Add test message to UI
+    messages.add(ChatMessage(text: "Hello", isUser: true));
+    messages.add(ChatMessage(text: '...', isUser: false, isStreaming: true));
+    isStreaming.value = true;
+
+    try {
+      await _conversationalService.sendTextMessage("Hello");
+
+      // Wait for response
+      Timer(Duration(seconds: 10), () {
+        if (isStreaming.value) {
+          print('⚠️ Simple test timeout');
+          _handleTimeout();
+        }
+      });
+    } catch (e) {
+      print('❌ Simple test error: $e');
+      _handleError('Simple test failed: $e');
+    }
+  }
+
+  void debugAgent() async {
+    print('🔍 Debug Agent Info:');
+    print('Agent ID: ${agentId.value}');
+    print('Voice ID: ${voiceId.value}');
+    print('Connected: ${isConnected.value}');
+    print('Conversation ID: ${_conversationalService.conversationId}');
+
+    // Test if the agent exists by making a simple HTTP request
+    try {
+      final response = await http.get(
+        Uri.parse(
+          'https://api.elevenlabs.io/v1/convai/agents/${agentId.value}',
+        ),
+        headers: {
+          'Authorization':
+              'Bearer sk_9397cfffae1c9e05795c482352f9b1d546ab90a3f2308fcd', // Fixed: Uncommented and added Bearer
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('🔍 Agent API Response: ${response.statusCode}');
+      print('🔍 Agent Details: ${response.body}');
+
+      if (response.statusCode == 200) {
+        print('✅ Agent exists and is configured correctly!');
+      } else if (response.statusCode == 404) {
+        print('❌ Agent not found - check your agent ID');
+      } else if (response.statusCode == 401) {
+        print('❌ API key is invalid or expired');
+      } else {
+        print('❌ Unexpected response: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Error checking agent: $e');
+    }
   }
 
   @override

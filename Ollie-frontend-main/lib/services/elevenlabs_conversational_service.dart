@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:async';
+import 'dart:developer' as dev;
 import 'dart:typed_data';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -7,8 +8,11 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
 class ElevenLabsConversationalService {
-  static const String _baseUrl = 'wss://api.elevenlabs.io/v1/convai/conversation';
-  static const String _apiKey = 'sk_9397cfffae1c9e05795c482352f9b1d546ab90a3f2308fcd';
+  static const String _baseUrl =
+      // "wss://api.elevenlabs.io/v1/conversational-ai/conversation";
+      'wss://api.elevenlabs.io/v1/convai/conversation';
+  static const String _apiKey =
+      'sk_9397cfffae1c9e05795c482352f9b1d546ab90a3f2308fcd';
 
   WebSocketChannel? _channel;
   AudioPlayer? _audioPlayer;
@@ -16,15 +20,22 @@ class ElevenLabsConversationalService {
   StreamController<String>? _responseController;
   StreamController<Uint8List>? _audioController;
   StreamController<bool>? _connectionController;
+  StreamController<Map<String, dynamic>>? _toolCallController; // Add this line
   bool _isConnected = false;
   String? _conversationId;
   Timer? _pingTimer;
 
   // Streams for UI updates
-  Stream<String> get transcriptStream => _transcriptController?.stream ?? Stream.empty();
-  Stream<String> get responseStream => _responseController?.stream ?? Stream.empty();
-  Stream<Uint8List> get audioStream => _audioController?.stream ?? Stream.empty();
-  Stream<bool> get connectionStream => _connectionController?.stream ?? Stream.empty();
+  Stream<String> get transcriptStream =>
+      _transcriptController?.stream ?? Stream.empty();
+  Stream<String> get responseStream =>
+      _responseController?.stream ?? Stream.empty();
+  Stream<Uint8List> get audioStream =>
+      _audioController?.stream ?? Stream.empty();
+  Stream<bool> get connectionStream =>
+      _connectionController?.stream ?? Stream.empty();
+  Stream<Map<String, dynamic>> get toolCallStream => // Add this getter
+      _toolCallController?.stream ?? Stream.empty();
 
   // Initialize the service
   Future<void> initialize({
@@ -35,80 +46,229 @@ class ElevenLabsConversationalService {
     String language = 'en',
   }) async {
     try {
-      // Check if API key is configured
-      if (_apiKey == 'YOUR_ELEVENLABS_API_KEY') {
-        print('Warning: ElevenLabs API key not configured. Using mock response.');
-        _isConnected = false;
-        _connectionController?.add(false);
-        return;
-      }
-
       // Initialize controllers
       _transcriptController = StreamController<String>.broadcast();
       _responseController = StreamController<String>.broadcast();
       _audioController = StreamController<Uint8List>.broadcast();
       _connectionController = StreamController<bool>.broadcast();
+      _toolCallController = StreamController<Map<String, dynamic>>.broadcast();
 
-      // Initialize audio player
       _audioPlayer = AudioPlayer();
 
-      // Connect to WebSocket with proper URL and headers
-      final uri = Uri.parse('$_baseUrl?agent_id=$agentId&xi-api-key=$_apiKey');
+      // Connect to ElevenLabs Conversational AI WebSocket
+      final uri = Uri.parse('$_baseUrl?agent_id=$agentId');
+      print('🔌 Connecting to: $uri');
 
-      // Create WebSocket connection
       _channel = WebSocketChannel.connect(uri);
 
-      // Send conversation initiation data
-      final initData = {
+      // FIXED: Use the correct initialization format
+      final initMessage = {
         'type': 'conversation_initiation_client_data',
         'conversation_config_override': {
           'agent': {
             'prompt': {
               'prompt':
                   customPrompt ??
-                  "You are Ollie, a friendly and helpful assistant who helps users stay organized and manage their tasks. Keep responses concise and friendly.",
+                  "You are Ollie, a helpful AI assistant. Always respond to user messages with helpful and friendly responses.",
             },
-            'first_message': firstMessage ?? "Hi! I'm Ollie, your helpful companion. How can I assist you today?",
+            'first_message':
+                firstMessage ?? "Hello! I'm Ollie. How can I help you today?",
             'language': language,
           },
-          'tts': {'voice_id': voiceId},
+          'tts': {'voice_id': voiceId, 'model_id': 'eleven_turbo_v2_5'},
+          'conversation': {'max_duration_seconds': 600},
         },
-        'custom_llm_extra_body': {'temperature': 0.7, 'max_tokens': 150},
-        'dynamic_variables': {'user_name': 'User', 'account_type': 'standard'},
+        'xi_api_key': _apiKey,
       };
 
-      print('Sending conversation initiation data: ${jsonEncode(initData)}');
-      _channel!.sink.add(jsonEncode(initData));
+      dev.log('📤 Sending init message: ${jsonEncode(initMessage)}');
+      _channel!.sink.add(jsonEncode(initMessage));
 
       // Listen for responses
       _channel!.stream.listen(
-        (data) => _handleWebSocketMessage(data),
+        (data) {
+          dev.log('📨 Received: $data');
+          _handleWebSocketMessage(data);
+        },
         onError: (error) {
-          print('WebSocket Error: $error');
+          dev.log('❌ WebSocket Error: $error');
           _isConnected = false;
           _connectionController?.add(false);
         },
         onDone: () {
-          print('WebSocket connection closed');
+          dev.log('🔌 WebSocket connection closed');
           _isConnected = false;
           _connectionController?.add(false);
           _stopPingTimer();
         },
       );
 
-      // Don't set connected to true yet - wait for conversation_initiation_metadata
-      _isConnected = false;
-      _connectionController?.add(false);
-
-      // Start ping timer to keep connection alive
       _startPingTimer();
-
-      print('Conversational AI initialized successfully with WebSocket connection');
+      print('🚀 Conversational AI initialization sent');
     } catch (e) {
-      print('Error initializing Conversational AI: $e');
+      print('❌ Error initializing Conversational AI: $e');
       _isConnected = false;
       _connectionController?.add(false);
       rethrow;
+    }
+  }
+
+  // Update the _handleWebSocketMessage method:
+
+  void _handleWebSocketMessage(dynamic data) {
+    try {
+      final message = json.decode(data);
+      final type = message['type'];
+
+      print('📨 Message type: $type');
+      print(
+        '📨 Full message: ${json.encode(message)}',
+      ); // Debug: see full message
+
+      switch (type) {
+        case 'conversation_initiation_metadata':
+          _isConnected = true;
+          _conversationId =
+              message['conversation_initiation_metadata_event']?['conversation_id'];
+          _connectionController?.add(true);
+          print('✅ Connected! Conversation ID: $_conversationId');
+          break;
+
+        case 'agent_response':
+          final text =
+              message['agent_response_event']?['agent_response'] ??
+              message['agent_response'];
+          if (text != null && text.isNotEmpty) {
+            _responseController?.add(text);
+            print('🤖 Agent response: $text');
+          }
+          break;
+
+        case 'agent_response_event': // Handle this case specifically
+          final text = message['agent_response_event']?['agent_response'];
+          if (text != null && text.isNotEmpty) {
+            _responseController?.add(text);
+            print('🤖 Agent response (event): $text');
+          }
+          break;
+
+        case 'agent_response_audio_chunk':
+          final audioData = message['audio_event']?['audio_base_64'];
+          if (audioData != null) {
+            try {
+              final audioBytes = base64.decode(audioData);
+              _audioController?.add(audioBytes);
+              _playAudioChunk(audioBytes);
+            } catch (e) {
+              print('❌ Error decoding audio: $e');
+            }
+          }
+          break;
+
+        case 'user_transcript':
+          final transcript =
+              message['user_transcript_event']?['user_transcript'] ??
+              message['user_transcript'];
+          if (transcript != null) {
+            _transcriptController?.add(transcript);
+            print('🎤 User transcript: $transcript');
+          }
+          break;
+
+        case 'function_call':
+          final functionCall = message['function_call'];
+          final toolCall = {
+            'name': functionCall['name'],
+            'parameters': functionCall['arguments'] ?? {},
+            'id':
+                message['call_id'] ??
+                DateTime.now().millisecondsSinceEpoch.toString(),
+          };
+          _toolCallController?.add(toolCall);
+          break;
+
+        case 'ping':
+          _sendPong(
+            message['event_id'] ?? message['ping_event']?['event_id'] ?? 0,
+          );
+          break;
+
+        case 'error':
+          final error =
+              message['error']?['message'] ??
+              message['message'] ??
+              'Unknown error';
+          print('❌ Server error: $error');
+          _transcriptController?.add('Error: $error');
+          break;
+
+        default:
+          print('🔍 Unknown message type: $type');
+          print('📋 Full message: ${json.encode(message)}');
+
+          // Try to extract any agent response from unknown message types
+          final possibleResponses = [
+            message['agent_response_event']?['agent_response'],
+            message['agent_response'],
+            message['response'],
+            message['text'],
+          ];
+
+          for (final response in possibleResponses) {
+            if (response != null && response is String && response.isNotEmpty) {
+              _responseController?.add(response);
+              print('🤖 Found response: $response');
+              return;
+            }
+          }
+      }
+    } catch (e) {
+      print('❌ Error handling WebSocket message: $e');
+      print('📋 Raw data: $data');
+      _transcriptController?.add('Error processing message: $e');
+    }
+  }
+
+  // Send tool response back to ElevenLabs
+  Future<void> sendToolResponse({
+    required String toolCallId,
+    required Map<String, dynamic> result,
+    bool success = true,
+  }) async {
+    if (!_isConnected) return;
+
+    try {
+      final message = {
+        'type': 'function_call_response',
+        'call_id': toolCallId,
+        'response': success
+            ? result
+            : {'error': result['error'] ?? 'Tool execution failed'},
+      };
+
+      _channel!.sink.add(json.encode(message));
+      print('🔧 Tool response sent: ${json.encode(message)}');
+    } catch (e) {
+      print('❌ Error sending tool response: $e');
+    }
+  }
+
+  // Send text message to the AI
+  Future<void> sendTextMessage(String text) async {
+    if (!_isConnected) {
+      print('❌ Not connected, cannot send message');
+      return;
+    }
+
+    try {
+      // Use the correct format for ElevenLabs
+      final message = {'type': 'user_transcript', 'user_transcript': text};
+
+      _channel!.sink.add(jsonEncode(message));
+      print('📤 Sent message: $text');
+    } catch (e) {
+      print('❌ Error sending message: $e');
+      _connectionController?.add(false);
     }
   }
 
@@ -129,254 +289,65 @@ class ElevenLabsConversationalService {
   void _sendPing() {
     if (_isConnected && _channel != null) {
       try {
-        final pingMessage = {'type': 'ping', 'event_id': DateTime.now().millisecondsSinceEpoch};
+        final pingMessage = {
+          'type': 'ping',
+          'event_id': DateTime.now().millisecondsSinceEpoch,
+        };
         _channel!.sink.add(jsonEncode(pingMessage));
       } catch (e) {
-        print('Error sending ping: $e');
+        print('❌ Error sending ping: $e');
       }
     }
   }
 
-  // Handle incoming WebSocket messages
-
-  // In your ElevenLabsConversationalService class, update the _handleWebSocketMessage method:
-
-  void _handleWebSocketMessage(dynamic data) {
-    try {
-      final message = json.decode(data);
-      final type = message['type'];
-
-      switch (type) {
-        case 'assistant_message':
-          final text = message['text'];
-          _responseController?.add(text);
-          break;
-
-        case 'tool_calls':
-          final toolCalls = message['tool_calls'];
-          // Convert to proper format and send to controller
-          for (final toolCall in toolCalls) {
-            final formattedToolCall = {
-              'name': toolCall['name'],
-              'parameters': toolCall['parameters'] ?? {},
-              'id': toolCall['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
-            };
-            // You'll need to add a tool call stream or callback
-            _handleToolCall(formattedToolCall);
-          }
-          break;
-
-        case 'conversation_initiation_metadata':
-          _isConnected = true;
-          _connectionController?.add(true);
-          _conversationId = message['conversation_id'];
-          break;
-
-        case 'error':
-          final error = message['error'];
-          _transcriptController?.add(error);
-          break;
-
-        case 'audio':
-          final audioData = message['audio'];
-          if (audioData != null) {
-            try {
-              final audioBytes = base64.decode(audioData);
-              _audioController?.add(audioBytes);
-            } catch (e) {
-              print('Error decoding audio: $e');
-            }
-          }
-          break;
-
-        default:
-          print('Unknown message type: $type');
-      }
-    } catch (e) {
-      print('Error handling WebSocket message: $e');
-      _transcriptController?.add('Error processing message: $e');
-    }
-  }
-
-  // Add tool call handling method
-  void _handleToolCall(Map<String, dynamic> toolCall) {
-    // You'll need to implement this based on how you want to handle tool calls
-    print('Tool call received: ${json.encode(toolCall)}');
-    // For now, just send an error response
-    _sendToolResponse(toolCallId: toolCall['id'], output: {'status': 'error', 'message': 'Tool not implemented'});
-  }
-
-  // Add method to send tool responses
-  void _sendToolResponse({required String toolCallId, required Map<String, dynamic> output}) {
-    if (!_isConnected) return;
-
-    try {
-      final message = {'type': 'tool_response', 'tool_call_id': toolCallId, 'output': output};
-      _channel!.sink.add(json.encode(message));
-    } catch (e) {
-      print('Error sending tool response: $e');
-    }
-  }
-  // void _handleWebSocketMessage(dynamic data) {
-  //   try {
-  //     final message = json.decode(data);
-  //     final type = message['type'];
-
-  //     switch (type) {
-  //       case 'assistant_message':
-  //         final text = message['text'];
-  //         _responseController?.add(text);
-  //         break;
-
-  //       case 'tool_calls':
-  //         final toolCalls = message['tool_calls'];
-  //         for (final toolCall in toolCalls) {
-  //           // You'll need to handle tool calls here
-  //           // For now, just print them
-  //           print('Tool call received: $toolCall');
-  //         }
-  //         break;
-
-  //       case 'conversation_initiation_metadata':
-  //         _isConnected = true;
-  //         _connectionController?.add(true);
-  //         break;
-
-  //       case 'error':
-  //         final error = message['error'];
-  //         _transcriptController?.add(error);
-  //         break;
-
-  //       case 'audio':
-  //         final audioData = message['audio'];
-  //         // Handle audio data if needed
-  //         break;
-
-  //       default:
-  //         print('Unknown message type: $type');
-  //     }
-  //   } catch (e) {
-  //     print('Error handling WebSocket message: $e');
-  //     _transcriptController?.add('Error processing message: $e');
-  //   }
-  // }
-
-  // Send user audio chunk
-  Future<void> sendUserAudio(Uint8List audioData) async {
-    if (!_isConnected) {
-      print('Not connected, cannot send audio');
-      return;
-    }
-
-    try {
-      final audioBase64 = base64Encode(audioData);
-      final message = {'user_audio_chunk': audioBase64};
-      print('Sending audio chunk, length: ${audioData.length} bytes');
-      _channel!.sink.add(jsonEncode(message));
-    } catch (e) {
-      print('Error sending user audio: $e');
-    }
-  }
-
-  // Send text message
-  Future<void> sendTextMessage(String text) async {
-    if (!_isConnected) {
-      print('Not connected, cannot send text message');
-      return;
-    }
-
-    try {
-      final message = {'type': 'user_message', 'text': text};
-      print('Sending text message: $text');
-      _channel!.sink.add(jsonEncode(message));
-
-      // Set a timeout for response
-      Timer(Duration(seconds: 10), () {
-        if (_isConnected) {
-          print('⚠️ No response received within 10 seconds');
-          // You could add a fallback response here
-        }
-      });
-    } catch (e) {
-      print('Error sending text message: $e');
-      _isConnected = false;
-      _connectionController?.add(false);
-    }
-  }
-
-  // Send contextual update
-  Future<void> sendContextualUpdate(String context) async {
-    if (!_isConnected) {
-      print('Not connected, cannot send contextual update');
-      return;
-    }
-
-    try {
-      final message = {'type': 'contextual_update', 'text': context};
-      print('Sending contextual update: $context');
-      _channel!.sink.add(jsonEncode(message));
-    } catch (e) {
-      print('Error sending contextual update: $e');
-    }
-  }
-
-  // Send pong response
   void _sendPong(int eventId) {
     if (!_isConnected) return;
-
     try {
       final message = {'type': 'pong', 'event_id': eventId};
-      print('Sending pong: $eventId');
       _channel!.sink.add(jsonEncode(message));
     } catch (e) {
-      print('Error sending pong: $e');
+      print('❌ Error sending pong: $e');
     }
   }
 
-  // Play audio chunk
   Future<void> _playAudioChunk(Uint8List audioData) async {
     try {
-      // Save audio chunk to temporary file
       final tempDir = await getTemporaryDirectory();
-      final tempFile = File('${tempDir.path}/audio_chunk_${DateTime.now().millisecondsSinceEpoch}.wav');
+      final tempFile = File(
+        '${tempDir.path}/audio_chunk_${DateTime.now().millisecondsSinceEpoch}.wav',
+      );
       await tempFile.writeAsBytes(audioData);
-
-      print('Playing audio chunk: ${tempFile.path}');
-      // Play the audio
       await _audioPlayer?.play(DeviceFileSource(tempFile.path));
     } catch (e) {
-      print('Error playing audio chunk: $e');
+      print('❌ Error playing audio: $e');
     }
   }
 
-  // Stop audio playback
   Future<void> stopAudio() async {
     try {
       await _audioPlayer?.stop();
     } catch (e) {
-      print('Error stopping audio: $e');
+      print('❌ Error stopping audio: $e');
     }
   }
 
-  // Check if connected
   bool get isConnected => _isConnected;
-
-  // Get conversation ID
   String? get conversationId => _conversationId;
 
-  // Dispose resources
-  void dispose() {
+  // Update the dispose method to return Future<void>:
+  Future<void> dispose() async {
     try {
       _stopPingTimer();
-      _channel?.sink.close();
-      _audioPlayer?.dispose();
-      _transcriptController?.close();
-      _responseController?.close();
-      _audioController?.close();
-      _connectionController?.close();
+      await _channel?.sink.close();
+      await _audioPlayer?.dispose();
+      await _transcriptController?.close();
+      await _responseController?.close();
+      await _audioController?.close();
+      await _connectionController?.close();
+      await _toolCallController?.close();
       _isConnected = false;
     } catch (e) {
-      print('Error disposing Conversational AI service: $e');
+      print('❌ Error disposing service: $e');
     }
   }
 }

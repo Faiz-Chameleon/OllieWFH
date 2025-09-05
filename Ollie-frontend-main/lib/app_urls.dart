@@ -4,7 +4,7 @@ class ApiUrls {
   // http://3.96.202.108/api/v1
   //http://3.96.158.243/api/v1
   // liveURL https://api.theollie.app/api/v1
-  static const String baseUrl = 'https://api.theollie.app/api/v1';
+  static const String baseUrl = 'http://192.168.1.17:3000/api/v1';
   static const String registerApi = "/user/auth/userRegister";
   static const String verifyOTPApi = "/user/auth/userVerifyOtp";
   static const String getInterest = "/user/auth/getInterest";
@@ -35,22 +35,32 @@ class ApiUrls {
 
   static const String getCommentsOnBlog = "/user/blog/getCommentsLikeReply";
   static const String getCommentsOnPost = "/user/post/showPostCommentLikeReply";
-  static const String likeAndReplyOnComment = "/user/blog/likeAndReplyOnComment";
-  static const String likeAndReplyOnPostComment = "/user/post/likeAndReplyOnComment";
+  static const String likeAndReplyOnComment =
+      "/user/blog/likeAndReplyOnComment";
+  static const String likeAndReplyOnPostComment =
+      "/user/post/likeAndReplyOnComment";
   static const String saveBlog = "/user/blog/saveBlog";
   static const String getLatestEvent = "/user/event/showLatestEvent";
   static const String markAsGoingOnEvent = "/user/event/markAsGoing";
   static const String getNearesEvent = "/user/event/showAllEventNearBy";
   static const String createAssistance = "/user/postrequest/createPostRequest";
-  static const String getReasonsForAssistance = "/user/postrequest/getPostRequestCaterogy";
-  static const String getcreatedAssistance = "/user/postrequest/getUserPostRequest";
-  static const String getOthersCreatedAssistance = "/user/postrequest/getAllPostRequest";
-  static const String reachOnOthersCreatedAssistance = "/user/postrequest/sendVolunteerRequest";
-  static const String volunterCompletedCreatedAssistance = "/user/postrequest/markAsCompletedByVolunteer";
+  static const String getReasonsForAssistance =
+      "/user/postrequest/getPostRequestCaterogy";
+  static const String getcreatedAssistance =
+      "/user/postrequest/getUserPostRequest";
+  static const String getOthersCreatedAssistance =
+      "/user/postrequest/getAllPostRequest";
+  static const String reachOnOthersCreatedAssistance =
+      "/user/postrequest/sendVolunteerRequest";
+  static const String volunterCompletedCreatedAssistance =
+      "/user/postrequest/markAsCompletedByVolunteer";
   static const String markTopicAsFavourite = "/user/blog/saveFavouriteTopic";
-  static const String getRequestOfVolunteers = "/user/postrequest/getAllVolenteerRequest";
-  static const String acceptVoluntersRequest = "/user/postrequest/acceptVolunteerRequest";
-  static const String completeAssistanceByOwner = "/user/postrequest/confirmTaskCompletedByOwner";
+  static const String getRequestOfVolunteers =
+      "/user/postrequest/getAllVolenteerRequest";
+  static const String acceptVoluntersRequest =
+      "/user/postrequest/acceptVolunteerRequest";
+  static const String completeAssistanceByOwner =
+      "/user/postrequest/confirmTaskCompletedByOwner";
   static const String reportPost = "/user/post/userReportPost";
   static const String createChatRoom = "/user/chat/createOneToOneChatRoom";
   static const String sendAttachementOnChatRoom = "/user/chat/uplaodAttachment";
@@ -58,8 +68,10 @@ class ApiUrls {
   static const String getYoursGroup = "/user/chat/getGroupChatRooms";
   static const String getOthersGroup = "/user/chat/getFeatureGroups";
   static const String joinGroupChatRoom = "/user/chat/addParticipantinChatRoom";
-  static const String postOnYourInteres = "/user/post/showAllPostByUserSelectedInterest";
-  static const String interestBaseMultiplePost = "/user/post/showAllPostByInterest";
+  static const String postOnYourInteres =
+      "/user/post/showAllPostByUserSelectedInterest";
+  static const String interestBaseMultiplePost =
+      "/user/post/showAllPostByInterest";
   static const String onlyYourPost = "/user/post/showUserAllPost";
   static const String createUserPost = "/user/post/createUserPost";
   static const String getMe = "/user/auth/getMe";
