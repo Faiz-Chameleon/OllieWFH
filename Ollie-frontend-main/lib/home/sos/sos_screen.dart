@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ollie/Auth/login/user_controller.dart';
 import 'sos_controller.dart';
 
 class SOSScreen extends StatelessWidget {
   SOSScreen({super.key});
 
   final SOSController controller = Get.put(SOSController());
+  final UserController userController = Get.find<UserController>();
 
   @override
   Widget build(BuildContext context) {
@@ -62,29 +64,32 @@ class SOSScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // Emergency contacts
-            // GestureDetector(
-            //   onTap: () => controller.showEmergencyContactSheet(context),
-            //   child: Container(
-            //     width: double.infinity,
-            //     padding: const EdgeInsets.all(20),
-            //     decoration: BoxDecoration(
-            //       color: const Color(0xFFFDF3DD),
-            //       borderRadius: BorderRadius.circular(20),
-            //       border: Border.all(color: const Color(0xFFE2645A), width: 2),
-            //     ),
-            //     child: const Column(
-            //       crossAxisAlignment: CrossAxisAlignment.start,
-            //       children: [
-            //         Text(
-            //           "Emergency\nContacts",
-            //           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFFE2645A)),
-            //         ),
-            //         SizedBox(height: 10),
-            //         Text("Tap to notify your loved ones.", style: TextStyle(color: Color(0xFFE2645A))),
-            //       ],
-            //     ),
-            //   ),
-            // ),
+            GestureDetector(
+              onTap: () => controller.showEmergencyContactSheet(context, userController.user.value?.emergencyContactNumber ?? ''),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFDF3DD),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFE2645A), width: 2),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Emergency\nContacts",
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFFE2645A)),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "Tap to notify your loved ones. ${userController.user.value?.emergencyContactNumber} ",
+                      style: TextStyle(color: Color(0xFFE2645A)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 30),
 
             // Advertisement Placeholder

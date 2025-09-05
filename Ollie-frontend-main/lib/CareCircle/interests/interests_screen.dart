@@ -190,126 +190,134 @@ class InterestsScreen extends StatelessWidget {
           ),
           10.verticalSpace,
 
-          Obx(() {
-            if (controller.getYourSavePostStatus.value == RequestStatus.loading) {
-              return Center(child: CircularProgressIndicator());
-            } else if (controller.yourSavePostList.isEmpty) {
-              return Center(
-                child: Text("No saved posts found", style: TextStyle(color: Colors.grey)),
-              );
-            } else {
-              var post = controller.yourSavePostList[0];
-              return Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          SizedBox(
+            height: 250.h,
+            child: Obx(() {
+              if (controller.getYourSavePostStatus.value == RequestStatus.loading) {
+                return Center(child: CircularProgressIndicator());
+              } else if (controller.yourSavePostList.isEmpty) {
+                return Center(
+                  child: Text("No saved posts found", style: TextStyle(color: Colors.grey)),
+                );
+              } else {
+                var post = controller.yourSavePostList[0];
+                return Column(
                   children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 16,
-                          backgroundImage: NetworkImage(post["user"]["image"] ?? ""),
-                          child: post["user"]["image"] == null || post["user"]["image"] == ""
-                              ? Icon(Icons.person, size: 20) // Default icon when there is no image
-                              : null,
-                        ),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(post["user"]["firstName"] ?? "", style: const TextStyle(fontWeight: FontWeight.bold)),
-                            // Text(controller.formatDate(post.createdAt ?? ""), style: const TextStyle(fontSize: 12)),
-                          ],
-                        ),
-                        const Spacer(),
-                        PopupMenuButton(
-                          shape: TooltipShapeBorder(),
-                          itemBuilder: (context) => [const PopupMenuItem(value: 'report', child: Text("Report"))],
-                          onSelected: (value) {
-                            controller.postReport(post.id ?? "");
-                          },
-                          icon: const Icon(Icons.more_horiz, color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Text("Title: ${post["userPost"]["title"]}", style: const TextStyle(fontSize: 14)),
-                    Text('Description: ${post["userPost"]["content"]}' ?? "", style: const TextStyle(fontSize: 14)),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 16,
+                                backgroundImage: NetworkImage(post["user"]["image"] ?? ""),
+                                child: post["user"]["image"] == null || post["user"]["image"] == ""
+                                    ? Icon(Icons.person, size: 20) // Default icon when there is no image
+                                    : null,
+                              ),
+                              const SizedBox(width: 10),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(post["user"]["firstName"] ?? "", style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  // Text(controller.formatDate(post.createdAt ?? ""), style: const TextStyle(fontSize: 12)),
+                                ],
+                              ),
+                              const Spacer(),
+                              PopupMenuButton(
+                                shape: TooltipShapeBorder(),
+                                itemBuilder: (context) => [const PopupMenuItem(value: 'report', child: Text("Report"))],
+                                onSelected: (value) {
+                                  controller.postReport(post.id ?? "");
+                                },
+                                icon: const Icon(Icons.more_horiz, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Text("Title: ${post["userPost"]["title"]}", style: const TextStyle(fontSize: 14)),
+                          Text('Description: ${post["userPost"]["content"]}' ?? "", style: const TextStyle(fontSize: 14)),
 
-                    if (post["userPost"]["image"] != null) ...[
-                      const SizedBox(height: 10),
-                      ClipRRect(borderRadius: BorderRadius.circular(12), child: _buildMediaWidget(post["userPost"]["image"].toString())),
-                    ] else ...[
-                      const SizedBox(height: 10),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.asset("assets/images/Card.png", height: 150, width: double.infinity, fit: BoxFit.cover),
-                      ),
-                    ],
-
-                    // if (post.document != null) ...[
-                    //   const SizedBox(height: 10),
-                    //   Row(
-                    //     children: [
-                    //       const Icon(
-                    //         Icons.insert_drive_file,
-                    //         color: Colors.black,
-                    //       ),
-                    //       const SizedBox(width: 8),
-                    //       Expanded(
-                    //         child: Text(post.document!.path.split('/').last),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ],
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            var data = {"type": "user-posts", "postId": post["id"].toString()};
-                            controller.likeOrUnlikePost(data, 0);
-                          },
-                          // child: Icon(post.isLikePost == false ? Icons.thumb_up_alt_outlined : Icons.thumb_up, size: 18),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(post["userPost"]["views"].toString() ?? "0"),
-
-                        const SizedBox(width: 16),
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Get.to(() => CommentsScreenOnPost(postId: post.id.toString()));
-                              },
-                              child: Icon(Icons.comment_outlined, size: 18),
+                          if (post["userPost"]["image"] != null) ...[
+                            const SizedBox(height: 10),
+                            ClipRRect(borderRadius: BorderRadius.circular(12), child: _buildMediaWidget(post["userPost"]["image"].toString())),
+                          ] else ...[
+                            const SizedBox(height: 10),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.asset("assets/images/Card.png", height: 150, width: double.infinity, fit: BoxFit.cover),
                             ),
-                            SizedBox(width: 4),
-                            // Text(post.cCount?.userpostcomments != null ? post.cCount!.userpostcomments.toString() : "0"),
                           ],
-                        ),
-                        const SizedBox(width: 16),
-                        const Icon(Icons.remove_red_eye_outlined, size: 18),
-                        const SizedBox(width: 4),
-                        // Text(post.views.toString()),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            controller.savePostToggle(post.id.toString(), 0);
-                          },
-                          // child: Icon(post.isSavePost == false ? Icons.bookmark_border : Icons.bookmark_added, size: 18),
-                        ),
-                        const SizedBox(width: 4),
-                        const Text("Save"),
-                      ],
+
+                          // if (post.document != null) ...[
+                          //   const SizedBox(height: 10),
+                          //   Row(
+                          //     children: [
+                          //       const Icon(
+                          //         Icons.insert_drive_file,
+                          //         color: Colors.black,
+                          //       ),
+                          //       const SizedBox(width: 8),
+                          //       Expanded(
+                          //         child: Text(post.document!.path.split('/').last),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ],
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  var data = {"type": "user-posts", "postId": post["id"].toString()};
+                                  controller.likeOrUnlikePost(data, 0);
+                                },
+                                // child: Icon(post.isLikePost == false ? Icons.thumb_up_alt_outlined : Icons.thumb_up, size: 18),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(post["userPost"]["views"].toString() ?? "0"),
+
+                              const SizedBox(width: 16),
+                              Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      Get.to(() => CommentsScreenOnPost(postId: post.id.toString()));
+                                    },
+                                    child: Icon(Icons.comment_outlined, size: 18),
+                                  ),
+                                  SizedBox(width: 4),
+                                  // Text(post.cCount?.userpostcomments != null ? post.cCount!.userpostcomments.toString() : "0"),
+                                ],
+                              ),
+                              const SizedBox(width: 16),
+                              const Icon(Icons.remove_red_eye_outlined, size: 18),
+                              const SizedBox(width: 4),
+                              // Text(post.views.toString()),
+                              const Spacer(),
+                              GestureDetector(
+                                onTap: () {
+                                  controller.savePostToggle(post.id.toString(), 0);
+                                },
+                                // child: Icon(post.isSavePost == false ? Icons.bookmark_border : Icons.bookmark_added, size: 18),
+                              ),
+                              const SizedBox(width: 4),
+                              const Text("Save"),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
-                ),
-              );
-            }
-          }),
-          200.verticalSpace,
+                );
+              }
+            }),
+          ),
+
+          // 200.verticalSpace,
         ],
       ),
     );

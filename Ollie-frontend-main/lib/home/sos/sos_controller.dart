@@ -51,7 +51,7 @@ class SOSController extends GetxController {
     }
   }
 
-  void showEmergencyContactSheet(BuildContext context) {
+  void showEmergencyContactSheet(BuildContext context, String contactNumber) {
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFFFDF3DD),
@@ -74,6 +74,7 @@ class SOSController extends GetxController {
                 width: 390.w,
                 child: ElevatedButton(
                   onPressed: () {
+                    _launchDialer(contactNumber);
                     // Simulate call
                   },
                   style: ElevatedButton.styleFrom(
@@ -88,20 +89,20 @@ class SOSController extends GetxController {
               const SizedBox(height: 10),
 
               // Message Button
-              SizedBox(
-                width: 390.w,
-                child: OutlinedButton(
-                  onPressed: () {
-                    // Simulate message
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFFE2645A), width: 2),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  child: const Text("Message", style: TextStyle(fontSize: 16, color: Color(0xFFE2645A))),
-                ),
-              ),
+              // SizedBox(
+              //   width: 390.w,
+              //   child: OutlinedButton(
+              //     onPressed: () {
+              //       // Simulate message
+              //     },
+              //     style: OutlinedButton.styleFrom(
+              //       side: const BorderSide(color: Color(0xFFE2645A), width: 2),
+              //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              //       padding: const EdgeInsets.symmetric(vertical: 14),
+              //     ),
+              //     child: const Text("Message", style: TextStyle(fontSize: 16, color: Color(0xFFE2645A))),
+              //   ),
+              // ),
             ],
           ),
         );

@@ -11,8 +11,7 @@ class ElevenLabsConversationalService {
   static const String _baseUrl =
       // "wss://api.elevenlabs.io/v1/conversational-ai/conversation";
       'wss://api.elevenlabs.io/v1/convai/conversation';
-  static const String _apiKey =
-      'sk_9397cfffae1c9e05795c482352f9b1d546ab90a3f2308fcd';
+  static const String _apiKey = 'sk_9397cfffae1c9e05795c482352f9b1d546ab90a3f2308fcd';
 
   WebSocketChannel? _channel;
   AudioPlayer? _audioPlayer;
@@ -26,14 +25,10 @@ class ElevenLabsConversationalService {
   Timer? _pingTimer;
 
   // Streams for UI updates
-  Stream<String> get transcriptStream =>
-      _transcriptController?.stream ?? Stream.empty();
-  Stream<String> get responseStream =>
-      _responseController?.stream ?? Stream.empty();
-  Stream<Uint8List> get audioStream =>
-      _audioController?.stream ?? Stream.empty();
-  Stream<bool> get connectionStream =>
-      _connectionController?.stream ?? Stream.empty();
+  Stream<String> get transcriptStream => _transcriptController?.stream ?? Stream.empty();
+  Stream<String> get responseStream => _responseController?.stream ?? Stream.empty();
+  Stream<Uint8List> get audioStream => _audioController?.stream ?? Stream.empty();
+  Stream<bool> get connectionStream => _connectionController?.stream ?? Stream.empty();
   Stream<Map<String, dynamic>> get toolCallStream => // Add this getter
       _toolCallController?.stream ?? Stream.empty();
 
@@ -65,16 +60,15 @@ class ElevenLabsConversationalService {
       final initMessage = {
         'type': 'conversation_initiation_client_data',
         'conversation_config_override': {
-          'agent': {
-            'prompt': {
-              'prompt':
-                  customPrompt ??
-                  "You are Ollie, a helpful AI assistant. Always respond to user messages with helpful and friendly responses.",
-            },
-            'first_message':
-                firstMessage ?? "Hello! I'm Ollie. How can I help you today?",
-            'language': language,
-          },
+          // 'agent': {
+          //   // 'prompt': {
+          //   //   'prompt':
+          //   //       customPrompt ??
+          //   //       "You are Ollie, a helpful AI assistant. Always respond to user messages with helpful and friendly responses.",
+          //   // },
+          //   // 'first_message': firstMessage ?? "Hello! I'm Ollie. How can I help you today?",
+          //   // 'language': language,
+          // },
           'tts': {'voice_id': voiceId, 'model_id': 'eleven_turbo_v2_5'},
           'conversation': {'max_duration_seconds': 600},
         },
@@ -121,23 +115,18 @@ class ElevenLabsConversationalService {
       final type = message['type'];
 
       print('📨 Message type: $type');
-      print(
-        '📨 Full message: ${json.encode(message)}',
-      ); // Debug: see full message
+      print('📨 Full message: ${json.encode(message)}'); // Debug: see full message
 
       switch (type) {
         case 'conversation_initiation_metadata':
           _isConnected = true;
-          _conversationId =
-              message['conversation_initiation_metadata_event']?['conversation_id'];
+          _conversationId = message['conversation_initiation_metadata_event']?['conversation_id'];
           _connectionController?.add(true);
           print('✅ Connected! Conversation ID: $_conversationId');
           break;
 
         case 'agent_response':
-          final text =
-              message['agent_response_event']?['agent_response'] ??
-              message['agent_response'];
+          final text = message['agent_response_event']?['agent_response'] ?? message['agent_response'];
           if (text != null && text.isNotEmpty) {
             _responseController?.add(text);
             print('🤖 Agent response: $text');
@@ -166,9 +155,7 @@ class ElevenLabsConversationalService {
           break;
 
         case 'user_transcript':
-          final transcript =
-              message['user_transcript_event']?['user_transcript'] ??
-              message['user_transcript'];
+          final transcript = message['user_transcript_event']?['user_transcript'] ?? message['user_transcript'];
           if (transcript != null) {
             _transcriptController?.add(transcript);
             print('🎤 User transcript: $transcript');
@@ -180,24 +167,17 @@ class ElevenLabsConversationalService {
           final toolCall = {
             'name': functionCall['name'],
             'parameters': functionCall['arguments'] ?? {},
-            'id':
-                message['call_id'] ??
-                DateTime.now().millisecondsSinceEpoch.toString(),
+            'id': message['call_id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
           };
           _toolCallController?.add(toolCall);
           break;
 
         case 'ping':
-          _sendPong(
-            message['event_id'] ?? message['ping_event']?['event_id'] ?? 0,
-          );
+          _sendPong(message['event_id'] ?? message['ping_event']?['event_id'] ?? 0);
           break;
 
         case 'error':
-          final error =
-              message['error']?['message'] ??
-              message['message'] ??
-              'Unknown error';
+          final error = message['error']?['message'] ?? message['message'] ?? 'Unknown error';
           print('❌ Server error: $error');
           _transcriptController?.add('Error: $error');
           break;
@@ -230,20 +210,14 @@ class ElevenLabsConversationalService {
   }
 
   // Send tool response back to ElevenLabs
-  Future<void> sendToolResponse({
-    required String toolCallId,
-    required Map<String, dynamic> result,
-    bool success = true,
-  }) async {
+  Future<void> sendToolResponse({required String toolCallId, required Map<String, dynamic> result, bool success = true}) async {
     if (!_isConnected) return;
 
     try {
       final message = {
         'type': 'function_call_response',
         'call_id': toolCallId,
-        'response': success
-            ? result
-            : {'error': result['error'] ?? 'Tool execution failed'},
+        'response': success ? result : {'error': result['error'] ?? 'Tool execution failed'},
       };
 
       _channel!.sink.add(json.encode(message));
@@ -289,10 +263,7 @@ class ElevenLabsConversationalService {
   void _sendPing() {
     if (_isConnected && _channel != null) {
       try {
-        final pingMessage = {
-          'type': 'ping',
-          'event_id': DateTime.now().millisecondsSinceEpoch,
-        };
+        final pingMessage = {'type': 'ping', 'event_id': DateTime.now().millisecondsSinceEpoch};
         _channel!.sink.add(jsonEncode(pingMessage));
       } catch (e) {
         print('❌ Error sending ping: $e');
@@ -313,9 +284,7 @@ class ElevenLabsConversationalService {
   Future<void> _playAudioChunk(Uint8List audioData) async {
     try {
       final tempDir = await getTemporaryDirectory();
-      final tempFile = File(
-        '${tempDir.path}/audio_chunk_${DateTime.now().millisecondsSinceEpoch}.wav',
-      );
+      final tempFile = File('${tempDir.path}/audio_chunk_${DateTime.now().millisecondsSinceEpoch}.wav');
       await tempFile.writeAsBytes(audioData);
       await _audioPlayer?.play(DeviceFileSource(tempFile.path));
     } catch (e) {

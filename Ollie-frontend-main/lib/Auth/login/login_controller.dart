@@ -46,12 +46,8 @@ class LoginController extends GetxController {
   // Test method to verify GetX is working
   void testGetX() {
     print('🧪 Testing GetX functionality...');
-    print(
-      '  - Get.isRegistered<LoginController>: ${Get.isRegistered<LoginController>()}',
-    );
-    print(
-      '  - Get.isRegistered<Login_Screen>: ${Get.isRegistered<Login_Screen>()}',
-    );
+    print('  - Get.isRegistered<LoginController>: ${Get.isRegistered<LoginController>()}');
+    print('  - Get.isRegistered<Login_Screen>: ${Get.isRegistered<Login_Screen>()}');
     print('  - Current route: ${Get.currentRoute}');
 
     // Check user state
@@ -149,9 +145,7 @@ class LoginController extends GetxController {
 
           if (userModel.data != null) {
             userController.setUser(userModel.data!);
-            print(
-              '👤 User data set: ${userModel.data!.firstName} ${userModel.data!.lastName}',
-            );
+            print('👤 User data set: ${userModel.data!.firstName} ${userModel.data!.lastName}');
 
             // Set navigation flags instead of navigating immediately
             autoLoginUserData.value = result["data"];
