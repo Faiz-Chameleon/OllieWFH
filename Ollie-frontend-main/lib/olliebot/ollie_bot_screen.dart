@@ -16,9 +16,12 @@ class OllieScreen extends StatefulWidget {
   State<OllieScreen> createState() => _OllieScreenState();
 }
 
-class _OllieScreenState extends State<OllieScreen> {
+class _OllieScreenState extends State<OllieScreen> with SingleTickerProviderStateMixin {
   final OllieController controller = Get.put(OllieController());
-
+  late AnimationController _controller;
+  late Animation<double> _scale;
+  late Animation<double> _fade;
+  late Animation<double> _rotation;
   @override
   void initState() {
     super.initState();
@@ -26,6 +29,21 @@ class _OllieScreenState extends State<OllieScreen> {
     Future.delayed(Duration(seconds: 1), () {
       controller.speakWelcomeMessage();
     });
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800));
+
+    _scale = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+
+    _fade = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+    _rotation = Tween<double>(begin: -0.15, end: 0.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+    // Start animation as soon as widget loads
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -44,21 +62,21 @@ class _OllieScreenState extends State<OllieScreen> {
         automaticallyImplyLeading: false,
         actions: [
           // TTS Settings Button
-          IconButton(
-            icon: Icon(Icons.settings, color: Black),
-            onPressed: () {
-              Get.to(() => TTSSettingsScreen());
-            },
-          ),
-          GestureDetector(
-            onTap: () {
-              Get.to(() => TodoListScreen(), transition: Transition.fadeIn);
-            },
-            child: Padding(
-              padding: EdgeInsets.only(right: 16),
-              child: Icon(Icons.menu, color: Black),
-            ),
-          ),
+          // IconButton(
+          //   icon: Icon(Icons.settings, color: Black),
+          //   onPressed: () {
+          //     Get.to(() => TTSSettingsScreen());
+          //   },
+          // ),
+          // GestureDetector(
+          //   onTap: () {
+          //     Get.to(() => TodoListScreen(), transition: Transition.fadeIn);
+          //   },
+          //   child: Padding(
+          //     padding: EdgeInsets.only(right: 16),
+          //     child: Icon(Icons.menu, color: Black),
+          //   ),
+          // ),
         ],
       ),
       body: Center(
@@ -72,7 +90,24 @@ class _OllieScreenState extends State<OllieScreen> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
-              Image.asset("assets/images/Group 1000000914.png", height: 0.35.sh),
+              GestureDetector(
+                onTap: () {
+                  Get.to(() => ConversationalChatScreen(), transition: Transition.fadeIn); // Navigates to conversational AI
+                },
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (_, child) {
+                    return Transform.rotate(
+                      angle: _rotation.value,
+                      child: Transform.scale(
+                        scale: _scale.value,
+                        child: Opacity(opacity: _fade.value, child: child),
+                      ),
+                    );
+                  },
+                  child: Image.asset("assets/images/Group 1000000914.png", height: 0.35.sh),
+                ),
+              ),
 
               const SizedBox(height: 30),
 
@@ -137,26 +172,27 @@ class _OllieScreenState extends State<OllieScreen> {
                         //   style: TextStyle(fontSize: 12, color: Black, fontWeight: FontWeight.w500),
                         // ),
                         const SizedBox(height: 20),
-                        GestureDetector(
-                          onTap: () {
-                            Get.to(() => ConversationalChatScreen(), transition: Transition.fadeIn); // Navigates to conversational AI
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(color: Colors.purple, borderRadius: BorderRadius.circular(20)),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.psychology, color: white, size: 20),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "AI Chat",
-                                  style: TextStyle(color: white, fontSize: 14, fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+
+                        // GestureDetector(
+                        //   onTap: () {
+                        //     Get.to(() => ConversationalChatScreen(), transition: Transition.fadeIn); // Navigates to conversational AI
+                        //   },
+                        //   child: Container(
+                        //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        //     decoration: BoxDecoration(color: Colors.purple, borderRadius: BorderRadius.circular(20)),
+                        //     child: Row(
+                        //       mainAxisSize: MainAxisSize.min,
+                        //       children: [
+                        //         Icon(Icons.psychology, color: white, size: 20),
+                        //         const SizedBox(width: 8),
+                        //         Text(
+                        //           "AI Chat",
+                        //           style: TextStyle(color: white, fontSize: 14, fontWeight: FontWeight.w600),
+                        //         ),
+                        //       ],
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
 

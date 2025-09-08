@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:developer' as dev;
 import 'dart:typed_data';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
@@ -41,6 +44,7 @@ class ElevenLabsConversationalService {
     String language = 'en',
   }) async {
     try {
+      final UserController userController = Get.find<UserController>();
       // Initialize controllers
       _transcriptController = StreamController<String>.broadcast();
       _responseController = StreamController<String>.broadcast();
@@ -59,20 +63,14 @@ class ElevenLabsConversationalService {
       // FIXED: Use the correct initialization format
       final initMessage = {
         'type': 'conversation_initiation_client_data',
-        'conversation_config_override': {
-          // 'agent': {
-          //   // 'prompt': {
-          //   //   'prompt':
-          //   //       customPrompt ??
-          //   //       "You are Ollie, a helpful AI assistant. Always respond to user messages with helpful and friendly responses.",
-          //   // },
-          //   // 'first_message': firstMessage ?? "Hello! I'm Ollie. How can I help you today?",
-          //   // 'language': language,
-          // },
-          'tts': {'voice_id': voiceId, 'model_id': 'eleven_turbo_v2_5'},
-          'conversation': {'max_duration_seconds': 600},
+        'dynamic_variables': {
+          'secret__auth_token': userController.user.value?.userToken ?? '',
+          'user_name': userController.user.value?.firstName ?? 'User',
+          'user_context': "text",
+          'current_date_time': DateTime.now().toIso8601String(),
+          'latitude': 90.01234,
+          'longitude': -118.011,
         },
-        'xi_api_key': _apiKey,
       };
 
       dev.log('📤 Sending init message: ${jsonEncode(initMessage)}');
@@ -236,7 +234,7 @@ class ElevenLabsConversationalService {
 
     try {
       // Use the correct format for ElevenLabs
-      final message = {'type': 'user_transcript', 'user_transcript': text};
+      final message = {'type': 'user_message', 'text': text};
 
       _channel!.sink.add(jsonEncode(message));
       print('📤 Sent message: $text');

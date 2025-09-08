@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:get/get.dart';
+import 'package:ollie/CareCircle/interests/comments_screen_on_post.dart';
 import 'package:ollie/Constants/constants.dart';
+import 'package:ollie/blogs/blog_details_screen.dart';
+import 'package:ollie/request_status.dart';
 import '../care_circle_controller.dart';
 
 class SavedPostsScreen extends StatelessWidget {
@@ -46,79 +50,193 @@ class SavedPostsScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: ListView.separated(
-          itemCount: savedPosts.length + 1, // +1 for the ad block
-          separatorBuilder: (_, __) => const SizedBox(height: 16),
-          itemBuilder: (context, index) {
-            final post = savedPosts[index > 3 ? index - 1 : index];
+        child: Obx(() {
+          if (controller.getYourSavePostStatus.value == RequestStatus.loading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (controller.getYourSavePostStatus.value == RequestStatus.error) {
+            return const Center(child: Text("Something went wrong"));
+          } else if (controller.yourSavePostList.isEmpty) {
+            return const Center(child: Text("No posts available"));
+          }
+          return ListView.builder(
+            shrinkWrap: true,
+            itemCount: controller.yourSavePostList.length,
 
-            return Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // User Row
-                  Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 16,
-                        backgroundImage: AssetImage("assets/icons/Frame 1686560584.png"), // Replace with actual profile if available
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(post["user"], style: const TextStyle(fontWeight: FontWeight.bold)),
-                          Text(post["time"], style: const TextStyle(fontSize: 12)),
-                        ],
-                      ),
-                      const Spacer(),
-                      const Icon(Icons.more_horiz, color: Colors.grey),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Post Text
-                  Text(post["text"], style: const TextStyle(fontSize: 14)),
-
-                  // Optional Image
-                  if (post["image"] != null) ...[
-                    const SizedBox(height: 10),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.asset(post["image"], height: 150, width: double.infinity, fit: BoxFit.cover),
+            itemBuilder: (context, index) {
+              final post = controller.yourSavePostList[index];
+              return Container(
+                width: 1.sw,
+                // height: 250.h,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(color: Colors.white.withOpacity(0.5), borderRadius: BorderRadius.circular(16)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundImage: NetworkImage(post["user"]["image"] ?? ""),
+                          child: post["user"]["image"] == null || post["user"]["image"] == ""
+                              ? Icon(Icons.person, size: 20) // Default icon when there is no image
+                              : null,
+                        ),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(post["user"]["firstName"] ?? "", style: const TextStyle(fontWeight: FontWeight.bold)),
+                            Text(controller.formatDate(post["createdAt"] ?? ""), style: const TextStyle(fontSize: 12)),
+                          ],
+                        ),
+                        const Spacer(),
+                        PopupMenuButton(
+                          shape: TooltipShapeBorder(),
+                          itemBuilder: (context) => [const PopupMenuItem(value: 'report', child: Text("Report"))],
+                          onSelected: (value) {
+                            controller.postReport(post["id"] ?? "");
+                          },
+                          icon: const Icon(Icons.more_horiz, color: Colors.grey),
+                        ),
+                      ],
                     ),
-                  ],
+                    const SizedBox(height: 10),
+                    Text("Title: ${post["userPost"]["title"]}", style: const TextStyle(fontSize: 14)),
+                    Text('Description: ${post["userPost"]["content"]}' ?? "", style: const TextStyle(fontSize: 14)),
 
-                  const SizedBox(height: 12),
-
-                  // Reaction Row
-                  Row(
-                    children: const [
-                      Icon(Icons.thumb_up_alt_outlined, size: 18),
-                      SizedBox(width: 4),
-                      Text("634"),
-                      SizedBox(width: 16),
-                      Icon(Icons.comment_outlined, size: 18),
-                      SizedBox(width: 4),
-                      Text("634"),
-                      SizedBox(width: 16),
-                      Icon(Icons.remove_red_eye_outlined, size: 18),
-                      SizedBox(width: 4),
-                      Text("634"),
-                      Spacer(),
-                      Icon(Icons.bookmark, size: 18),
-                      SizedBox(width: 4),
-                      Text("Saved"),
+                    if (post["userPost"]["image"] != null) ...[
+                      const SizedBox(height: 10),
+                      ClipRRect(borderRadius: BorderRadius.circular(12), child: _buildMediaWidget(post["userPost"]["image"].toString())),
+                    ] else ...[
+                      const SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset("assets/images/Card.png", height: 150, width: double.infinity, fit: BoxFit.cover),
+                      ),
                     ],
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
+
+                    // if (post.document != null) ...[
+                    //   const SizedBox(height: 10),
+                    //   Row(
+                    //     children: [
+                    //       const Icon(
+                    //         Icons.insert_drive_file,
+                    //         color: Colors.black,
+                    //       ),
+                    //       const SizedBox(width: 8),
+                    //       Expanded(
+                    //         child: Text(post.document!.path.split('/').last),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ],
+                    const SizedBox(height: 12),
+
+                    // Row(
+                    //   children: [
+                    //     // GestureDetector(
+                    //     //   onTap: () {
+                    //     //     var data = {"type": "user-posts", "postId": post.id.toString()};
+                    //     //     controller.likeOrUnlikePost(data, index);
+                    //     //   },
+                    //     //   child: Icon(post["isLikePost"] == false ? Icons.thumb_up_alt_outlined : Icons.thumb_up, size: 18),
+                    //     // ),
+                    //     const SizedBox(width: 4),
+
+                    //     // Text(post[""]),
+                    //     const SizedBox(width: 16),
+                    //     Row(
+                    //       children: [
+                    //         GestureDetector(
+                    //           onTap: () {
+                    //             Get.to(() => CommentsScreenOnPost(postId: post["id"].toString()));
+                    //           },
+                    //           child: Icon(Icons.comment_outlined, size: 18),
+                    //         ),
+                    //         SizedBox(width: 4),
+                    //         // Text(post.cCount?.userpostcomments != null ? post.cCount!.userpostcomments.toString() : "0"),
+                    //       ],
+                    //     ),
+                    //     const SizedBox(width: 16),
+                    //     const Icon(Icons.remove_red_eye_outlined, size: 18),
+                    //     const SizedBox(width: 4),
+                    //     // Text(post.views.toString()),
+                    //     // const Spacer(),
+                    //     // Row(
+                    //     //   children: [
+                    //     //     // GestureDetector(
+                    //     //     //   onTap: () {
+                    //     //     //     controller.savePostToggle(post.id.toString(), index);
+                    //     //     //   },
+                    //     //     //   // child: Icon(post.isSavePost == false ? Icons.bookmark_border : Icons.bookmark_added, size: 18),
+                    //     //     // ),
+                    //     //     const SizedBox(width: 4),
+                    //     //     const Text("Save"),
+                    //     //   ],
+                    //     // ),
+                    //   ],
+                    // ),
+                  ],
+                ),
+              );
+            },
+          );
+        }),
       ),
+    );
+  }
+
+  Widget _buildMediaWidget(String url) {
+    final extension = url.split('.').last.toLowerCase();
+
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(extension)) {
+      // ✅ Image
+      return Image.network(
+        url,
+        height: 150,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return _placeholder();
+        },
+      );
+    } else if (['mp4', 'mov', 'avi', 'mkv'].contains(extension)) {
+      // ✅ Video
+      return Container(
+        height: 150,
+        width: double.infinity,
+        color: Colors.black,
+        child: const Center(child: Icon(Icons.play_circle_fill, color: Colors.white, size: 50)),
+      );
+      // Later: integrate `video_player` package for playback
+    } else if (extension == 'pdf') {
+      // ✅ PDF
+      return Container(
+        height: 150,
+        width: double.infinity,
+        color: Colors.red[100],
+        child: const Center(child: Icon(Icons.picture_as_pdf, color: Colors.red, size: 50)),
+      );
+    } else if (['doc', 'docx'].contains(extension)) {
+      // ✅ Word document
+      return Container(
+        height: 150,
+        width: double.infinity,
+        color: Colors.blue[100],
+        child: const Center(child: Icon(Icons.description, color: Colors.blue, size: 50)),
+      );
+    } else {
+      // ❌ Unknown file type
+      return _placeholder();
+    }
+  }
+
+  Widget _placeholder() {
+    return Container(
+      height: 150,
+      width: double.infinity,
+      color: Colors.grey[300],
+      child: const Icon(Icons.insert_drive_file, color: Colors.grey),
     );
   }
 }

@@ -1,19 +1,11 @@
 // ignore_for_file: use_full_hex_values_for_flutter_colors, avoid_unnecessary_containers, avoid_print
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:ollie/CareCircle/assistance/assistance_controller.dart';
-import 'package:ollie/CareCircle/care_circle_controller.dart';
-import 'package:ollie/CareCircle/interests/comments_screen_on_post.dart';
-import 'package:ollie/Constants/constants.dart';
-import 'package:ollie/Subscription/credits/credits_sreen.dart';
-import 'package:ollie/home/notifications/notificatins_screen.dart';
-import 'package:ollie/request_status.dart';
-import 'package:ollie/widgets/showdilogbox.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:ollie/Auth/login/user_controller.dart';
 
-import '../../Volunteers/volunteers_scnreen.dart';
+import 'package:ollie/CareCircle/assistance/game_font.dart';
 
 class YourPostsScreen extends StatefulWidget {
   @override
@@ -21,171 +13,209 @@ class YourPostsScreen extends StatefulWidget {
 }
 
 class _YourPostsScreenState extends State<YourPostsScreen> {
-  bool oTurn = true;
+  final UserController userController = Get.find<UserController>();
+  // --- Config ---
+  final bool vsAI = true;
+  static const String human = 'X';
+  static const String ai = 'O';
 
-  // 1st player is O
-  List<String> displayElement = ['', '', '', '', '', '', '', '', ''];
+  // Game state
+  bool oTurn = false; // Human(X) starts -> it's NOT O's turn initially
+  List<String> displayElement = List.filled(9, '');
   int oScore = 0;
   int xScore = 0;
   int filledBoxes = 0;
+  bool gameOver = false;
+  bool aiThinking = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.indigo[900],
+      backgroundColor: const Color(0xFFFFF2D6),
       body: Column(
         children: <Widget>[
           Expanded(
-            child: Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          'Player X',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                        Text(xScore.toString(), style: TextStyle(fontSize: 20, color: Colors.white)),
-                      ],
-                    ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(30.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        userController.user.value?.firstName ?? "",
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      Text(xScore.toString(), style: const TextStyle(fontSize: 20, color: Colors.black)),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          'Player O',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                        Text(oScore.toString(), style: TextStyle(fontSize: 20, color: Colors.white)),
-                      ],
-                    ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(30.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      const Text(
+                        'Bot',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      Text(oScore.toString(), style: const TextStyle(fontSize: 20, color: Colors.black)),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           Expanded(
             flex: 4,
             child: GridView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
               itemCount: 9,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
               itemBuilder: (BuildContext context, int index) {
                 return GestureDetector(
                   onTap: () {
+                    // Don't allow taps when it's AI's turn or game over
+                    if (gameOver || (_isAITurn() && vsAI) || displayElement[index].isNotEmpty) return;
                     _tapped(index);
                   },
                   child: Container(
-                    decoration: BoxDecoration(border: Border.all(color: Colors.white)),
-                    child: Center(
-                      child: Text(displayElement[index], style: TextStyle(color: Colors.white, fontSize: 35)),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0E1020),
+                      border: Border.all(color: Colors.white),
                     ),
+                    child: Center(child: TicGlyph(mark: displayElement[index], size: 56)),
                   ),
                 );
               },
             ),
           ),
-          Expanded(
-            child: Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.red, // foreground
-                    ),
-                    onPressed: () {
-                      _clearScoreBoard();
-                    },
-                    child: Text("Clear Score Board"),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          // Expanded(
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: <Widget>[
+          //       ElevatedButton(
+          //         style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.red),
+          //         onPressed: _clearScoreBoard,
+          //         child: const Text("Clear Score Board"),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );
   }
 
+  // ----- GAMEPLAY -----
   void _tapped(int index) {
-    setState(() {
-      if (oTurn && displayElement[index] == '') {
-        displayElement[index] = 'O';
-        filledBoxes++;
-      } else if (!oTurn && displayElement[index] == '') {
-        displayElement[index] = 'X';
-        filledBoxes++;
-      }
+    if (gameOver || displayElement[index].isNotEmpty) return;
 
+    setState(() {
+      displayElement[index] = oTurn ? 'O' : 'X';
+      filledBoxes++;
       oTurn = !oTurn;
-      _checkWinner();
     });
+
+    _checkWinnerOrAI();
   }
 
-  void _checkWinner() {
-    // Checking rows
-    if (displayElement[0] == displayElement[1] && displayElement[0] == displayElement[2] && displayElement[0] != '') {
-      _showWinDialog(displayElement[0]);
+  void _checkWinnerOrAI() {
+    final winner = _winner(displayElement);
+    if (winner != null) {
+      _finish(winner);
+      return;
     }
-    if (displayElement[3] == displayElement[4] && displayElement[3] == displayElement[5] && displayElement[3] != '') {
-      _showWinDialog(displayElement[3]);
-    }
-    if (displayElement[6] == displayElement[7] && displayElement[6] == displayElement[8] && displayElement[6] != '') {
-      _showWinDialog(displayElement[6]);
-    }
-
-    // Checking Column
-    if (displayElement[0] == displayElement[3] && displayElement[0] == displayElement[6] && displayElement[0] != '') {
-      _showWinDialog(displayElement[0]);
-    }
-    if (displayElement[1] == displayElement[4] && displayElement[1] == displayElement[7] && displayElement[1] != '') {
-      _showWinDialog(displayElement[1]);
-    }
-    if (displayElement[2] == displayElement[5] && displayElement[2] == displayElement[8] && displayElement[2] != '') {
-      _showWinDialog(displayElement[2]);
+    if (filledBoxes == 9) {
+      _showDrawDialog();
+      return;
     }
 
-    // Checking Diagonal
-    if (displayElement[0] == displayElement[4] && displayElement[0] == displayElement[8] && displayElement[0] != '') {
-      _showWinDialog(displayElement[0]);
+    // If it's AI's turn, make a move with a short delay
+    if (vsAI && _isAITurn() && !gameOver) {
+      aiThinking = true;
+      Future.delayed(const Duration(milliseconds: 300), _computerMove);
     }
-    if (displayElement[2] == displayElement[4] && displayElement[2] == displayElement[6] && displayElement[2] != '') {
-      _showWinDialog(displayElement[2]);
+  }
+
+  bool _isAITurn() => (oTurn && ai == 'O') || (!oTurn && ai == 'X');
+
+  // Heuristic: win -> block -> center -> corner -> side
+  void _computerMove() {
+    if (gameOver) return;
+
+    int? move = _lineCompletionIndex(ai) ?? _lineCompletionIndex(human);
+    move ??= displayElement[4].isEmpty ? 4 : null;
+
+    move ??= [0, 2, 6, 8].firstWhere((i) => displayElement[i].isEmpty, orElse: () => -1);
+    if (move == -1) {
+      final sides = [1, 3, 5, 7].where((i) => displayElement[i].isEmpty).toList();
+      move = sides.isNotEmpty ? sides.first : null;
+    }
+
+    if (move != null && displayElement[move].isEmpty) {
+      setState(() {
+        displayElement[move!] = ai;
+        filledBoxes++;
+        oTurn = !oTurn;
+      });
+    }
+    aiThinking = false;
+
+    final winner = _winner(displayElement);
+    if (winner != null) {
+      _finish(winner);
     } else if (filledBoxes == 9) {
       _showDrawDialog();
     }
   }
 
-  void _showWinDialog(String winner) {
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("\" " + winner + " \" is Winner!!!"),
-          actions: [
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red, // foreground
-              ),
-              child: Text("Play Again"),
-              onPressed: () {
-                _clearBoard();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+  // Returns index to complete a line for player p if available
+  int? _lineCompletionIndex(String p) {
+    const winLines = <List<int>>[
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    for (final l in winLines) {
+      final a = displayElement[l[0]], b = displayElement[l[1]], c = displayElement[l[2]];
+      final vals = [a, b, c];
+      if (vals.where((v) => v == p).length == 2 && vals.contains('')) {
+        final idx = l[vals.indexOf('')];
+        return displayElement[idx].isEmpty ? idx : null;
+      }
+    }
+    return null;
+  }
 
+  String? _winner(List<String> b) {
+    const lines = <List<int>>[
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    for (final l in lines) {
+      if (b[l[0]].isNotEmpty && b[l[0]] == b[l[1]] && b[l[1]] == b[l[2]]) {
+        return b[l[0]]; // "X" or "O"
+      }
+    }
+    return null;
+  }
+
+  void _finish(String winner) {
+    gameOver = true;
+    _showWinDialog(winner);
     if (winner == 'O') {
       oScore++;
     } else if (winner == 'X') {
@@ -193,23 +223,22 @@ class _YourPostsScreenState extends State<YourPostsScreen> {
     }
   }
 
-  void _showDrawDialog() {
+  // ----- DIALOGS -----
+  void _showWinDialog(String winner) {
     showDialog(
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Draw"),
+          title: Text('" $winner " is Winner!!!'),
           actions: [
             TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red, // foreground
-              ),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text("Play Again"),
               onPressed: () {
                 _clearBoard();
                 Navigator.of(context).pop();
               },
-              child: Text('Play Again'),
             ),
           ],
         );
@@ -217,14 +246,40 @@ class _YourPostsScreenState extends State<YourPostsScreen> {
     );
   }
 
+  void _showDrawDialog() {
+    gameOver = true;
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Draw"),
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () {
+                _clearBoard();
+                Navigator.of(context).pop();
+              },
+              child: const Text('Play Again'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // ----- RESET -----
   void _clearBoard() {
     setState(() {
       for (int i = 0; i < 9; i++) {
         displayElement[i] = '';
       }
+      filledBoxes = 0;
+      gameOver = false;
+      // Human (X) starts each round
+      oTurn = false;
     });
-
-    filledBoxes = 0;
   }
 
   void _clearScoreBoard() {
@@ -234,8 +289,10 @@ class _YourPostsScreenState extends State<YourPostsScreen> {
       for (int i = 0; i < 9; i++) {
         displayElement[i] = '';
       }
+      filledBoxes = 0;
+      gameOver = false;
+      oTurn = false; // X starts again
     });
-    filledBoxes = 0;
   }
 }
 
@@ -275,7 +332,8 @@ class _YourPostsScreenState extends State<YourPostsScreen> {
 //       }
 //     });
 
-//     return Scaffold(
+//     return
+// Scaffold(
 //       backgroundColor: const Color(0xFFFDF3DD),
 //       appBar: AppBar(
 //         scrolledUnderElevation: 0,

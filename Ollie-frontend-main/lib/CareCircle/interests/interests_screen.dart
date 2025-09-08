@@ -191,7 +191,6 @@ class InterestsScreen extends StatelessWidget {
           10.verticalSpace,
 
           SizedBox(
-            height: 250.h,
             child: Obx(() {
               if (controller.getYourSavePostStatus.value == RequestStatus.loading) {
                 return Center(child: CircularProgressIndicator());
@@ -201,7 +200,9 @@ class InterestsScreen extends StatelessWidget {
                 );
               } else {
                 var post = controller.yourSavePostList[0];
-                return Column(
+                return ListView(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -231,7 +232,7 @@ class InterestsScreen extends StatelessWidget {
                                 shape: TooltipShapeBorder(),
                                 itemBuilder: (context) => [const PopupMenuItem(value: 'report', child: Text("Report"))],
                                 onSelected: (value) {
-                                  controller.postReport(post.id ?? "");
+                                  controller.postReport(post["id"] ?? "");
                                 },
                                 icon: const Icon(Icons.more_horiz, color: Colors.grey),
                               ),
@@ -268,49 +269,50 @@ class InterestsScreen extends StatelessWidget {
                           //   ),
                           // ],
                           const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  var data = {"type": "user-posts", "postId": post["id"].toString()};
-                                  controller.likeOrUnlikePost(data, 0);
-                                },
-                                // child: Icon(post.isLikePost == false ? Icons.thumb_up_alt_outlined : Icons.thumb_up, size: 18),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(post["userPost"]["views"].toString() ?? "0"),
-
-                              const SizedBox(width: 16),
-                              Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      Get.to(() => CommentsScreenOnPost(postId: post.id.toString()));
-                                    },
-                                    child: Icon(Icons.comment_outlined, size: 18),
-                                  ),
-                                  SizedBox(width: 4),
-                                  // Text(post.cCount?.userpostcomments != null ? post.cCount!.userpostcomments.toString() : "0"),
-                                ],
-                              ),
-                              const SizedBox(width: 16),
-                              const Icon(Icons.remove_red_eye_outlined, size: 18),
-                              const SizedBox(width: 4),
-                              // Text(post.views.toString()),
-                              const Spacer(),
-                              GestureDetector(
-                                onTap: () {
-                                  controller.savePostToggle(post.id.toString(), 0);
-                                },
-                                // child: Icon(post.isSavePost == false ? Icons.bookmark_border : Icons.bookmark_added, size: 18),
-                              ),
-                              const SizedBox(width: 4),
-                              const Text("Save"),
-                            ],
-                          ),
                         ],
                       ),
                     ),
+
+                    // Row(
+                    //   children: [
+                    //     GestureDetector(
+                    //       onTap: () {
+                    //         var data = {"type": "user-posts", "postId": post["id"].toString()};
+                    //         controller.likeOrUnlikePost(data, 0);
+                    //       },
+                    //       // child: Icon(post.isLikePost == false ? Icons.thumb_up_alt_outlined : Icons.thumb_up, size: 18),
+                    //     ),
+                    //     const SizedBox(width: 4),
+                    //     Text(post["userPost"]["views"].toString() ?? "0"),
+
+                    //     const SizedBox(width: 16),
+                    //     Row(
+                    //       children: [
+                    //         GestureDetector(
+                    //           onTap: () {
+                    //             Get.to(() => CommentsScreenOnPost(postId: post.id.toString()));
+                    //           },
+                    //           child: Icon(Icons.comment_outlined, size: 18),
+                    //         ),
+                    //         SizedBox(width: 4),
+                    //         // Text(post.cCount?.userpostcomments != null ? post.cCount!.userpostcomments.toString() : "0"),
+                    //       ],
+                    //     ),
+                    //     const SizedBox(width: 16),
+                    //     const Icon(Icons.remove_red_eye_outlined, size: 18),
+                    //     const SizedBox(width: 4),
+                    //     // Text(post.views.toString()),
+                    //     const Spacer(),
+                    //     GestureDetector(
+                    //       onTap: () {
+                    //         controller.savePostToggle(post.id.toString(), 0);
+                    //       },
+                    //       // child: Icon(post.isSavePost == false ? Icons.bookmark_border : Icons.bookmark_added, size: 18),
+                    //     ),
+                    //     const SizedBox(width: 4),
+                    //     const Text("Save"),
+                    //   ],
+                    // ),
                   ],
                 );
               }

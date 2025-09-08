@@ -70,6 +70,8 @@ dependencies:
   web_socket_channel: ^2.4.0
   flutter_image_compress: ^2.4.0
   country_state_city_picker_2: ^1.0.5
+  just_audio: ^0.10.5
+  mime_type: ^1.0.1
 
 dev_dependencies:
   flutter_test:

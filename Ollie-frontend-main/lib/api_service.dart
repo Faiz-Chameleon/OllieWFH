@@ -5,6 +5,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:ollie/app_urls.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
+// For better MIME type detection
 
 class ApiService {
   static Future<Map<String, dynamic>> postMethod(String endpoint, Map<String, dynamic> data, {String? token}) async {
@@ -153,7 +155,15 @@ class ApiService {
 
     // Add video file if available
     if (videoFile != null) {
-      request.files.add(await http.MultipartFile.fromPath('video', videoFile.path));
+      final mime = lookupMimeType(videoFile.path) ?? 'video/mp4';
+      // iOS .mov => 'video/quicktime' (lookupMimeType will usually return that)
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image', // <- your backend field
+          videoFile.path,
+          contentType: MediaType.parse(mime),
+        ),
+      );
     }
 
     request.headers.addAll(headers);
