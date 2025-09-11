@@ -135,7 +135,8 @@ class ApiService {
     String endpoint,
     Map<String, dynamic> data,
     File? imageFile,
-    XFile? videoFile, {
+    XFile? videoFile,
+    XFile? documentFile, {
     String? token,
   }) async {
     var headers = {'Content-Type': 'multipart/form-data', if (token != null) 'x-access-token': '$token'};
@@ -164,6 +165,16 @@ class ApiService {
           videoFile.path,
           contentType: MediaType('MOV', 'mp4'),
           // contentType: MediaType.parse(mime),
+        ),
+      );
+    }
+    if (documentFile != null) {
+      final mime = lookupMimeType(documentFile.path) ?? 'application/octet-stream';
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image', // match your backend
+          documentFile.path,
+          contentType: MediaType.parse(mime),
         ),
       );
     }

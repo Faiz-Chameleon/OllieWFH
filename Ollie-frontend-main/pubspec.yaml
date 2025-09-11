@@ -74,6 +74,7 @@ dependencies:
   mime_type: ^1.0.1
   video_player: ^2.10.0
   chewie: ^1.13.0
+  open_filex: ^4.7.0
 
 dev_dependencies:
   flutter_test:

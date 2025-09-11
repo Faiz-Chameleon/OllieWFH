@@ -147,10 +147,16 @@ class CareCircleRepository {
     return ApiService.putMethod("${ApiUrls.reportPost}/$postId", token: requiredToken);
   }
 
-  Future<Map<String, dynamic>> createUserPost(String interestId, Map<String, dynamic> data, File? imageFile, XFile? videoFile) async {
+  Future<Map<String, dynamic>> createUserPost(
+    String interestId,
+    Map<String, dynamic> data,
+    File? imageFile,
+    XFile? videoFile,
+    XFile? documentFile,
+  ) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
 
-    return ApiService.postMultipartWithFiles("${ApiUrls.createUserPost}/$interestId", data, imageFile, videoFile, token: requiredToken);
+    return ApiService.postMultipartWithFiles("${ApiUrls.createUserPost}/$interestId", data, imageFile, videoFile, documentFile, token: requiredToken);
   }
 }

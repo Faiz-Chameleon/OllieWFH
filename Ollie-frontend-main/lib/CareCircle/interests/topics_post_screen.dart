@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ollie/CareCircle/interests/comments_screen_on_post.dart';
 import 'package:ollie/CareCircle/interests/create_post_screen.dart';
+import 'package:ollie/CareCircle/interests/open_pdf.dart';
+import 'package:ollie/CareCircle/interests/open_word_file.dart';
 import 'package:ollie/CareCircle/interests/video_player_widget.dart';
 import 'package:ollie/request_status.dart';
 import '../care_circle_controller.dart';
@@ -218,19 +220,29 @@ class _TopicPostScreenState extends State<TopicPostScreen> {
       // Later: integrate `video_player` package for playback
     } else if (extension == 'pdf') {
       // ✅ PDF
-      return Container(
-        height: 150,
-        width: double.infinity,
-        color: Colors.red[100],
-        child: const Center(child: Icon(Icons.picture_as_pdf, color: Colors.red, size: 50)),
+      return GestureDetector(
+        onTap: () async {
+          await openPdf(url);
+        },
+        child: Container(
+          height: 150,
+          width: double.infinity,
+          color: Colors.red[100],
+          child: const Center(child: Icon(Icons.picture_as_pdf, color: Colors.red, size: 50)),
+        ),
       );
     } else if (['doc', 'docx'].contains(extension)) {
       // ✅ Word document
-      return Container(
-        height: 150,
-        width: double.infinity,
-        color: Colors.blue[100],
-        child: const Center(child: Icon(Icons.description, color: Colors.blue, size: 50)),
+      return GestureDetector(
+        onTap: () async {
+          await openDocFile(url);
+        },
+        child: Container(
+          height: 150,
+          width: double.infinity,
+          color: Colors.blue[100],
+          child: const Center(child: Icon(Icons.description, color: Colors.blue, size: 50)),
+        ),
       );
     } else {
       // ❌ Unknown file type

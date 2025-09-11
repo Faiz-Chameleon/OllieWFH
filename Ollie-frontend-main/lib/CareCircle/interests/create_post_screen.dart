@@ -38,7 +38,7 @@ class CreatePostScreen extends StatelessWidget {
     void pickDocument() async {
       final picked = await FilePicker.platform.pickFiles(type: FileType.any);
       if (picked != null && picked.files.single.path != null) {
-        controller.setDocumentFile(File(picked.files.single.path!));
+        controller.setDocumentFile(XFile(picked.files.single.path!));
       }
     }
 
@@ -51,12 +51,14 @@ class CreatePostScreen extends StatelessWidget {
         return;
       }
 
-      await controller.createUserPost(topicId, title, content, controller.imageFile.value, controller.videoFile.value);
+      await controller.createUserPost(topicId, title, content, controller.imageFile.value, controller.videoFile.value, controller.documentFile.value);
 
       if (controller.createPostStatus.value == RequestStatus.success) {
         postTitleController.clear();
         postContentController.clear();
         controller.imageFile.value = null;
+        controller.videoFile.value = null;
+        controller.documentFile.value = null;
 
         Get.close(1);
       }

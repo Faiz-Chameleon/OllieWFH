@@ -504,7 +504,7 @@ class CareCircleController extends GetxController {
   // File management variables
   var imageFile = Rx<File?>(null);
   var videoFile = Rx<XFile?>(null);
-  var documentFile = Rx<File?>(null);
+  var documentFile = Rx<XFile?>(null);
 
   // File management methods
   void setImageFile(File? file) {
@@ -515,7 +515,7 @@ class CareCircleController extends GetxController {
     videoFile.value = file;
   }
 
-  void setDocumentFile(File? file) {
+  void setDocumentFile(XFile? file) {
     documentFile.value = file;
   }
 
@@ -532,12 +532,12 @@ class CareCircleController extends GetxController {
   }
 
   var createPostStatus = RequestStatus.idle.obs;
-  Future<void> createUserPost(String interestId, String postTitle, String postContent, File? imageFile, XFile? videoFile) async {
+  Future<void> createUserPost(String interestId, String postTitle, String postContent, File? imageFile, XFile? videoFile, XFile? documentFile) async {
     createPostStatus.value = RequestStatus.loading;
 
     final data = {'postTitle': postTitle, 'postContent': postContent};
 
-    final result = await careCircleRepository.createUserPost(interestId, data, imageFile, videoFile);
+    final result = await careCircleRepository.createUserPost(interestId, data, imageFile, videoFile, documentFile);
 
     if (result['success'] == true) {
       createPostStatus.value = RequestStatus.success;
