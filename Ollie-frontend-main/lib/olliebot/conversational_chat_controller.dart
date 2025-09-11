@@ -124,7 +124,6 @@ class ConversationalChatController extends GetxController {
     if (message.isEmpty) return;
 
     messages.add(ChatMessage(text: message, isUser: true));
-    currentMessage.value = '';
 
     messages.add(ChatMessage(text: '...', isUser: false, isStreaming: true));
     isStreaming.value = true;
@@ -336,6 +335,12 @@ class ConversationalChatController extends GetxController {
   @override
   void onClose() {
     _conversationalService.dispose();
+    _conversationalService.endConversation(
+      notifyText: 'User has left the chat.', // optional
+    );
+    try {
+      speech.stop();
+    } catch (_) {}
     super.onClose();
   }
 }

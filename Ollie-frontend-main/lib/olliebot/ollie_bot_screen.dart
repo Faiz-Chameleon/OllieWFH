@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/home/Dailytask/daily_task_screen.dart';
+import 'package:ollie/olliebot/new_ollie_bot_next_screen.dart';
 import 'package:ollie/olliebot/ollie_chat_screen.dart';
 import 'package:ollie/olliebot/conversational_chat_screen.dart';
 import 'package:ollie/olliebot/tts_settings_screen.dart';
@@ -37,6 +38,17 @@ class _OllieScreenState extends State<OllieScreen> with SingleTickerProviderStat
     _rotation = Tween<double>(begin: -0.15, end: 0.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     // Start animation as soon as widget loads
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed && mounted) {
+        // GetX navigation
+        Get.off(() => const NextOllieBotScreen(), transition: Transition.fadeIn, duration: const Duration(milliseconds: 300));
+
+        // If you prefer Navigator instead:
+        // Navigator.of(context).pushReplacement(
+        //   MaterialPageRoute(builder: (_) => const NextScreen()),
+        // );
+      }
+    });
     _controller.forward();
   }
 
@@ -92,7 +104,7 @@ class _OllieScreenState extends State<OllieScreen> with SingleTickerProviderStat
               const SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
-                  Get.to(() => ConversationalChatScreen(), transition: Transition.fadeIn); // Navigates to conversational AI
+                  // Get.to(() => ConversationalChatScreen(), transition: Transition.fadeIn); // Navigates to conversational AI
                 },
                 child: AnimatedBuilder(
                   animation: _controller,

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ollie/Constants/constants.dart';
 
 enum Dir { up, down, left, right, none }
 
@@ -87,7 +89,7 @@ class _PacmanGameState extends State<PacmanGame> with TickerProviderStateMixin {
       "###############",
       "#........#....#",
       "#.###.##.#.##.#",
-      "#.#.....#....#.",
+      "#.#.....#.....#",
       "#.#.###.#.##..#",
       "#.#.#...#..#..#",
       "#...#.#.##.#..#",
@@ -263,17 +265,32 @@ class _PacmanGameState extends State<PacmanGame> with TickerProviderStateMixin {
     return Scaffold(
       backgroundColor: const Color(0xFF0c0f16),
       appBar: AppBar(
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.transparent,
-        title: Text('Flutter Pac-Man', style: TextStyle(color: cs.onBackground)),
+        leading: Container(
+          width: 25.w,
+          height: 25.h,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFFFDF3DD), // background color
+          ),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            tooltip: 'Back',
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.cancel_outlined, color: Colors.black),
+          ),
+        ),
+        // title: Text('Flutter Pac-Man', style: TextStyle(color: Colors.white)),
         actions: [
           IconButton(
             onPressed: _pause,
-            icon: Icon(paused ? Icons.play_arrow : Icons.pause, color: cs.onBackground),
+            icon: Icon(paused ? Icons.play_arrow : Icons.pause, color: white),
             tooltip: paused ? 'Resume' : 'Pause',
           ),
           IconButton(
             onPressed: _restartAll,
-            icon: Icon(Icons.restart_alt, color: cs.onBackground),
+            icon: Icon(Icons.restart_alt, color: white),
             tooltip: 'Restart',
           ),
           const SizedBox(width: 8),
@@ -303,7 +320,7 @@ class _PacmanGameState extends State<PacmanGame> with TickerProviderStateMixin {
                   children: [
                     Text(
                       'Score: $score',
-                      style: TextStyle(color: cs.onBackground, fontWeight: FontWeight.w700),
+                      style: TextStyle(color: white, fontWeight: FontWeight.w700),
                     ),
                     Row(children: List.generate(lives, (_) => const _LifeDot())),
                   ],

@@ -1,4 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:ollie/api_service.dart';
 import 'package:ollie/app_urls.dart';
 import 'dart:io';
@@ -146,7 +147,7 @@ class CareCircleRepository {
     return ApiService.putMethod("${ApiUrls.reportPost}/$postId", token: requiredToken);
   }
 
-  Future<Map<String, dynamic>> createUserPost(String interestId, Map<String, dynamic> data, File? imageFile, File? videoFile) async {
+  Future<Map<String, dynamic>> createUserPost(String interestId, Map<String, dynamic> data, File? imageFile, XFile? videoFile) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
 

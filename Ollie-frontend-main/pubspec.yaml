@@ -72,6 +72,8 @@ dependencies:
   country_state_city_picker_2: ^1.0.5
   just_audio: ^0.10.5
   mime_type: ^1.0.1
+  video_player: ^2.10.0
+  chewie: ^1.13.0
 
 dev_dependencies:
   flutter_test:

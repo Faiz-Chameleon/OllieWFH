@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:ollie/app_urls.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
@@ -134,7 +135,7 @@ class ApiService {
     String endpoint,
     Map<String, dynamic> data,
     File? imageFile,
-    File? videoFile, {
+    XFile? videoFile, {
     String? token,
   }) async {
     var headers = {'Content-Type': 'multipart/form-data', if (token != null) 'x-access-token': '$token'};
@@ -161,7 +162,8 @@ class ApiService {
         await http.MultipartFile.fromPath(
           'image', // <- your backend field
           videoFile.path,
-          contentType: MediaType.parse(mime),
+          contentType: MediaType('MOV', 'mp4'),
+          // contentType: MediaType.parse(mime),
         ),
       );
     }

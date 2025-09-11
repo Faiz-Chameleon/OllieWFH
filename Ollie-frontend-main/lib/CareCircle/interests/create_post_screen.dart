@@ -28,10 +28,10 @@ class CreatePostScreen extends StatelessWidget {
       }
     }
 
-    void pickVideo(ImageSource source) async {
+    pickVideo(ImageSource source) async {
       final picked = await picker.pickVideo(source: source);
       if (picked != null) {
-        controller.setVideoFile(File(picked.path));
+        controller.setVideoFile(XFile(picked.path));
       }
     }
 

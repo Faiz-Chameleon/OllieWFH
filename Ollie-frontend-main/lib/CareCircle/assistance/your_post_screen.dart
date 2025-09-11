@@ -1,6 +1,7 @@
 // ignore_for_file: use_full_hex_values_for_flutter_colors, avoid_unnecessary_containers, avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
@@ -32,6 +33,34 @@ class _YourPostsScreenState extends State<YourPostsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF2D6),
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: Colors.white),
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
+        leading: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5.0),
+          child: Container(
+            width: 25.w,
+            height: 25.h,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white, // background color
+            ),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              tooltip: 'Back',
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.cancel_outlined, color: Colors.black),
+            ),
+          ),
+        ),
+
+        // title: Text(
+        //   'Flutter Tetris',
+        //   style: TextStyle(color: cs.onBackground, fontWeight: FontWeight.w700),
+        // ),
+      ),
+
       body: Column(
         children: <Widget>[
           Expanded(

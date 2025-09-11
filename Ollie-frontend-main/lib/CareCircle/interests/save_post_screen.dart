@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:get/get.dart';
 import 'package:ollie/CareCircle/interests/comments_screen_on_post.dart';
+import 'package:ollie/CareCircle/interests/video_player_widget.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/blogs/blog_details_screen.dart';
 import 'package:ollie/request_status.dart';
@@ -202,11 +203,14 @@ class SavedPostsScreen extends StatelessWidget {
       );
     } else if (['mp4', 'mov', 'avi', 'mkv'].contains(extension)) {
       // ✅ Video
-      return Container(
-        height: 150,
+      return SizedBox(
+        height: 200, // Slightly taller for video controls
         width: double.infinity,
-        color: Colors.black,
-        child: const Center(child: Icon(Icons.play_circle_fill, color: Colors.white, size: 50)),
+        child: VideoPlayerWidget(
+          videoUrl: url,
+          autoPlay: false, // Don't autoplay by default
+          looping: false,
+        ),
       );
       // Later: integrate `video_player` package for playback
     } else if (extension == 'pdf') {

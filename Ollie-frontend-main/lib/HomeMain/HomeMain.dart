@@ -51,13 +51,40 @@ class ConvexStyledBarScreen extends StatelessWidget {
                         controller.updateIndex(1);
                       },
                       icon: Obx(
-                        () => Icon(
-                          Icons.groups,
-                          size: 50,
+                        () => Image.asset(
+                          'assets/images/UsersThree (1).png', // Your asset path
+                          width: 50,
+                          height: 50,
                           color: controller.selectedIndex.value == 1 ? ksecondaryColor : kprimaryColor.withOpacity(0.5),
                         ),
                       ),
                     ),
+                    // IconButton(
+                    //   onPressed: () {
+                    //     controller.updateIndex(1);
+                    //   },
+                    //   icon: Obx(
+                    //     () => ColorFiltered(
+                    //       colorFilter: ColorFilter.mode(
+                    //         controller.selectedIndex.value == 1 ? ksecondaryColor : kprimaryColor.withOpacity(0.5),
+                    //         BlendMode.srcIn,
+                    //       ),
+                    //       child: Image.asset('assets/images/UsersThree.png', width: 50, height: 50),
+                    //     ),
+                    //   ),
+                    // ),
+                    // IconButton(
+                    //   onPressed: () {
+                    //     controller.updateIndex(1);
+                    //   },
+                    //   icon: Obx(
+                    //     () => Icon(
+                    //       Icons.groups,
+                    //       size: 50,
+                    //       color: controller.selectedIndex.value == 1 ? ksecondaryColor : kprimaryColor.withOpacity(0.5),
+                    //     ),
+                    //   ),
+                    // ),
                     70.horizontalSpace,
                     IconButton(
                       onPressed: () {

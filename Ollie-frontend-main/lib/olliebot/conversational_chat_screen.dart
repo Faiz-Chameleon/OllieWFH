@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:ollie/Constants/constants.dart';
+import 'package:ollie/HomeMain/HomeMain.dart';
+import 'package:ollie/HomeMain/bottomController.dart';
 import 'package:ollie/home/Dailytask/daily_task_screen.dart';
 import 'conversational_chat_controller.dart';
 
@@ -23,7 +25,13 @@ class ConversationalChatScreen extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(Icons.arrow_back, color: Black),
-              onPressed: () => Get.back(),
+              onPressed: () {
+                final bottomController = Get.put(Bottomcontroller());
+                bottomController.updateIndex(0);
+                Get.delete<ConversationalChatController>();
+                Get.off(() => ConvexStyledBarScreen(), transition: Transition.fadeIn);
+              },
+              // Get.close(1),
             ),
             CircleAvatar(backgroundColor: buttonColor, radius: 16, child: Image.asset("assets/icons/Frame 1686560557.png")),
             const SizedBox(width: 8),

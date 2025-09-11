@@ -317,4 +317,45 @@ class ElevenLabsConversationalService {
       print('❌ Error disposing service: $e');
     }
   }
+
+  /// Gracefully end the conversation and free resources.
+  Future<void> endConversation({String? notifyText}) async {
+    // 1) Optionally notify the agent (not required)
+    try {
+      if (_isConnected && notifyText != null && notifyText.isNotEmpty) {
+        _channel?.sink.add(jsonEncode({'type': 'user_message', 'text': notifyText}));
+      }
+    } catch (_) {}
+
+    // 2) Stop timers and audio first
+    _stopPingTimer();
+    try {
+      await _audioPlayer?.stop();
+    } catch (_) {}
+
+    // 3) Close WS with normal-closure code (1000)
+    try {
+      await _channel?.sink.close(1000, 'user_left');
+    } catch (_) {}
+
+    // 4) Mark disconnected and close controllers
+    _isConnected = false;
+    try {
+      await _transcriptController?.close();
+    } catch (_) {}
+    try {
+      await _responseController?.close();
+    } catch (_) {}
+    try {
+      await _audioController?.close();
+    } catch (_) {}
+    try {
+      await _connectionController?.close();
+    } catch (_) {}
+    try {
+      await _toolCallController?.close();
+    } catch (_) {}
+
+    _channel = null;
+  }
 }

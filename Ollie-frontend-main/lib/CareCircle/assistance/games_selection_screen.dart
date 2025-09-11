@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:ollie/CareCircle/assistance/game_2048.dart';
 import 'package:ollie/CareCircle/assistance/pac_man_game.dart';
 import 'package:ollie/CareCircle/assistance/your_post_screen.dart';
 import 'package:ollie/Constants/constants.dart';
+
+import 'tetris_game.dart';
 
 class GameSelectionScreen extends StatefulWidget {
   const GameSelectionScreen({super.key});
@@ -18,6 +21,9 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
     final gameWidgets = <({String title, String image, Widget Function() screen})>[
       (title: 'Tic Tac Toe', image: 'assets/images/zac-cain-4ETshgrhbJw-unsplash.png', screen: () => YourPostsScreen()),
       (title: 'Pac-Man', image: 'assets/images/zac-cain-4ETshgrhbJw-unsplash (2).png', screen: () => PacmanGame()),
+      (title: 'Tetris', image: 'assets/images/zac-cain-4ETshgrhbJw-unsplash (3).png', screen: () => TetrisGame()),
+      (title: '2048', image: 'assets/images/zac-cain-4ETshgrhbJw-unsplash (4).png', screen: () => Game2048()),
+
       // add more here...
     ];
 

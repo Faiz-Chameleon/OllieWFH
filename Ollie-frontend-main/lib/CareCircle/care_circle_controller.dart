@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/CareCircle/care_circle_repository.dart';
@@ -502,7 +503,7 @@ class CareCircleController extends GetxController {
 
   // File management variables
   var imageFile = Rx<File?>(null);
-  var videoFile = Rx<File?>(null);
+  var videoFile = Rx<XFile?>(null);
   var documentFile = Rx<File?>(null);
 
   // File management methods
@@ -510,7 +511,7 @@ class CareCircleController extends GetxController {
     imageFile.value = file;
   }
 
-  void setVideoFile(File? file) {
+  void setVideoFile(XFile? file) {
     videoFile.value = file;
   }
 
@@ -531,7 +532,7 @@ class CareCircleController extends GetxController {
   }
 
   var createPostStatus = RequestStatus.idle.obs;
-  Future<void> createUserPost(String interestId, String postTitle, String postContent, File? imageFile, File? videoFile) async {
+  Future<void> createUserPost(String interestId, String postTitle, String postContent, File? imageFile, XFile? videoFile) async {
     createPostStatus.value = RequestStatus.loading;
 
     final data = {'postTitle': postTitle, 'postContent': postContent};
