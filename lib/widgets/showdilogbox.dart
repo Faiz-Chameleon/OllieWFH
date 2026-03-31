@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/Constants/constants.dart';
 
 void showStyledCreditDialog({
@@ -28,7 +29,7 @@ void showStyledCreditDialog({
           children: [
             Text(
               title,
-              style: const TextStyle(
+              style: GoogleFonts.darkerGrotesque(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF1E2A3B), // Dark navy heading
@@ -38,8 +39,8 @@ void showStyledCreditDialog({
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 15,
+              style: GoogleFonts.darkerGrotesque(
+                fontSize: 16.sp,
                 color: Color(0xFF5D6670), // Muted text
               ),
             ),
@@ -58,7 +59,7 @@ void showStyledCreditDialog({
                 ),
                 child: Text(
                   continueText,
-                  style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: white),
+                  style: GoogleFonts.darkerGrotesque(fontSize: 18.sp, fontWeight: FontWeight.bold, color: white),
                 ),
               ),
             ),
@@ -77,7 +78,7 @@ void showStyledCreditDialog({
                 ),
                 child: Text(
                   cancelText,
-                  style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w500, color: Color(0xFF3F362E)),
+                  style: GoogleFonts.darkerGrotesque(fontSize: 18.sp, fontWeight: FontWeight.w500, color: Color(0xFF3F362E)),
                 ),
               ),
             ),

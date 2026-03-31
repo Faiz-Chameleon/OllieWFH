@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/blogs/Blog_category_topics_screen.dart';
 import 'package:ollie/blogs/blog_details_screen.dart';
 
@@ -48,7 +49,11 @@ class _popular_screenState extends State<popular_screen> {
             }
 
             if (blog == null) {
-              return const Text("No blog found");
+              return SizedBox(
+                width: 0.9.sw,
+                height: 250.h,
+                child: Center(child: const Text("No blog found")),
+              );
             }
 
             return GestureDetector(
@@ -137,19 +142,19 @@ class _popular_screenState extends State<popular_screen> {
           }),
 
           20.verticalSpace,
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(color: Color(0xff1e18180d), borderRadius: BorderRadius.circular(12)),
-            child: const Center(child: Text("ADVERTISEMENT")),
-          ),
+          // Container(
+          //   width: double.infinity,
+          //   padding: const EdgeInsets.all(20),
+          //   decoration: BoxDecoration(color: Color(0xff1e18180d), borderRadius: BorderRadius.circular(12)),
+          //   child: const Center(child: Text("ADVERTISEMENT")),
+          // ),
           20.verticalSpace,
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 "Browse Topics",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp),
+                style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold, fontSize: 18.sp),
               ),
               GestureDetector(
                 onTap: () {
@@ -158,7 +163,7 @@ class _popular_screenState extends State<popular_screen> {
 
                 child: Text(
                   "See All",
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 16.sp),
+                  style: GoogleFonts.darkerGrotesque(color: Colors.grey.shade600, fontSize: 18.sp),
                 ),
               ),
             ],
@@ -175,14 +180,17 @@ class _popular_screenState extends State<popular_screen> {
                 () => Row(
                   children: widget.controller.blogsTopicNames.map((topic) {
                     return Padding(
-                      padding: const EdgeInsets.only(right: 12),
+                      padding: const EdgeInsets.only(right: 10),
                       child: GestureDetector(
                         onTap: () =>
                             Get.to(() => BlogCategoryScreen(category: topic.name ?? "", controller: widget.controller, topicId: topic.id.toString())),
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(color: const Color(0xFFFFE08A), borderRadius: BorderRadius.circular(18)),
-                          child: Text(topic.name ?? "", style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                          child: Text(
+                            topic.name ?? "",
+                            style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w600, fontSize: 18.sp),
+                          ),
                         ),
                       ),
                     );
@@ -198,7 +206,7 @@ class _popular_screenState extends State<popular_screen> {
             children: [
               Text(
                 "Latest Blogs",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp),
+                style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold, fontSize: 18.sp),
               ),
               GestureDetector(
                 onTap: () {
@@ -206,7 +214,7 @@ class _popular_screenState extends State<popular_screen> {
                 },
                 child: Text(
                   "See All",
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 16.sp),
+                  style: GoogleFonts.darkerGrotesque(color: Colors.grey.shade600, fontSize: 18.sp),
                 ),
               ),
             ],
@@ -216,7 +224,11 @@ class _popular_screenState extends State<popular_screen> {
             final blogs = widget.controller.latestBlogsList;
 
             if (blogs.isEmpty) {
-              return Center(child: const Text("No blogs available"));
+              return SizedBox(
+                width: 0.9.sw,
+                height: 250.h,
+                child: Center(child: const Text("No blogs available")),
+              );
             }
 
             return Column(

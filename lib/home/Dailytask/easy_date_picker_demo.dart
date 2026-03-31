@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:ollie/Constants/constants.dart';
@@ -10,20 +11,7 @@ import 'easy_date_picker_controller.dart' as local_controller;
 
 // Extension to get month name from DateTime
 extension DateExtensions on DateTime {
-  String get monthName => [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ][month - 1];
+  String get monthName => ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][month - 1];
 }
 
 /// To use this screen, navigate to EasyDatePickerDemoScreen() from anywhere in your app.
@@ -33,14 +21,11 @@ class EasyDatePickerDemoScreen extends StatefulWidget {
   EasyDatePickerDemoScreen({Key? key}) : super(key: key);
 
   @override
-  State<EasyDatePickerDemoScreen> createState() =>
-      _EasyDatePickerDemoScreenState();
+  State<EasyDatePickerDemoScreen> createState() => _EasyDatePickerDemoScreenState();
 }
 
 class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
-  final local_controller.EasyDatePickerController controller = Get.put(
-    local_controller.EasyDatePickerController(),
-  );
+  final local_controller.EasyDatePickerController controller = Get.put(local_controller.EasyDatePickerController());
 
   @override
   void initState() {
@@ -58,7 +43,12 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('To-Do List')),
+      appBar: AppBar(
+        title: Text(
+          'To-Do List',
+          style: GoogleFonts.darkerGrotesque(fontSize: 24.sp, fontWeight: FontWeight.bold),
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(
@@ -76,7 +66,7 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
           Obx(
             () => Text(
               "${controller.focusedDate.value.monthName} ${controller.focusedDate.value.year}",
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: GoogleFonts.darkerGrotesque(fontSize: 24.sp, fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(height: 16),
@@ -86,16 +76,18 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
               lastDate: DateTime(2030, 3, 18),
               focusedDate: controller.focusedDate.value,
               itemExtent: 64.0,
-              itemBuilder:
-                  (context, date, isSelected, isDisabled, isToday, onTap) {
-                    return InkResponse(
-                      onTap: onTap,
-                      child: CircleAvatar(
-                        backgroundColor: isSelected ? Colors.blue : null,
-                        child: Text(date.day.toString()),
-                      ),
-                    );
-                  },
+              itemBuilder: (context, date, isSelected, isDisabled, isToday, onTap) {
+                return InkResponse(
+                  onTap: onTap,
+                  child: CircleAvatar(
+                    backgroundColor: isSelected ? Colors.blue : null,
+                    child: Text(
+                      date.day.toString(),
+                      style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                );
+              },
               onDateChange: (date) {
                 controller.setFocusedDate(date);
               },
@@ -131,12 +123,8 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
                           margin: const EdgeInsets.only(right: 10),
                           alignment: Alignment.center,
                           child: Icon(
-                            isDone
-                                ? Icons.check_circle
-                                : Icons.radio_button_unchecked,
-                            color: isDone
-                                ? const Color(0xFFF4BD2A)
-                                : Colors.black45,
+                            isDone ? Icons.check_circle : Icons.radio_button_unchecked,
+                            color: isDone ? const Color(0xFFF4BD2A) : Colors.black45,
                             size: 28,
                           ),
                         ),
@@ -150,83 +138,44 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
                                 builder: (_) {
                                   return Dialog(
                                     backgroundColor: const Color(0xFFFDF3DD),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 20,
-                                        vertical: 30,
-                                      ),
+                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
                                             task["taskName"] as String,
                                             textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
+                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                           ),
                                           const SizedBox(height: 10),
-                                          if (task["taskDescription"] != null &&
-                                              (task["taskDescription"]
-                                                      as String)
-                                                  .isNotEmpty)
+                                          if (task["taskDescription"] != null && (task["taskDescription"] as String).isNotEmpty)
                                             Text(
                                               task["taskDescription"] as String,
                                               textAlign: TextAlign.center,
-                                              style: const TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.black87,
-                                              ),
+                                              style: const TextStyle(fontSize: 13, color: Colors.black87),
                                             ),
                                           const SizedBox(height: 25),
                                           ElevatedButton(
                                             onPressed: () {
-                                              controller.toggleTask(
-                                                originalIndex,
-                                                task["id"],
-                                              );
+                                              controller.toggleTask(originalIndex, task["id"]);
                                               Navigator.pop(context);
                                             },
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color(
-                                                0xFF3C3129,
-                                              ),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(30),
-                                              ),
-                                              minimumSize: const Size(
-                                                double.infinity,
-                                                45,
-                                              ),
+                                              backgroundColor: const Color(0xFF3C3129),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                              minimumSize: const Size(double.infinity, 45),
                                             ),
-                                            child: const Text(
-                                              "Mark as Completed",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                              ),
-                                            ),
+                                            child: const Text("Mark as Completed", style: TextStyle(color: Colors.white)),
                                           ),
                                           const SizedBox(height: 10),
                                           OutlinedButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context),
+                                            onPressed: () => Navigator.pop(context),
                                             style: OutlinedButton.styleFrom(
-                                              side: const BorderSide(
-                                                color: Colors.black,
-                                              ),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(30),
-                                              ),
-                                              minimumSize: const Size(
-                                                double.infinity,
-                                                45,
-                                              ),
+                                              side: const BorderSide(color: Colors.black),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                              minimumSize: const Size(double.infinity, 45),
                                               foregroundColor: Colors.black,
                                             ),
                                             child: const Text("Cancel"),
@@ -254,18 +203,11 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
                                   child: Text(
                                     task["taskName"],
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                    style: const TextStyle(fontWeight: FontWeight.w500),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                                Text(
-                                  task["scheduledTime"] ?? "9:00 PM",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
+                                Text(task["scheduledTime"] ?? "9:00 PM", style: const TextStyle(fontWeight: FontWeight.w500)),
                               ],
                             ),
                           ),
@@ -324,25 +266,15 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
   bool showDateTimePicker = false;
 
   void _submitTask() async {
-    if (_taskController.text.trim().isNotEmpty &&
-        selectedDate != null &&
-        selectedTime != null) {
+    if (_taskController.text.trim().isNotEmpty && selectedDate != null && selectedTime != null) {
       String formatTimeOfDay(TimeOfDay time) {
         final now = DateTime.now();
-        final dt = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          time.hour,
-          time.minute,
-        );
+        final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
         return DateFormat('HH:mm:ss').format(dt);
       }
 
       final formattedTime = formatTimeOfDay(selectedTime!);
-      final formattedDate = DateFormat('yyyy-MM-dd').format(
-        DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day),
-      );
+      final formattedDate = DateFormat('yyyy-MM-dd').format(DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day));
 
       var data = {
         "taskName": _taskController.text.trim(),
@@ -375,32 +307,20 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
           child: ListView(
             controller: scrollController,
             children: [
-              const Center(
-                child: Icon(Icons.drag_handle, color: Colors.black26),
-              ),
+              const Center(child: Icon(Icons.drag_handle, color: Colors.black26)),
               20.verticalSpace,
-              const Text(
-                "Create a Task",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+              Text("Create a Task", style: GoogleFonts.darkerGrotesque(fontSize: 18, fontWeight: FontWeight.bold)),
               20.verticalSpace,
-              const Text("Task", style: TextStyle(fontWeight: FontWeight.w600)),
+              Text("Task", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w600)),
               TextField(
                 controller: _taskController,
-                decoration: const InputDecoration(
-                  hintText: "Enter the new task name",
-                ),
+                decoration: const InputDecoration(hintText: "Enter the new task name"),
               ),
               15.verticalSpace,
-              const Text(
-                "Description",
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+              Text("Description", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w600)),
               TextField(
                 controller: _descController,
-                decoration: const InputDecoration(
-                  hintText: "Enter task description",
-                ),
+                decoration: const InputDecoration(hintText: "Enter task description"),
               ),
               25.verticalSpace,
 
@@ -410,26 +330,13 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                   setState(() => showDateTimePicker = !showDateTimePicker);
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF4BD2A),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  decoration: BoxDecoration(color: const Color(0xFFF4BD2A), borderRadius: BorderRadius.circular(30)),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Date and Time",
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      Icon(
-                        showDateTimePicker
-                            ? Icons.expand_less
-                            : Icons.expand_more,
-                      ),
+                      Text("Date and Time", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w600)),
+                      Icon(showDateTimePicker ? Icons.expand_less : Icons.expand_more),
                     ],
                   ),
                 ),
@@ -448,27 +355,15 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                           firstDate: DateTime.now(),
                           lastDate: DateTime(2030),
                         );
-                        if (picked != null)
-                          setState(() => selectedDate = picked);
+                        if (picked != null) setState(() => selectedDate = picked);
                       },
-                      style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: Text(
-                        selectedDate != null
-                            ? "${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}"
-                            : "Pick Date",
-                      ),
+                      style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+                      child: Text(selectedDate != null ? "${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}" : "Pick Date"),
                     ),
                     const Text("Time"),
                     OutlinedButton(
                       onPressed: () async {
-                        final picked = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.now(),
-                        );
+                        final picked = await showTimePicker(context: context, initialTime: TimeOfDay.now());
                         if (picked != null) {
                           final now = DateTime.now();
                           final selected = DateTime(
@@ -478,13 +373,8 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                             picked.hour,
                             picked.minute,
                           );
-                          if (selectedDate != null &&
-                              _isSameDay(selectedDate!, now) &&
-                              selected.isBefore(now)) {
-                            Get.snackbar(
-                              "Error",
-                              "You can't select a past time.",
-                            );
+                          if (selectedDate != null && _isSameDay(selectedDate!, now) && selected.isBefore(now)) {
+                            Get.snackbar("Error", "You can't select a past time.");
 
                             return;
                           }
@@ -492,16 +382,8 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                         }
                       },
 
-                      style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: Text(
-                        selectedTime != null
-                            ? selectedTime!.format(context)
-                            : "Pick Time",
-                      ),
+                      style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+                      child: Text(selectedTime != null ? selectedTime!.format(context) : "Pick Time"),
                     ),
                   ],
                 ),
@@ -509,42 +391,25 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
               30.verticalSpace,
               Obx(
                 () => ElevatedButton(
-                  onPressed:
-                      widget.controller.createTaskStatus.value ==
-                          RequestStatus.loading
-                      ? null
-                      : _submitTask,
+                  onPressed: widget.controller.createTaskStatus.value == RequestStatus.loading ? null : _submitTask,
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                         _taskController.text.trim().isNotEmpty &&
                             selectedDate != null &&
                             selectedTime != null &&
-                            widget.controller.createTaskStatus.value !=
-                                RequestStatus.loading
+                            widget.controller.createTaskStatus.value != RequestStatus.loading
                         ? const Color(0xFF3C3129)
                         : Colors.grey.shade400,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     minimumSize: const Size(double.infinity, 50),
                   ),
-                  child:
-                      widget.controller.createTaskStatus.value ==
-                          RequestStatus.loading
+                  child: widget.controller.createTaskStatus.value == RequestStatus.loading
                       ? const SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
+                          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
                         )
-                      : const Text(
-                          "Create a Task",
-                          style: TextStyle(color: Colors.white),
-                        ),
+                      : Text("Create a Task", style: GoogleFonts.darkerGrotesque(color: Colors.white)),
                 ),
               ),
             ],

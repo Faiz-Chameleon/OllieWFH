@@ -62,20 +62,20 @@ class _EventsNearYouScreenState extends State<EventsNearYouScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
+            40.verticalSpace,
             // Ad Banner Placeholder
-            Container(
-              height: 80.h,
-              margin: const EdgeInsets.only(bottom: 16),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                // ignore: use_full_hex_values_for_flutter_colors
-                color: const Color(0xff1e18180d),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              alignment: Alignment.center,
-              child: const Text("ADVERTISEMENT", style: TextStyle(color: Colors.black54)),
-            ),
-
+            // Container(
+            //   height: 80.h,
+            //   margin: const EdgeInsets.only(bottom: 16),
+            //   width: double.infinity,
+            //   decoration: BoxDecoration(
+            //     // ignore: use_full_hex_values_for_flutter_colors
+            //     color: const Color(0xff1e18180d),
+            //     borderRadius: BorderRadius.circular(12),
+            //   ),
+            //   alignment: Alignment.center,
+            //   child: const Text("ADVERTISEMENT", style: TextStyle(color: Colors.black54)),
+            // ),
             Obx(() {
               if (widget.controller.getEventNearYouStatus.value == RequestStatus.loading) {
                 return const Center(child: CircularProgressIndicator());
@@ -129,17 +129,20 @@ class _EventsNearYouScreenState extends State<EventsNearYouScreen> {
                                   child: Text(
                                     widget.controller.formatDate(event.eventDateAndTime.toString()),
                                     textAlign: TextAlign.center,
-                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
+                                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 10),
-                          Text(event.eventName ?? "", style: const TextStyle(fontWeight: FontWeight.bold)),
+                          Text(
+                            event.eventName ?? "",
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp),
+                          ),
                           const SizedBox(height: 4),
-                          Text(widget.controller.formatDateAndTime(event.eventDateAndTime.toString()), style: const TextStyle(fontSize: 12)),
-                          Text("${event.eventAddress} ${event.eventCity} ${event.eventCountry}", style: const TextStyle(fontSize: 12)),
+                          Text(widget.controller.formatDateAndTime(event.eventDateAndTime.toString()), style: TextStyle(fontSize: 16.sp)),
+                          Text("${event.eventAddress} ${event.eventCity} ${event.eventCountry}", style: TextStyle(fontSize: 16.sp)),
                         ],
                       ),
                     ),

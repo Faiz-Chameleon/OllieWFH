@@ -34,15 +34,14 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
               10.verticalSpace,
 
               /// Advertisement
-              Container(
-                height: 80.h,
-                decoration: BoxDecoration(color: Color(0xff1e18180d), borderRadius: BorderRadius.circular(10)),
-                alignment: Alignment.center,
-                child: const Text("ADVERTISEMENT", style: TextStyle(color: Colors.grey)),
-              ),
+              // Container(
+              //   height: 80.h,
+              //   decoration: BoxDecoration(color: Color(0xff1e18180d), borderRadius: BorderRadius.circular(10)),
+              //   alignment: Alignment.center,
+              //   child: const Text("ADVERTISEMENT", style: TextStyle(color: Colors.grey)),
+              // ),
 
-              20.verticalSpace,
-
+              // 20.verticalSpace,
               Obx(() {
                 if (widget.controller.getLatestEventStatus.value == RequestStatus.loading) {
                   return const Center(child: CircularProgressIndicator());

@@ -57,14 +57,14 @@ class _BlogCategoryScreenState extends State<BlogCategoryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: Color(0xff1e18180d), borderRadius: BorderRadius.circular(12)),
-              child: const Center(
-                child: Text("ADVERTISEMENT", style: TextStyle(color: grey)),
-              ),
-            ),
+            // Container(
+            //   width: double.infinity,
+            //   padding: const EdgeInsets.all(20),
+            //   decoration: BoxDecoration(color: Color(0xff1e18180d), borderRadius: BorderRadius.circular(12)),
+            //   child: const Center(
+            //     child: Text("ADVERTISEMENT", style: TextStyle(color: grey)),
+            //   ),
+            // ),
             20.verticalSpace,
             Obx(() {
               if (widget.controller.getBlogsByTopicsStatus.value == RequestStatus.loading) {

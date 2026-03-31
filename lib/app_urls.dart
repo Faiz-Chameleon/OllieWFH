@@ -4,7 +4,7 @@ class ApiUrls {
   // http://3.96.202.108/api/v1
   //http://3.96.158.243/api/v1
   // liveURL https://api.theollie.app/api/v1
-  static const String baseUrl = 'http://192.168.1.39:3000/api/v1';
+  static const String baseUrl = 'https://api.theollie.app/api/v1';
   static const String registerApi = "/user/auth/userRegister";
   static const String verifyOTPApi = "/user/auth/userVerifyOtp";
   static const String getInterest = "/user/auth/getInterest";

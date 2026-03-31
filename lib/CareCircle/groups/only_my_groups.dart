@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/CareCircle/care_circle_controller.dart';
 import 'package:ollie/CareCircle/groups/group_chat_screen.dart';
 import 'package:ollie/CareCircle/groups/one_to_many_chat_controller.dart';
@@ -28,7 +29,10 @@ class _OnlyYourGroupsState extends State<OnlyYourGroups> {
         backgroundColor: const Color(0xFFFFF6E8),
         elevation: 0,
         centerTitle: false,
-        title: Text(widget.title, style: const TextStyle(color: Colors.black)),
+        title: Text(
+          widget.title,
+          style: GoogleFonts.darkerGrotesque(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 26.sp),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
@@ -77,7 +81,7 @@ class _OnlyYourGroupsState extends State<OnlyYourGroups> {
     List<String> memberImages = members.isNotEmpty ? membersImages.take(2).map((p) => p.image ?? "").toList() : [];
     return Container(
       width: 195.w,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(5.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -107,7 +111,7 @@ class _OnlyYourGroupsState extends State<OnlyYourGroups> {
           SizedBox(
             width: 170.w,
             height: 50,
-            child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            child: Text(title, style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold, fontSize: 15)),
           ),
           const SizedBox(height: 10),
           SizedBox(
@@ -139,7 +143,7 @@ class _OnlyYourGroupsState extends State<OnlyYourGroups> {
                         child: CircleAvatar(
                           radius: 10,
                           backgroundColor: const Color(0xFF3C3129),
-                          child: Text(members, style: TextStyle(fontSize: 10, color: Colors.white)),
+                          child: Text(members, style: GoogleFonts.darkerGrotesque(fontSize: 10, color: Colors.white)),
                         ),
                       ),
                     ],
@@ -151,7 +155,10 @@ class _OnlyYourGroupsState extends State<OnlyYourGroups> {
                     color: joined ? const Color(0xFFF4BD2A) : Colors.orange.shade200,
                     borderRadius: BorderRadius.circular(30),
                   ),
-                  child: Text(action, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    action,
+                    style: GoogleFonts.darkerGrotesque(fontSize: 14.sp, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             ),

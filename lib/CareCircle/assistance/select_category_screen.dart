@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/CareCircle/assistance/assistance_controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ollie/CareCircle/assistance/chose_datetime_screen.dart';
@@ -52,15 +53,15 @@ class _SelectCategoryScreenState extends State<SelectCategoryScreen> {
                     SizedBox(width: 8),
                     Text(
                       "What do you need help with?",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.black),
+                      style: GoogleFonts.darkerGrotesque(fontSize: 22.sp, fontWeight: FontWeight.w700, color: Colors.black),
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
 
-                const Text(
+                Text(
                   "Select a\ncategory",
-                  style: TextStyle(fontSize: 55, fontWeight: FontWeight.w700, color: Colors.black, height: 1.2),
+                  style: GoogleFonts.darkerGrotesque(fontSize: 55.sp, fontWeight: FontWeight.w700, color: Colors.black, height: 1.2),
                 ),
                 const SizedBox(height: 15),
 
@@ -89,7 +90,7 @@ class _SelectCategoryScreenState extends State<SelectCategoryScreen> {
                               children: [
                                 Text(
                                   cat.name ?? 'Category', // Display category name
-                                  style: TextStyle(
+                                  style: GoogleFonts.darkerGrotesque(
                                     color: selected ? Colors.black : Black,
                                     fontWeight: selected ? FontWeight.w700 : FontWeight.normal,
                                   ),

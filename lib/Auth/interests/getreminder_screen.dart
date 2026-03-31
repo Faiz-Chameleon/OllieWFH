@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:ollie/Auth/interests/Interests_controller.dart';
 import 'package:ollie/Auth/interests/reminder_permission_screen.dart';
@@ -43,20 +44,12 @@ class Reminder_Screen extends StatelessWidget {
                   140.verticalSpace,
                   Text(
                     "Get reminders right on time.",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 26.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: GoogleFonts.darkerGrotesque(color: Colors.black, fontSize: 26.sp, fontWeight: FontWeight.bold),
                   ),
                   10.verticalSpace,
                   Text(
                     "Do you take any\ndaily meds or\nsupplements?",
-                    style: TextStyle(
-                      fontSize: 50.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
-                    ),
+                    style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
                   ),
                   40.verticalSpace,
 
@@ -66,19 +59,12 @@ class Reminder_Screen extends StatelessWidget {
                       text: "Yes",
                       onPressed: () {
                         controller.selectAnswer(true);
-                        Get.to(
-                          () => Reminder_Permission_Screen(),
-                          transition: Transition.fadeIn,
-                        );
+                        Get.to(() => Reminder_Permission_Screen(), transition: Transition.fadeIn);
                       },
-                      color: controller.selectedAnswer.value
-                          ? buttonColor
-                          : Colors.grey.shade300,
-                      textColor: controller.selectedAnswer.value
-                          ? Colors.white
-                          : Colors.grey,
+                      color: controller.selectedAnswer.value ? buttonColor : Colors.grey.shade300,
+                      textColor: controller.selectedAnswer.value ? Colors.white : Colors.grey,
                       fontSize: 18,
-                      height: 55.h,
+                      // height: 55.h,
                     ),
                   ),
                   20.verticalSpace,
@@ -87,19 +73,12 @@ class Reminder_Screen extends StatelessWidget {
                       text: "No",
                       onPressed: () {
                         controller.selectAnswer(false);
-                        Get.to(
-                          () => Reminder_Permission_Screen(),
-                          transition: Transition.fadeIn,
-                        );
+                        Get.to(() => Reminder_Permission_Screen(), transition: Transition.fadeIn);
                       },
-                      color: !controller.selectedAnswer.value
-                          ? buttonColor
-                          : Colors.grey.shade300,
-                      textColor: !controller.selectedAnswer.value
-                          ? Colors.white
-                          : Colors.grey,
+                      color: !controller.selectedAnswer.value ? buttonColor : Colors.grey.shade300,
+                      textColor: !controller.selectedAnswer.value ? Colors.white : Colors.grey,
                       fontSize: 18,
-                      height: 55.h,
+                      // height: 55.h,
                     ),
                   ),
 

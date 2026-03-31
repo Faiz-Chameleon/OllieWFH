@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/HomeMain/HomeMain.dart';
@@ -77,11 +78,11 @@ class _Home_ScreenState extends State<Home_Screen> {
                         children: [
                           Text(
                             "Hi ${userController.user.value?.firstName}!",
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
+                            style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold, fontSize: 22.sp),
                           ),
                           Text(
                             controller.today,
-                            style: TextStyle(fontSize: 16.sp, color: Colors.black54),
+                            style: GoogleFonts.darkerGrotesque(fontSize: 17.sp, color: Colors.black54),
                           ),
                         ],
                       ),
@@ -107,7 +108,7 @@ class _Home_ScreenState extends State<Home_Screen> {
                             children: [
                               Image.asset("assets/icons/Vector (1).png", scale: 4),
                               const SizedBox(width: 5),
-                              const Text("0", style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text("0", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
                             ],
                           ),
                         ),
@@ -133,10 +134,10 @@ class _Home_ScreenState extends State<Home_Screen> {
                     children: [
                       Text(
                         "Daily Tasks",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22.sp),
+                        style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold, fontSize: 24.sp),
                       ),
                       const SizedBox(height: 5),
-                      Text("See how much you have achieved today!", style: TextStyle(fontSize: 16.sp)),
+                      Text("See how much you have achieved today!", style: GoogleFonts.darkerGrotesque(fontSize: 20.sp)),
                       const SizedBox(height: 10),
                       Obx(() {
                         if (taskController.getTaskStatusOnHome.value == RequestStatus.loading) {
@@ -148,7 +149,7 @@ class _Home_ScreenState extends State<Home_Screen> {
                             children: [
                               // Check if the task list is empty or not
                               if (taskController.tasksOnHome.isEmpty)
-                                Text("No tasks for today", style: TextStyle(fontSize: 16.sp))
+                                Text("No tasks for today", style: GoogleFonts.darkerGrotesque(fontSize: 20.sp))
                               else
                                 ...taskController.tasksOnHome.map((task) {
                                   return Padding(
@@ -335,12 +336,12 @@ class FeatureCard extends StatelessWidget {
                 const Spacer(),
                 Text(
                   title,
-                  style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold, height: 1.2),
+                  style: GoogleFonts.darkerGrotesque(fontSize: 24.sp, fontWeight: FontWeight.bold, height: 1.2),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   description,
-                  style: TextStyle(fontSize: 16.sp, color: Colors.black87, height: 1.3),
+                  style: GoogleFonts.darkerGrotesque(fontSize: 20.sp, color: Colors.black87, height: 1.3),
                 ),
               ],
             ),

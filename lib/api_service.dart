@@ -30,6 +30,7 @@ class ApiService {
         return {'success': false, 'message': parsed['message'] ?? 'Something went wrong'};
       }
     } catch (e) {
+      
       return {'success': false, 'message': e.toString()};
     }
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_contact_picker/model/contact.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:ollie/Auth/interests/getreminder_screen.dart';
 import 'package:ollie/Auth/interests/Interests_controller.dart';
@@ -117,12 +118,12 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                 children: [
                   Text(
                     "Save an emergency contact.",
-                    style: TextStyle(color: HeadingColor, fontSize: 26.sp, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 26.sp, fontWeight: FontWeight.bold),
                   ),
                   10.verticalSpace,
                   Text(
                     "Who should I\ncall if you need\nhelp?",
-                    style: TextStyle(color: HeadingColor, fontSize: 58.sp, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
                   ),
                   40.verticalSpace,
                   Column(

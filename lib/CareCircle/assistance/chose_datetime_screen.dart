@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/CareCircle/assistance/add_task_description_screen.dart';
 import 'package:ollie/CareCircle/assistance/assistance_controller.dart';
 
@@ -37,15 +38,18 @@ class _ChooseDateTimeScreenState extends State<ChooseDateTimeScreen> {
                         child: const Icon(Icons.arrow_back, size: 28, color: Colors.black),
                       ),
                       const SizedBox(width: 8),
-                      const Text(
+                      Text(
                         "When do you need help?",
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.black),
+                        style: GoogleFonts.darkerGrotesque(fontSize: 22.sp, fontWeight: FontWeight.w700, color: Colors.black),
                       ),
                     ],
                   ),
                   const SizedBox(height: 24),
 
-                  const Text("Choose a\ndate and time", style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, height: 1.2)),
+                  Text(
+                    "Choose a\ndate and time",
+                    style: GoogleFonts.darkerGrotesque(fontSize: 36.sp, fontWeight: FontWeight.bold, height: 1.2),
+                  ),
                   const SizedBox(height: 28),
 
                   // Yellow Dropdown Header
@@ -58,7 +62,7 @@ class _ChooseDateTimeScreenState extends State<ChooseDateTimeScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text("Date and Time", style: TextStyle(fontWeight: FontWeight.w600)),
+                            Text("Date and Time", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w600)),
                             Icon(controller.isExpanded.value ? Icons.expand_less : Icons.expand_more),
                           ],
                         ),
@@ -134,7 +138,7 @@ class _ChooseDateTimeScreenState extends State<ChooseDateTimeScreen> {
 
                           return Text(
                             message,
-                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
+                            style: GoogleFonts.darkerGrotesque(color: Colors.red, fontWeight: FontWeight.w600),
                           );
                         }),
                       ],
@@ -167,7 +171,10 @@ class _ChooseDateTimeScreenState extends State<ChooseDateTimeScreen> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        child: const Text("Next", style: TextStyle(color: Colors.white)),
+                        child: Text(
+                          "Next",
+                          style: GoogleFonts.darkerGrotesque(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold),
+                        ),
                       ),
                     );
                   }),

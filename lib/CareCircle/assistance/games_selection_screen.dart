@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/CareCircle/assistance/game_2048.dart';
 import 'package:ollie/CareCircle/assistance/pac_man_game.dart';
 import 'package:ollie/CareCircle/assistance/your_post_screen.dart';
@@ -36,9 +38,9 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
         backgroundColor: BGcolor,
         elevation: 0,
 
-        title: const Text(
+        title: Text(
           "Games",
-          style: TextStyle(color: Black, fontSize: 20, fontWeight: FontWeight.bold),
+          style: GoogleFonts.darkerGrotesque(color: Black, fontSize: 24.sp, fontWeight: FontWeight.bold),
         ),
         actions: [
           Padding(
@@ -104,7 +106,10 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Text(item.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                  Text(
+                    item.title,
+                    style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w600, fontSize: 18.sp),
+                  ),
                 ],
               ),
             );

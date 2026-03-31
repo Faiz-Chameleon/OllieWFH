@@ -62,7 +62,7 @@ class CreateProfileController extends GetxController {
       selectedDate.value = picked;
 
       // Format as dd-MM-yyyy
-      String formatted = DateFormat('dd-MM-yyyy').format(picked);
+      String formatted = DateFormat('MM-dd-yyyy').format(picked);
       print("Formatted Date: $formatted");
 
       // You can also store it in a variable or observable
@@ -85,6 +85,7 @@ class CreateProfileController extends GetxController {
     cityValue.value = "";
     stateValue.value = "";
     countryValue.value = "";
+    phoneController.clear();
 
     interestController.selectedPhoneNumber.value = "";
     interestController.selectedAnswer.value = false;

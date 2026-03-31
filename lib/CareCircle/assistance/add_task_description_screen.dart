@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/CareCircle/assistance/add_location_screen.dart';
 import 'package:ollie/CareCircle/assistance/assistance_controller.dart';
@@ -44,10 +45,10 @@ class AddTaskDescriptionScreen extends StatelessWidget {
                               child: const Icon(Icons.arrow_back, size: 24, color: Colors.black),
                             ),
                             const SizedBox(width: 10),
-                            const Expanded(
+                            Expanded(
                               child: Text(
                                 "Add a description for your task.",
-                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.black),
+                                style: GoogleFonts.darkerGrotesque(fontSize: 22.sp, fontWeight: FontWeight.w700, color: Colors.black),
                               ),
                             ),
                           ],
@@ -64,7 +65,10 @@ class AddTaskDescriptionScreen extends StatelessWidget {
                                   : const AssetImage("assets/icons/Frame 1686560584.png") as ImageProvider,
                             ),
                             const SizedBox(width: 10),
-                            Text(userController.user.value?.firstName ?? "", style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                            Text(
+                              userController.user.value?.firstName ?? "",
+                              style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, fontWeight: FontWeight.w600),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 24),
@@ -92,7 +96,7 @@ class AddTaskDescriptionScreen extends StatelessWidget {
                             filled: true,
                             fillColor: const Color(0xFFF6EEDC),
                             hintText: "I need help with groceries, is anyone available?",
-                            hintStyle: const TextStyle(color: Colors.black45),
+                            hintStyle: GoogleFonts.darkerGrotesque(color: Colors.black45),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
                             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
                             focusedBorder: OutlineInputBorder(
@@ -103,7 +107,7 @@ class AddTaskDescriptionScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        const Text("Share enough detail so volunteers know how to help best.", style: TextStyle(color: Colors.black54)),
+                        Text("Share enough detail so volunteers know how to help best.", style: GoogleFonts.darkerGrotesque(color: Colors.black54)),
                         const SizedBox(height: 40),
                       ],
                     ),

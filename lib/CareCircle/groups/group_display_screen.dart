@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ollie/CareCircle/groups/Create_group_controller.dart';
 
@@ -40,18 +41,21 @@ class GroupDisplayPictureScreen extends StatelessWidget {
                       40.verticalSpace,
                       GestureDetector(
                         onTap: () => Get.back(),
-                        child: const Row(
+                        child: Row(
                           children: [
                             Icon(Icons.arrow_back, color: Colors.black),
                             SizedBox(width: 8),
-                            Text("Create new group", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                            Text(
+                              "Create new group",
+                              style: GoogleFonts.darkerGrotesque(fontSize: 22.sp, fontWeight: FontWeight.w600),
+                            ),
                           ],
                         ),
                       ),
                       30.verticalSpace,
                       Text(
                         "Add a display\npicture",
-                        style: TextStyle(color: HeadingColor, fontSize: 34.sp, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 36.sp, fontWeight: FontWeight.bold),
                       ),
                       30.verticalSpace,
 
@@ -94,7 +98,7 @@ class GroupDisplayPictureScreen extends StatelessWidget {
                                   Get.to(() => GroupDescriptionScreen(), transition: Transition.fadeIn);
                                 }
                               : null,
-                          height: 50.h,
+                          // height: 50.h,
                           color: imageController.selectedImage.value != null ? buttonColor : const Color(0xFFD6CCBC),
                           textColor: imageController.selectedImage.value != null ? Colors.white : Colors.grey,
                           width: double.infinity,

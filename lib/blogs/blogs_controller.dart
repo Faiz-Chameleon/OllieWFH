@@ -265,16 +265,14 @@ class BlogsController extends GetxController {
   Rx<CompleteBlog> completeBlogData = CompleteBlog().obs;
   var getIndividuaBlogDetailsStatus = RequestStatus.idle.obs;
   Future<void> getIndividualBlogDetails(String blogId) async {
-    getBlogsByTopicsStatus.value = RequestStatus.loading;
+    getIndividuaBlogDetailsStatus.value = RequestStatus.loading;
 
     final result = await blogRepository.getBlogDetails(blogId);
     if (result['success'] == true) {
-      final blogTopicsModel = AllBlogTopics.fromJson(result);
-      blogsByTopicsList.assignAll(blogTopicsModel.data?.blogs ?? []);
       completeBlogData.value = CompleteBlog.fromJson(result);
-      getBlogsByTopicsStatus.value = RequestStatus.success;
+      getIndividuaBlogDetailsStatus.value = RequestStatus.success;
     } else {
-      getBlogsByTopicsStatus.value = RequestStatus.error;
+      getIndividuaBlogDetailsStatus.value = RequestStatus.error;
       Get.snackbar("Error", result['message'] ?? "message required frontend");
     }
   }

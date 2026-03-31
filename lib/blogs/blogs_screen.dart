@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/Subscription/credits/credits_sreen.dart';
 import 'package:ollie/blogs/popular_blogs_screen.dart';
@@ -24,13 +26,9 @@ class BlogsScreen extends StatelessWidget {
           automaticallyImplyLeading: false,
           backgroundColor: BGcolor,
           elevation: 0,
-          title: const Text(
+          title: Text(
             "Blogs",
-            style: TextStyle(
-              color: Black,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: GoogleFonts.darkerGrotesque(color: Black, fontSize: 20, fontWeight: FontWeight.bold),
           ),
           actions: [
             Padding(
@@ -41,38 +39,23 @@ class BlogsScreen extends StatelessWidget {
                   const SizedBox(width: 10),
                   GestureDetector(
                     onTap: () {
-                      Get.to(
-                        () => NotificationsScreen(),
-                        transition: Transition.fadeIn,
-                      );
+                      Get.to(() => NotificationsScreen(), transition: Transition.fadeIn);
                     },
                     child: Image.asset("assets/icons/Vector (2).png", scale: 4),
                   ),
                   const SizedBox(width: 10),
                   GestureDetector(
                     onTap: () {
-                      Get.to(
-                        () => CreditsSubscriptionScreen(),
-                        transition: Transition.fadeIn,
-                      );
+                      Get.to(() => CreditsSubscriptionScreen(), transition: Transition.fadeIn);
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: kprimaryColor,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      decoration: BoxDecoration(color: kprimaryColor, borderRadius: BorderRadius.circular(20)),
                       child: Row(
                         children: [
                           Image.asset("assets/icons/Vector (1).png", scale: 4),
                           const SizedBox(width: 5),
-                          const Text(
-                            "0",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
+                          Text("0", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -87,10 +70,7 @@ class BlogsScreen extends StatelessWidget {
             unselectedLabelColor: Colors.grey,
             indicatorColor: kprimaryColor,
             indicatorWeight: 3,
-            labelStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+            labelStyle: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold, fontSize: 22.sp),
             onTap: (index) {
               // Handle tab changes here
               final blogTypes = ["popular", "trending", "recent"];

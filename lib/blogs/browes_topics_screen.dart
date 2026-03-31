@@ -42,14 +42,14 @@ class _BrowseTopicsScreenState extends State<BrowseTopicsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: Color(0xff1e18180d), borderRadius: BorderRadius.circular(12)),
-              child: const Center(
-                child: Text("ADVERTISEMENT", style: TextStyle(color: Colors.brown)),
-              ),
-            ),
+            // Container(
+            //   width: double.infinity,
+            //   padding: const EdgeInsets.all(20),
+            //   decoration: BoxDecoration(color: Color(0xff1e18180d), borderRadius: BorderRadius.circular(12)),
+            //   child: const Center(
+            //     child: Text("ADVERTISEMENT", style: TextStyle(color: Colors.brown)),
+            //   ),
+            // ),
             24.verticalSpace,
             Text(
               "All Topics",
@@ -75,7 +75,7 @@ class _BrowseTopicsScreenState extends State<BrowseTopicsScreen> {
                       onTap: () =>
                           Get.to(() => BlogCategoryScreen(category: topic.name ?? "", controller: widget.controller, topicId: topic.id.toString())),
                       child: Container(
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(color: const Color(0xFFFFE08A), borderRadius: BorderRadius.circular(18)),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +85,7 @@ class _BrowseTopicsScreenState extends State<BrowseTopicsScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(color: Colors.white.withOpacity(0.8), borderRadius: BorderRadius.circular(10)),
-                              child: Text(" articles", style: const TextStyle(fontSize: 12)),
+                              child: Text("articles", style: const TextStyle(fontSize: 12)),
                             ),
                           ],
                         ),

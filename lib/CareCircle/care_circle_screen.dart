@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/CareCircle/care_circle_controller.dart';
 import 'package:ollie/CareCircle/assistance/assistance_screen.dart';
 import 'package:ollie/CareCircle/eventsandactivites/event_and_activities_screen.dart';
@@ -25,7 +26,8 @@ class _Care_Circle_screenState extends State<Care_Circle_screen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      careControllercontroller.changeTab(0);
+      final currentIndex = careControllercontroller.selectedTabIndex.value;
+      careControllercontroller.changeTab(currentIndex);
     });
   }
 
@@ -39,9 +41,9 @@ class _Care_Circle_screenState extends State<Care_Circle_screen> {
         automaticallyImplyLeading: false,
         backgroundColor: BGcolor,
         elevation: 0,
-        title: const Text(
+        title: Text(
           "Care Circle",
-          style: TextStyle(color: Black, fontSize: 20, fontWeight: FontWeight.bold),
+          style: GoogleFonts.darkerGrotesque(color: Black, fontSize: 22.sp, fontWeight: FontWeight.bold),
         ),
 
         actions: [
@@ -69,7 +71,7 @@ class _Care_Circle_screenState extends State<Care_Circle_screen> {
                       children: [
                         Image.asset("assets/icons/Vector (1).png", scale: 4),
                         const SizedBox(width: 5),
-                        const Text("0", style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text("0", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -100,7 +102,7 @@ class _Care_Circle_screenState extends State<Care_Circle_screen> {
                       padding: const EdgeInsets.only(right: 16.0),
                       child: Text(
                         tabs[index],
-                        style: TextStyle(
+                        style: GoogleFonts.darkerGrotesque(
                           color: isSelected ? Black : Colors.grey,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                           fontSize: 20.sp,
@@ -125,7 +127,7 @@ class _Care_Circle_screenState extends State<Care_Circle_screen> {
                 case 1:
                   return Group_Screen(controller: careControllercontroller);
                 case 2:
-                  return InterestsScreen();
+                  return InterestsScreen(controller: careControllercontroller);
 
                 case 3:
                   return EventsAndActivitiesScreen(controller: careControllercontroller);

@@ -210,7 +210,7 @@ class ConversationalChatScreen extends StatelessWidget {
                     decoration: BoxDecoration(color: cardbg, borderRadius: BorderRadius.circular(30)),
                     child: Row(
                       children: [
-                        const Icon(Icons.attach_file, color: Colors.grey),
+                        // const Icon(Icons.attach_file, color: Colors.grey),
                         const SizedBox(width: 8),
                         Expanded(
                           child: TextField(

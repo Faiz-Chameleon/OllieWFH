@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/home/Dailytask/daily_task_screen.dart';
@@ -67,9 +68,9 @@ class _OllieScreenState extends State<OllieScreen> with SingleTickerProviderStat
         backgroundColor: const Color(0xFFFFF2D6),
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           "Ollie",
-          style: TextStyle(color: Black, fontSize: 26, fontWeight: FontWeight.bold),
+          style: GoogleFonts.darkerGrotesque(color: Black, fontSize: 26.sp, fontWeight: FontWeight.bold),
         ),
         automaticallyImplyLeading: false,
         actions: [
@@ -96,9 +97,9 @@ class _OllieScreenState extends State<OllieScreen> with SingleTickerProviderStat
           child: Column(
             children: [
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 "What can I\ndo for you?",
-                style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Black),
+                style: GoogleFonts.darkerGrotesque(fontSize: 40.sp, fontWeight: FontWeight.bold, color: Black),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -126,7 +127,7 @@ class _OllieScreenState extends State<OllieScreen> with SingleTickerProviderStat
               Text(
                 "I'm Ollie, your companion.\nI'm here to help you.",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 26.sp, color: Black, fontWeight: FontWeight.bold),
+                style: GoogleFonts.darkerGrotesque(fontSize: 26.sp, color: Black, fontWeight: FontWeight.bold),
               ),
 
               // TTS Status Indicator
@@ -147,7 +148,7 @@ class _OllieScreenState extends State<OllieScreen> with SingleTickerProviderStat
                             const SizedBox(width: 8),
                             Text(
                               "Ollie is speaking...",
-                              style: TextStyle(color: buttonColor, fontWeight: FontWeight.w500),
+                              style: GoogleFonts.darkerGrotesque(color: buttonColor, fontWeight: FontWeight.w500),
                             ),
                             const SizedBox(width: 8),
                             IconButton(

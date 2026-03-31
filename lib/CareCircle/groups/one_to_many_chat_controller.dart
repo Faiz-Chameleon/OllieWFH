@@ -40,37 +40,37 @@ class OneToManyChatController extends GetxController {
   void _setupListenersOnGroup() {
     if (!_listenersRegistered) {
       // Set up getRoom listener
-      // socketController.socket.on('getRoom', (data) {
-      //   messages.clear();
-      //   print('Received data from getRoom: $data');
-      //   if (data != null && data['data'] != null && data['data']['messages'] != null) {
-      //     List messagesData = data['data']['messages'] ?? [];
-      //     if (messagesData.isNotEmpty) {
-      //       messages.addAll(messagesData);
-      //       print('Messages updated: $messagesData');
-      //     } else {
-      //       print('No messages found in the received data');
-      //     }
-      //   } else {
-      //     print('Data or messages field is null');
-      //   }
-      // });
+      socketController.socket.on('getRoom', (data) {
+        messages.clear();
+        print('Received data from getRoom: $data');
+        if (data != null && data['data'] != null && data['data']['messages'] != null) {
+          List messagesData = data['data']['messages'] ?? [];
+          if (messagesData.isNotEmpty) {
+            messages.addAll(messagesData);
+            print('Messages updated: $messagesData');
+          } else {
+            print('No messages found in the received data');
+          }
+        } else {
+          print('Data or messages field is null');
+        }
+      });
 
       // Set up message listener
-      // socketController.socket.on('message', (data) {
-      //   try {
-      //     print('Received data: $data');
-      //     if (data is Map) {
-      //       final messageContent = data['data'];
-      //       messages.add(messageContent);
-      //     } else {
-      //       print('Received invalid data: $data');
-      //     }
-      //   } catch (e, stackTrace) {
-      //     print('Error receiving message: $e');
-      //     print('Stack Trace: $stackTrace');
-      //   }
-      // });
+      socketController.socket.on('message', (data) {
+        try {
+          print('Received data: $data');
+          if (data is Map) {
+            final messageContent = data['data'];
+            messages.add(messageContent);
+          } else {
+            print('Received invalid data: $data');
+          }
+        } catch (e, stackTrace) {
+          print('Error receiving message: $e');
+          print('Stack Trace: $stackTrace');
+        }
+      });
 
       _listenersRegistered = true;
       print('Socket listeners registered');

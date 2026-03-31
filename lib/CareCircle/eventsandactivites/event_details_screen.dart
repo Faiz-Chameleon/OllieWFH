@@ -70,7 +70,7 @@ class EventDetailsScreen extends StatelessWidget {
                       children: [
                         Text(
                           careCirclecontroller.formatDate(careCirclecontroller.latestEvent.value.eventDateAndTime.toString()),
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp),
                         ),
                       ],
                     ),
@@ -91,20 +91,32 @@ class EventDetailsScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(careCirclecontroller.latestEvent.value.eventName ?? "", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                    Text(
+                      careCirclecontroller.latestEvent.value.eventName ?? "",
+                      style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
+                    ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(16)),
-                      child: Text("${careCirclecontroller.latestEvent.value.eventParticipant}", style: TextStyle(fontWeight: FontWeight.w600)),
+                      child: Text(
+                        "${careCirclecontroller.latestEvent.value.eventParticipant}",
+                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18.sp),
+                      ),
                     ),
                   ],
                 ),
 
                 const SizedBox(height: 6),
-                Text("${careCirclecontroller.latestEvent.value.eventParticipant} Participants Going", style: TextStyle(color: Colors.black54)),
+                Text(
+                  "${careCirclecontroller.latestEvent.value.eventParticipant} Participants Going",
+                  style: TextStyle(color: Colors.black54, fontSize: 18.sp),
+                ),
 
                 const SizedBox(height: 24),
-                Text("Event Details", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  "Event Details",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
+                ),
                 const SizedBox(height: 10),
                 Row(
                   children: [
@@ -113,6 +125,7 @@ class EventDetailsScreen extends StatelessWidget {
                     Text(
                       "${careCirclecontroller.latestEvent.value.eventAddress} ${careCirclecontroller.latestEvent.value.eventCity} ${careCirclecontroller.latestEvent.value.eventCountry}" ??
                           "",
+                      style: TextStyle(fontSize: 18.sp),
                     ),
                   ],
                 ),
@@ -121,14 +134,20 @@ class EventDetailsScreen extends StatelessWidget {
                   children: [
                     Icon(Icons.schedule, size: 20),
                     SizedBox(width: 8),
-                    Text(careCirclecontroller.formatDateAndTime(careCirclecontroller.latestEvent.value.eventDateAndTime.toString())),
+                    Text(
+                      careCirclecontroller.formatDateAndTime(careCirclecontroller.latestEvent.value.eventDateAndTime.toString()),
+                      style: TextStyle(fontSize: 18.sp),
+                    ),
                   ],
                 ),
 
                 const SizedBox(height: 24),
-                const Text("About", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  "About",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
+                ),
                 const SizedBox(height: 10),
-                Text(careCirclecontroller.latestEvent.value.eventDescription ?? "", style: TextStyle(fontSize: 14, height: 1.5)),
+                Text(careCirclecontroller.latestEvent.value.eventDescription ?? "", style: TextStyle(fontSize: 18.sp, height: 1.5)),
 
                 const SizedBox(height: 40),
 
@@ -154,7 +173,7 @@ class EventDetailsScreen extends StatelessWidget {
                     ),
                     child: Text(
                       careCirclecontroller.latestEvent.value.isMark == true ? "Marked as Going" : "Mark as Going",
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20.sp),
                     ),
                   );
                 }),

@@ -1,6 +1,8 @@
 // ignore_for_file: avoid_print
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/myprofile/delete_account_dialouge.dart';
@@ -25,9 +27,9 @@ class MyProfileScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFFFF2D9),
         elevation: 0,
         leading: const BackButton(color: Colors.black),
-        title: const Text(
+        title: Text(
           'My Profile',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 25),
+          style: GoogleFonts.darkerGrotesque(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 34.sp),
         ),
         centerTitle: true,
       ),
@@ -63,9 +65,9 @@ class MyProfileScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 "Unlock Full Access. Get Premium Now!",
-                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                                style: GoogleFonts.darkerGrotesque(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18.sp),
                               ),
                               const SizedBox(height: 10),
                               SizedBox(
@@ -76,9 +78,9 @@ class MyProfileScreen extends StatelessWidget {
                                     backgroundColor: ksecondaryColor,
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     "Subscribe Now",
-                                    style: TextStyle(color: Black, fontWeight: FontWeight.bold),
+                                    style: GoogleFonts.darkerGrotesque(color: Black, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                               ),
@@ -114,9 +116,12 @@ class MyProfileScreen extends StatelessWidget {
                     children: [
                       Image(image: AssetImage("assets/icons/Frame 1686560309.png"), height: 60, width: 60, fit: BoxFit.cover),
                       const SizedBox(width: 12),
-                      const Text("Wallet", style: TextStyle(fontSize: 16)),
+                      Text(
+                        "Wallet",
+                        style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, fontWeight: FontWeight.w600),
+                      ),
                       const Spacer(),
-                      Text("\$${controller.walletBalance.value.toStringAsFixed(2)}", style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text("\$${controller.walletBalance.value.toStringAsFixed(2)}", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -129,18 +134,21 @@ class MyProfileScreen extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(color: const Color(0xffFFE1A4), borderRadius: BorderRadius.circular(16)),
-                child: const Row(
+                child: Row(
                   children: [
                     Image(image: AssetImage("assets/icons/Frame 1686560309.png"), height: 60, width: 60, fit: BoxFit.cover),
                     SizedBox(width: 12),
-                    Text("Donate Now!", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                    Text(
+                      "Donate Now!",
+                      style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, fontWeight: FontWeight.w600),
+                    ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 24),
 
-            const Text("General", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text("General", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             _buildTile(
               "Edit Profile",
@@ -154,7 +162,7 @@ class MyProfileScreen extends StatelessWidget {
 
             // _buildTile("Account", "Manage your profile and preferences.", () => print("Account")),
             const SizedBox(height: 24),
-            const Text("Help", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text("Help", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             _buildTile("FAQs", "Find answers to your most common questions.", () => print("FAQs")),
             _buildTile("Support", "Reach out for assistance anytime.", () {
@@ -164,7 +172,7 @@ class MyProfileScreen extends StatelessWidget {
             _buildTile("Terms and Conditions", "Understand the terms of using Ollie.", () => print("Terms")),
 
             const SizedBox(height: 24),
-            const Text("Delete Account", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text("Delete Account", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             ListTile(
               onTap: () {
@@ -177,7 +185,7 @@ class MyProfileScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
             const SizedBox(height: 24),
-            const Text("Logout", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text("Logout", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             ListTile(
               onTap: () {
@@ -201,8 +209,11 @@ class MyProfileScreen extends StatelessWidget {
       children: [
         ListTile(
           onTap: onTap,
-          title: Text(title),
-          subtitle: Text(subtitle),
+          title: Text(
+            title,
+            style: GoogleFonts.darkerGrotesque(fontSize: 18.sp, fontWeight: FontWeight.bold),
+          ),
+          subtitle: Text(subtitle, style: GoogleFonts.darkerGrotesque(fontSize: 16.sp)),
           trailing: const Icon(Icons.chevron_right),
           tileColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

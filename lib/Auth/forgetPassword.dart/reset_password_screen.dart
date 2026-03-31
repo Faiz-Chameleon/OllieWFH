@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:ollie/Auth/login/login_screen.dart';
 import 'package:ollie/Constants/constants.dart';
@@ -10,9 +11,7 @@ import 'package:ollie/request_status.dart';
 
 // ignore: camel_case_types
 class Reset_Password_Screen extends StatelessWidget {
-  final ForgotPasswordController controller = Get.put(
-    ForgotPasswordController(),
-  );
+  final ForgotPasswordController controller = Get.put(ForgotPasswordController());
   final _formKey = GlobalKey<FormState>();
 
   Reset_Password_Screen({super.key});
@@ -31,12 +30,7 @@ class Reset_Password_Screen extends StatelessWidget {
               bottom: 0,
               left: 0,
               right: 0,
-              child: Image.asset(
-                "assets/images/Group 1000000919.png",
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: 400.h,
-              ),
+              child: Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
             ),
 
             SingleChildScrollView(
@@ -52,11 +46,7 @@ class Reset_Password_Screen extends StatelessWidget {
                           width: 380.w,
                           child: Text(
                             "Reset Your Password",
-                            style: TextStyle(
-                              color: HeadingColor,
-                              fontSize: 55.sp,
-                              fontWeight: FontWeight.w700,
-                            ),
+                            style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
                           ),
                         ),
                       ],
@@ -68,12 +58,9 @@ class Reset_Password_Screen extends StatelessWidget {
                         hintText: "Enter new password",
                         labelText: "New Password",
                         obscureText: !controller.isNewPasswordVisible.value,
-                        suffixIcon: controller.isNewPasswordVisible.value
-                            ? Icons.visibility
-                            : Icons.visibility_off,
+                        suffixIcon: controller.isNewPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
                         onSuffixTap: controller.toggleNewPasswordVisibility,
-                        validator: (value) =>
-                            value!.isEmpty ? 'New password is required' : null,
+                        validator: (value) => value!.isEmpty ? 'New password is required' : null,
                       ),
                     ),
 
@@ -85,13 +72,10 @@ class Reset_Password_Screen extends StatelessWidget {
                         hintText: "Confirm new password",
                         labelText: "Confirm Password",
                         obscureText: !controller.isConfirmPasswordVisible.value,
-                        suffixIcon: controller.isConfirmPasswordVisible.value
-                            ? Icons.visibility
-                            : Icons.visibility_off,
+                        suffixIcon: controller.isConfirmPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
                         onSuffixTap: controller.toggleConfirmPasswordVisibility,
                         validator: (value) {
-                          if (value!.isEmpty)
-                            return 'Please confirm your password';
+                          if (value!.isEmpty) return 'Please confirm your password';
                           if (value != controller.newPasswordController.text) {
                             return 'Passwords do not match';
                           }
@@ -103,17 +87,13 @@ class Reset_Password_Screen extends StatelessWidget {
                     20.verticalSpace,
 
                     Obx(() {
-                      if (controller.resetPasswordStatus.value ==
-                          RequestStatus.loading) {
+                      if (controller.resetPasswordStatus.value == RequestStatus.loading) {
                         return CircularProgressIndicator();
                       }
                       return CustomButton(
                         text: "Continue",
                         onPressed: () {
-                          var data = {
-                            "userPassword":
-                                controller.newPasswordController.text,
-                          };
+                          var data = {"userPassword": controller.newPasswordController.text};
                           if (_formKey.currentState!.validate()) {
                             controller.resetPassword(data);
                           }

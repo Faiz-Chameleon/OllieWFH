@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/CareCircle/groups/Create_group_controller.dart';
 import 'package:ollie/CareCircle/groups/group_information_screen.dart';
 
@@ -34,18 +35,21 @@ class GroupDescriptionScreen extends StatelessWidget {
                         40.verticalSpace,
                         GestureDetector(
                           onTap: () => Get.back(),
-                          child: const Row(
+                          child: Row(
                             children: [
                               Icon(Icons.arrow_back, color: Colors.black),
                               SizedBox(width: 8),
-                              Text("Create new group", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                              Text(
+                                "Create new group",
+                                style: GoogleFonts.darkerGrotesque(fontSize: 20.sp, fontWeight: FontWeight.w600),
+                              ),
                             ],
                           ),
                         ),
                         30.verticalSpace,
                         Text(
                           "Add group\ndescription",
-                          style: TextStyle(color: HeadingColor, fontSize: 34.sp, fontWeight: FontWeight.bold),
+                          style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 36.sp, fontWeight: FontWeight.bold),
                         ),
                         30.verticalSpace,
                         TextField(
@@ -73,7 +77,7 @@ class GroupDescriptionScreen extends StatelessWidget {
                                     Get.to(() => GroupReviewScreen(), transition: Transition.fadeIn);
                                   }
                                 : null,
-                            height: 50.h,
+                            // height: 50.h,
                             color: isActive ? buttonColor : const Color(0xFFD6CCBC),
                             textColor: isActive ? Colors.white : Colors.grey,
                             width: double.infinity,

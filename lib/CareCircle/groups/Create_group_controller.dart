@@ -5,10 +5,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ollie/CareCircle/care_circle_controller.dart';
-import 'package:ollie/CareCircle/care_circle_screen.dart';
 import 'package:ollie/CareCircle/group_repository.dart';
 import 'package:ollie/CareCircle/groups/groups_screen.dart';
 import 'package:ollie/CareCircle/groups/see_all_groups.dart';
+import 'package:ollie/HomeMain/HomeMain.dart';
 import 'package:ollie/HomeMain/bottomController.dart';
 import 'package:ollie/request_status.dart';
 
@@ -54,12 +54,21 @@ class CreateGroupController extends GetxController {
   }
 
   void navigateToCareCircle(int tabIndex) {
-    final bottomController = Get.find<Bottomcontroller>();
-    bottomController.updateIndex(0);
+    final bottomController = Get.isRegistered<Bottomcontroller>() ? Get.find<Bottomcontroller>() : Get.put(Bottomcontroller());
+    bottomController.updateIndex(1);
 
-    Get.to(() => Care_Circle_screen());
-
-    final careController = Get.find<CareCircleController>();
+    CareCircleController.pendingInitialTab = tabIndex;
+    final careController =
+        Get.isRegistered<CareCircleController>() ? Get.find<CareCircleController>() : Get.put(CareCircleController());
     careController.changeTab(tabIndex);
+
+    final navigatorState = Get.key.currentState;
+    if (navigatorState?.canPop() ?? false) {
+      navigatorState!.popUntil((route) => route.isFirst);
+    } else {
+      Get.offAll(() => ConvexStyledBarScreen(), transition: Transition.fadeIn);
+    }
+
+    Future.microtask(() => bottomController.updateIndex(1));
   }
 }

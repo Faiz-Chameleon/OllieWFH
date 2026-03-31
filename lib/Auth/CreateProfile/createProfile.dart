@@ -2,6 +2,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:ollie/Auth/CreateProfile/create_profile_controller.dart';
 import 'package:ollie/Auth/interests/wellcome_sreen.dart';
@@ -20,10 +21,7 @@ class CreateProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final baseFieldStyle = (textTheme.bodyLarge ?? const TextStyle()).copyWith(
-      fontWeight: FontWeight.w600,
-      fontSize: 20.sp,
-    );
+    final baseFieldStyle = (textTheme.bodyLarge ?? const TextStyle()).copyWith(fontWeight: FontWeight.w600, fontSize: 20.sp);
     final dropdownValueStyle = baseFieldStyle.copyWith(color: Colors.Black);
     final dropdownHintStyle = baseFieldStyle.copyWith(color: const Color(0xFF6D6D6D));
     final dropdownErrorStyle = baseFieldStyle.copyWith(color: const Color(0xFFF44336));
@@ -59,7 +57,7 @@ class CreateProfileScreen extends StatelessWidget {
                               width: 380.w,
                               child: Text(
                                 "Create Profile",
-                                style: TextStyle(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
+                                style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
                               ),
                             ),
                           ],
@@ -96,18 +94,12 @@ class CreateProfileScreen extends StatelessWidget {
                           () => DropdownButtonFormField2<String>(
                             isExpanded: true,
                             style: dropdownValueStyle,
-                            decoration: customInputDecoration(
-                              labelText: "",
-                            ).copyWith(
+                            decoration: customInputDecoration(labelText: "").copyWith(
                               contentPadding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                               hintStyle: dropdownHintStyle,
                               errorStyle: dropdownErrorStyle,
                             ),
-                            hint: Text(
-                              'Select Gender',
-                              style: dropdownHintStyle,
-                              textAlign: TextAlign.left,
-                            ),
+                            hint: Text('Select Gender', style: dropdownHintStyle, textAlign: TextAlign.left),
                             value: controller.selectedGender.value.isEmpty ? null : controller.selectedGender.value,
                             items: ["Male", "Female", "Other"]
                                 .map(
@@ -171,10 +163,7 @@ class CreateProfileScreen extends StatelessWidget {
                                         hintStyle: dropdownHintStyle,
                                         errorStyle: dropdownErrorStyle,
                                       ),
-                                  child: Text(
-                                    dateText,
-                                    style: selectedDate == null ? dropdownHintStyle : dropdownValueStyle,
-                                  ),
+                                  child: Text(dateText, style: selectedDate == null ? dropdownHintStyle : dropdownValueStyle),
                                 ),
                               );
                             });
@@ -182,47 +171,65 @@ class CreateProfileScreen extends StatelessWidget {
                         ),
 
                         20.verticalSpace,
-                        IntlPhoneField(
-                          dropdownTextStyle: dropdownValueStyle,
-
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            errorStyle: dropdownErrorStyle,
-                            labelText: "Phone Number",
-                            labelStyle: labelFieldStyle,
-                            hintText: "Enter your phone number",
-                            filled: true,
-                            hintStyle: labelFieldStyle,
-                            fillColor: Colors.white,
-                            contentPadding: EdgeInsets.only(left: 30, bottom: 15, top: 15),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(50)),
-                              borderSide: BorderSide(color: Color(0xff463C3380)),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(50)),
-                              borderSide: BorderSide(color: Color(0xff463C3380)),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(50)),
-                              borderSide: BorderSide(color: Color(0xff463C3380)),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(50)),
-                              borderSide: BorderSide(color: Color(0xff463C3380)),
-                            ),
-                          ),
-                          initialCountryCode: 'CA',
-                          validator: (phone) {
-                            if (phone == null || phone.number.trim().isEmpty) {
+                        FormField<String>(
+                          validator: (_) {
+                            if (controller.phoneController.text.trim().isEmpty) {
                               return "Please enter your phone number";
                             }
                             return null;
                           },
-                          onChanged: (phone) {
-                            controller.phoneController.text = phone.completeNumber;
+                          builder: (state) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                IntlPhoneField(
+                                  dropdownTextStyle: dropdownValueStyle,
+                                  keyboardType: TextInputType.number,
+                                  controller: controller.phoneController,
+                                  decoration: InputDecoration(
+                                    errorStyle: dropdownErrorStyle,
+                                    labelText: "Phone Number",
+                                    labelStyle: labelFieldStyle,
+                                    hintText: "Enter your phone number",
+                                    filled: true,
+                                    hintStyle: labelFieldStyle,
+                                    fillColor: Colors.white,
+                                    contentPadding: EdgeInsets.only(left: 30, bottom: 15, top: 15),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(50)),
+                                      borderSide: BorderSide(color: Color(0xff463C3380)),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(50)),
+                                      borderSide: BorderSide(color: Color(0xff463C3380)),
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(50)),
+                                      borderSide: BorderSide(color: Color(0xff463C3380)),
+                                    ),
+                                    focusedErrorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(50)),
+                                      borderSide: BorderSide(color: Color(0xff463C3380)),
+                                    ),
+                                  ),
+                                  initialCountryCode: 'CA',
+                                  onChanged: (phone) {
+                                    controller.phoneController.text = phone.completeNumber;
+                                    state.didChange(phone.completeNumber);
+                                  },
+                                  onCountryChanged: (_) {
+                                    state.didChange(controller.phoneController.text);
+                                  },
+                                  style: dropdownValueStyle,
+                                ),
+                                if (state.hasError)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 6, left: 12),
+                                    child: Text(state.errorText ?? "", style: dropdownErrorStyle),
+                                  ),
+                              ],
+                            );
                           },
-                          style: dropdownValueStyle,
                         ),
 
                         20.verticalSpace,
@@ -244,9 +251,7 @@ class CreateProfileScreen extends StatelessWidget {
                             const statePlaceholder = "Select State/Province";
                             const cityPlaceholder = "Select City";
 
-                            final decoration = customInputDecoration(
-                              labelText: "",
-                            ).copyWith(
+                            final decoration = customInputDecoration(labelText: "").copyWith(
                               contentPadding: const EdgeInsets.only(left: 30, bottom: 15, top: 15),
                               hintStyle: dropdownHintStyle,
                               errorStyle: dropdownErrorStyle,
@@ -297,12 +302,23 @@ class CreateProfileScreen extends StatelessWidget {
                         CustomButton(
                           text: "Continue",
                           onPressed: () {
-                            if (_formKey.currentState?.validate() ?? false) {
-                              Get.to(() => Well_Come_Screen(), transition: Transition.fadeIn);
+                            final isValid = _formKey.currentState?.validate() ?? false;
+                            if (!isValid) {
+                              if (controller.phoneController.text.trim().isEmpty) {
+                                Get.snackbar("Phone Number Required", "Please add your phone number to continue");
+                              }
+                              return;
                             }
+
+                            if (controller.phoneController.text.trim().isEmpty) {
+                              Get.snackbar("Phone Number Required", "Please add your phone number to continue");
+                              return;
+                            }
+
+                            Get.to(() => Well_Come_Screen(), transition: Transition.fadeIn);
                           },
                           width: 390.w,
-                          height: 50.h,
+                          // height: 50.h,
                           color: buttonColor,
                           textColor: Colors.white,
                           fontSize: 18,

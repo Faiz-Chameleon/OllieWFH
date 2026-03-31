@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/Auth/forgetPassword.dart/forgot_Password_screen.dart';
 import 'package:ollie/Auth/interests/sign_up_screen.dart';
 import 'package:ollie/Constants/constants.dart';
@@ -30,12 +31,7 @@ class Login_Screen extends StatelessWidget {
               bottom: 0,
               left: 0,
               right: 0,
-              child: Image.asset(
-                "assets/images/Group 1000000919.png",
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: 400.h,
-              ),
+              child: Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
             ),
 
             Positioned(
@@ -48,7 +44,7 @@ class Login_Screen extends StatelessWidget {
                 children: [
                   Text(
                     "By continuing, you agree to our",
-                    style: TextStyle(fontSize: 14.sp, color: Colors.black),
+                    style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, color: Colors.black, fontWeight: FontWeight.w600),
                   ),
                   TextButton(
                     onPressed: () {
@@ -57,10 +53,11 @@ class Login_Screen extends StatelessWidget {
                     },
                     child: Text(
                       "Terms & Conditions",
-                      style: TextStyle(
-                        fontSize: 14.sp,
+                      style: GoogleFonts.darkerGrotesque(
+                        fontSize: 16.sp,
                         color: Colors.black,
                         decoration: TextDecoration.underline,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -69,18 +66,15 @@ class Login_Screen extends StatelessWidget {
                     children: [
                       Text(
                         "Don't have an account? ",
-                        style: TextStyle(fontSize: 14.sp, color: Colors.black),
+                        style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, color: Colors.black, fontWeight: FontWeight.w600),
                       ),
                       GestureDetector(
                         onTap: () {
-                          Get.to(
-                            () => Sign_Up_Screen(),
-                            transition: Transition.fadeIn,
-                          );
+                          Get.to(() => Sign_Up_Screen(), transition: Transition.fadeIn);
                         },
                         child: Text(
                           "Sign Up",
-                          style: TextStyle(
+                          style: GoogleFonts.darkerGrotesque(
                             fontSize: 14.sp,
                             color: txtColor,
                             fontWeight: FontWeight.bold,
@@ -109,22 +103,11 @@ class Login_Screen extends StatelessWidget {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: buttonColor,
-                                    ),
-                                  ),
+                                  SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: buttonColor)),
                                   SizedBox(width: 12),
                                   Text(
                                     "Logging you in...",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: buttonColor,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                    style: TextStyle(fontSize: 16, color: buttonColor, fontWeight: FontWeight.w500),
                                   ),
                                 ],
                               ),
@@ -136,11 +119,7 @@ class Login_Screen extends StatelessWidget {
                       children: [
                         Text(
                           "Login here",
-                          style: TextStyle(
-                            color: HeadingColor,
-                            fontSize: 55.sp,
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
                         ),
                       ],
                     ),
@@ -149,18 +128,11 @@ class Login_Screen extends StatelessWidget {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            Get.to(
-                              () => Sign_Up_Screen(),
-                              transition: Transition.fadeIn,
-                            );
+                            Get.to(() => Sign_Up_Screen(), transition: Transition.fadeIn);
                           },
                           child: Text(
                             "Sign Up here",
-                            style: TextStyle(
-                              fontSize: 30.sp,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 26.sp, fontWeight: FontWeight.w700),
                           ),
                         ),
                       ],
@@ -171,8 +143,7 @@ class Login_Screen extends StatelessWidget {
                       hintText: "Enter your email",
                       labelText: "Email",
                       keyboardType: TextInputType.emailAddress,
-                      validator: (value) =>
-                          value!.isEmpty ? 'Email required' : null,
+                      validator: (value) => value!.isEmpty ? 'Email required' : null,
                     ),
                     20.verticalSpace,
                     Obx(
@@ -182,12 +153,9 @@ class Login_Screen extends StatelessWidget {
                         labelText: "Password",
                         obscureText: !controller.isPasswordVisible.value,
                         keyboardType: TextInputType.text,
-                        suffixIcon: controller.isPasswordVisible.value
-                            ? Icons.visibility
-                            : Icons.visibility_off,
+                        suffixIcon: controller.isPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
                         onSuffixTap: controller.togglePasswordVisibility,
-                        validator: (value) =>
-                            value!.isEmpty ? 'Password required' : null,
+                        validator: (value) => value!.isEmpty ? 'Password required' : null,
                       ),
                     ),
 
@@ -199,23 +167,14 @@ class Login_Screen extends StatelessWidget {
                         Obx(
                           () => GestureDetector(
                             onTap: () {
-                              controller.toggleRememberMe(
-                                !controller.rememberMe.value,
-                              );
+                              controller.toggleRememberMe(!controller.rememberMe.value);
                             },
                             child: Row(
                               children: [
-                                Checkbox(
-                                  value: controller.rememberMe.value,
-                                  onChanged: controller.toggleRememberMe,
-                                  activeColor: buttonColor,
-                                ),
+                                Checkbox(value: controller.rememberMe.value, onChanged: controller.toggleRememberMe, activeColor: buttonColor),
                                 Text(
                                   "Remember me",
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    color: Colors.black87,
-                                  ),
+                                  style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 16.sp, fontWeight: FontWeight.w500),
                                 ),
                               ],
                             ),
@@ -223,18 +182,11 @@ class Login_Screen extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () {
-                            Get.to(
-                              () => Forgot_Password_Screen(),
-                              transition: Transition.fadeIn,
-                            );
+                            Get.to(() => Forgot_Password_Screen(), transition: Transition.fadeIn);
                           },
                           child: Text(
                             "Forgot Password?",
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w500,
-                              color: buttonColor,
-                            ),
+                            style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 16.sp, fontWeight: FontWeight.w500),
                           ),
                         ),
                       ],
@@ -243,17 +195,13 @@ class Login_Screen extends StatelessWidget {
                     20.verticalSpace,
 
                     Obx(() {
-                      if (controller.loginStatus.value ==
-                          RequestStatus.loading) {
+                      if (controller.loginStatus.value == RequestStatus.loading) {
                         return CircularProgressIndicator();
                       }
                       return CustomButton(
                         text: "Login",
                         onPressed: () async {
-                          var data = {
-                            "userEmail": controller.emailController.text,
-                            "userPassword": controller.passwordController.text,
-                          };
+                          var data = {"userEmail": controller.emailController.text, "userPassword": controller.passwordController.text};
                           if (_formKey.currentState!.validate()) {
                             controller.userLogin(data);
                           }
@@ -266,10 +214,10 @@ class Login_Screen extends StatelessWidget {
                           // );
                         },
                         width: 390.w,
-                        height: 50,
+                        // height: 50,
                         color: buttonColor,
                         textColor: Colors.white,
-                        fontSize: 18,
+                        fontSize: 26.sp,
                       );
                     }),
 

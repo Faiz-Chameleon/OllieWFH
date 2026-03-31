@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/Auth/CreateProfile/create_profile_controller.dart';
 
 import 'package:ollie/Auth/interests/interests_screen.dart';
@@ -22,11 +23,7 @@ class Well_Come_Screen extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("assets/images/2092.png"),
-              ),
-            ),
+            decoration: BoxDecoration(image: DecorationImage(image: AssetImage("assets/images/2092.png"))),
           ),
 
           SingleChildScrollView(
@@ -41,11 +38,7 @@ class Well_Come_Screen extends StatelessWidget {
                         width: 380.w,
                         child: Text(
                           "Hi ${controller.firstNameController.text} !",
-                          style: TextStyle(
-                            color: HeadingColor,
-                            fontSize: 55.sp,
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
                         ),
                       ),
                     ],
@@ -64,11 +57,7 @@ class Well_Come_Screen extends StatelessWidget {
                           width: 320.w,
                           child: Text(
                             "I’m Ollie, your helping hand. Let’s set things up just for you!",
-                            style: TextStyle(
-                              fontSize: 24.sp,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: GoogleFonts.darkerGrotesque(fontSize: 24.sp, color: Colors.black, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -78,14 +67,11 @@ class Well_Come_Screen extends StatelessWidget {
                   CustomButton(
                     text: "Next",
                     onPressed: () {
-                      Get.to(
-                        () => Interests_screen(),
-                        transition: Transition.fadeIn,
-                      );
+                      Get.to(() => Interests_screen(), transition: Transition.fadeIn);
                     },
                     width: 390.w,
 
-                    height: 50.h,
+                    // height: 50.h,
                     color: buttonColor,
                     textColor: Colors.white,
                     fontSize: 18,

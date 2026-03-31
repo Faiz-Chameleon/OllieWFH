@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -28,11 +29,28 @@ class PostModel {
 
 class CareCircleController extends GetxController {
   final CareCircleRepository careCircleRepository = CareCircleRepository();
+  static int? pendingInitialTab;
+  final ScrollController interestsScrollController = ScrollController();
   var selectedTabIndex = 0.obs;
   var reachedOut = false.obs;
   var currentPage = 0.obs;
   var taskCompleted = false.obs;
   var currentYourRequestPage = 0.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    if (pendingInitialTab != null) {
+      selectedTabIndex.value = pendingInitialTab!;
+      pendingInitialTab = null;
+    }
+  }
+
+  @override
+  void onClose() {
+    interestsScrollController.dispose();
+    super.onClose();
+  }
 
   final List<String> topics = ['Fitness', 'Wellness', 'Mindfulness'];
   final List<String> images = ['assets/images/Frame 73.png', 'assets/images/Frame 73.png', 'assets/images/Frame 73.png'];

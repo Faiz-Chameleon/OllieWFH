@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:ollie/CareCircle/assistance/assistance_controller.dart';
 
@@ -27,28 +28,20 @@ class AddLocationScreen extends StatelessWidget {
                 children: [
                   GestureDetector(
                     onTap: () => Get.back(),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      size: 24,
-                      color: Colors.black,
-                    ),
+                    child: const Icon(Icons.arrow_back, size: 24, color: Colors.black),
                   ),
                   const SizedBox(width: 10),
-                  const Text(
+                  Text(
                     "Let us know your exact location.",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    style: GoogleFonts.darkerGrotesque(fontSize: 18.sp, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
 
-              const Text(
+              Text(
                 "Please add\nyour location",
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  height: 1.2,
-                ),
+                style: GoogleFonts.darkerGrotesque(fontSize: 40.sp, fontWeight: FontWeight.bold, height: 1.2),
               ),
               const SizedBox(height: 28),
 
@@ -63,14 +56,10 @@ class AddLocationScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          controller.selectedAddress.isNotEmpty
-                              ? controller.selectedAddress.value
-                              : "Add Location",
+                          controller.selectedAddress.isNotEmpty ? controller.selectedAddress.value : "Add Location",
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: controller.selectedAddress.isNotEmpty
-                                ? Colors.black
-                                : Colors.grey.shade500,
+                          style: GoogleFonts.darkerGrotesque(
+                            color: controller.selectedAddress.isNotEmpty ? Colors.black : Colors.grey.shade500,
                             fontSize: 16,
                           ),
                         ),
@@ -81,10 +70,7 @@ class AddLocationScreen extends StatelessWidget {
                           final granted = await controller.ensureLocationPermission();
                           if (!granted) return;
                           // Only open dialog if permission granted
-                          await showDialog(
-                            context: context,
-                            builder: (_) => MapLocationDialog(),
-                          );
+                          await showDialog(context: context, builder: (_) => MapLocationDialog());
                         },
                       ),
                     ],
@@ -110,27 +96,17 @@ class AddLocationScreen extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: controller.selectedAddress.isNotEmpty
                         ? () {
-                            Get.to(
-                              () => ReviewPostScreen(),
-                              transition: Transition.fadeIn,
-                            );
+                            Get.to(() => ReviewPostScreen(), transition: Transition.fadeIn);
 
                             // Navigate or handle next
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: controller.selectedAddress.isNotEmpty
-                          ? const Color(0xFF3F362E)
-                          : Colors.grey.shade400,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(40),
-                      ),
+                      backgroundColor: controller.selectedAddress.isNotEmpty ? const Color(0xFF3F362E) : Colors.grey.shade400,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: const Text(
-                      "Next",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    child: Text("Next", style: GoogleFonts.darkerGrotesque(color: Colors.white)),
                   ),
                 ),
               ),

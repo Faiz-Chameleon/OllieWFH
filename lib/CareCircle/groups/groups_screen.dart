@@ -29,6 +29,7 @@ class Group_Screen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF6E8),
       body: Stack(
+        alignment: Alignment.bottomRight,
         children: [
           SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -175,22 +176,22 @@ class Group_Screen extends StatelessWidget {
                 }),
 
                 const SizedBox(height: 20),
-                Container(
-                  width: double.infinity,
-                  height: 60,
-                  decoration: BoxDecoration(color: Color(0xff1e18180d), borderRadius: BorderRadius.circular(12)),
-                  child: const Center(
-                    child: Text("ADVERTISEMENT", style: TextStyle(color: Colors.black54, fontSize: 12)),
-                  ),
-                ),
 
+                // Container(
+                //   width: double.infinity,
+                //   height: 60,
+                //   decoration: BoxDecoration(color: Color(0xff1e18180d), borderRadius: BorderRadius.circular(12)),
+                //   child: const Center(
+                //     child: Text("ADVERTISEMENT", style: TextStyle(color: Colors.black54, fontSize: 12)),
+                //   ),
+                // ),
                 110.verticalSpace,
               ],
             ),
           ),
 
           Positioned(
-            bottom: 100,
+            // bottom: 100,
             right: 20,
             child: GestureDetector(
               onTap: () => Get.to(() => Group_Creation_Screen(), transition: Transition.fadeIn),

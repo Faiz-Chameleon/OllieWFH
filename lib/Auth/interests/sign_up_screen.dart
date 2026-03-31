@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/Auth/interests/sign_up_controller.dart';
@@ -50,7 +51,7 @@ class Sign_Up_Screen extends StatelessWidget {
                             width: 380.w,
                             child: Text(
                               "Sign Up",
-                              style: TextStyle(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
+                              style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
                             ),
                           ),
                         ],
@@ -123,7 +124,7 @@ class Sign_Up_Screen extends StatelessWidget {
                             }
                           },
                           width: 390.w,
-                          height: 50.h,
+                          // height: 50.h,
                           color: buttonColor,
                           textColor: Colors.white,
                           fontSize: 18,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/Auth/forgetPassword.dart/forgot_password_controller.dart';
 
 import 'package:ollie/Auth/forgetPassword.dart/reset_password_screen.dart';
@@ -16,9 +17,7 @@ class Otp_Screen extends StatelessWidget {
   final String comesFromWhere;
   final OtpController controller = Get.put(OtpController());
   final SignUpController userRegisterController = Get.put(SignUpController());
-  final ForgotPasswordController forgotPasswordcontroller = Get.put(
-    ForgotPasswordController(),
-  );
+  final ForgotPasswordController forgotPasswordcontroller = Get.put(ForgotPasswordController());
 
   Otp_Screen({super.key, required this.comesFromWhere});
 
@@ -33,12 +32,7 @@ class Otp_Screen extends StatelessWidget {
             bottom: 0,
             left: 0,
             right: 0,
-            child: Image.asset(
-              "assets/images/Group 1000000919.png",
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: 400.h,
-            ),
+            child: Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
           ),
 
           SingleChildScrollView(
@@ -53,11 +47,7 @@ class Otp_Screen extends StatelessWidget {
                         width: 380.w,
                         child: Text(
                           "Enter Your OTP",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 55.sp,
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
                         ),
                       ),
                     ],
@@ -89,17 +79,11 @@ class Otp_Screen extends StatelessWidget {
                     return controller.isResendEnabled.value
                         ? TextButton(
                             onPressed: () {
-                              controller.resendOtp(
-                                userRegisterController.emailController.text,
-                              );
+                              controller.resendOtp(userRegisterController.emailController.text);
                             },
                             child: Text(
                               "Resend OTP",
-                              style: TextStyle(
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
+                              style: GoogleFonts.darkerGrotesque(fontSize: 18.sp, fontWeight: FontWeight.bold, color: Colors.black),
                             ),
                           )
                         : Column(
@@ -119,15 +103,11 @@ class Otp_Screen extends StatelessWidget {
                                       ),
                                     ),
                                     CircleAvatar(
-                                      radius: 55,
+                                      radius: 45.r,
                                       backgroundColor: ksecondaryColor,
                                       child: Text(
                                         "${controller.timer.value}s",
-                                        style: TextStyle(
-                                          fontSize: 24.sp,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
+                                        style: GoogleFonts.darkerGrotesque(fontSize: 24.sp, fontWeight: FontWeight.bold, color: Colors.black),
                                       ),
                                     ),
                                   ],
@@ -136,11 +116,7 @@ class Otp_Screen extends StatelessWidget {
                               10.verticalSpace,
                               Text(
                                 "Please wait to resend OTP",
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  color: Colors.black87,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, color: Colors.black87, fontWeight: FontWeight.bold),
                               ),
                             ],
                           );
@@ -152,10 +128,7 @@ class Otp_Screen extends StatelessWidget {
                     onPressed: () {
                       final code = controller.enteredOtp.value;
                       if (code.length < 6) {
-                        Get.snackbar(
-                          "Invalid OTP",
-                          "Please enter a valid 6-digit OTP",
-                        );
+                        Get.snackbar("Invalid OTP", "Please enter a valid 6-digit OTP");
                         return;
                       }
                       // else if (userRegisterController
@@ -166,25 +139,15 @@ class Otp_Screen extends StatelessWidget {
                       //   return;
                       // }
                       var verifyAtForgotPassword = {
-                        "userEmail":
-                            forgotPasswordcontroller.ForgotemailController.text,
+                        "userEmail": forgotPasswordcontroller.ForgotemailController.text,
                         "otp": controller.enteredOtp.value,
                       };
                       var data = {
-                        "userEmail":
-                            userRegisterController.emailController.text,
+                        "userEmail": userRegisterController.emailController.text,
                         "otp": controller.enteredOtp.value,
-                        "userPassword": userRegisterController
-                            .passwordController
-                            .text
-                            .trim(),
+                        "userPassword": userRegisterController.passwordController.text.trim(),
                       };
-                      controller.verifyUserOTP(
-                        comesFromWhere == "fromSignUp"
-                            ? data
-                            : verifyAtForgotPassword,
-                        route: comesFromWhere,
-                      );
+                      controller.verifyUserOTP(comesFromWhere == "fromSignUp" ? data : verifyAtForgotPassword, route: comesFromWhere);
                       // Get.to(
                       //   () => Well_Come_Screen(),
                       //   transition: Transition.fadeIn,
@@ -196,7 +159,7 @@ class Otp_Screen extends StatelessWidget {
                     },
                     width: 390.w,
 
-                    height: 50.h,
+                    // height: 50.h,
                     color: buttonColor,
                     textColor: Colors.white,
                     fontSize: 18,

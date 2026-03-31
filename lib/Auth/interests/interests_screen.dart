@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:ollie/Auth/interests/emergency_contact_screen.dart';
 import 'package:ollie/Auth/interests/Interests_controller.dart';
@@ -42,12 +43,12 @@ class Interests_screen extends StatelessWidget {
                   140.verticalSpace,
                   Text(
                     "I’ll suggest things you’ll love!",
-                    style: TextStyle(color: HeadingColor, fontSize: 26.sp, fontWeight: FontWeight.w700),
+                    style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 26.sp, fontWeight: FontWeight.w700),
                   ),
                   10.verticalSpace,
                   Text(
                     "Tell us about your interests",
-                    style: TextStyle(color: HeadingColor, fontSize: 59.sp, fontWeight: FontWeight.w700),
+                    style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
                   ),
 
                   Obx(() {
@@ -60,7 +61,7 @@ class Interests_screen extends StatelessWidget {
                         child: Center(
                           child: Text(
                             "No interests available.",
-                            style: TextStyle(fontSize: 18.sp, color: Colors.grey, fontWeight: FontWeight.w600),
+                            style: GoogleFonts.darkerGrotesque(fontSize: 18.sp, color: Colors.grey, fontWeight: FontWeight.w600),
                           ),
                         ),
                       );
@@ -93,7 +94,11 @@ class Interests_screen extends StatelessWidget {
                             child: Center(
                               child: Text(
                                 item.name,
-                                style: TextStyle(fontSize: 16.sp, color: isSelected ? Colors.white : Colors.grey),
+                                style: GoogleFonts.darkerGrotesque(
+                                  fontSize: 18.sp,
+                                  color: isSelected ? Colors.white : Colors.grey,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),

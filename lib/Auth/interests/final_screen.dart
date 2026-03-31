@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/Auth/CreateProfile/create_profile_controller.dart';
 import 'package:ollie/Auth/interests/Interests_controller.dart';
 
@@ -37,7 +38,7 @@ class FinalScreen extends StatelessWidget {
                     Text(
                       "That’s it! Ollie’s\ngot your back.\nLet’s begin!",
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 55.sp, fontWeight: FontWeight.w700, color: Colors.black),
+                      style: GoogleFonts.darkerGrotesque(fontSize: 55.sp, fontWeight: FontWeight.w700, color: Colors.black),
                     ),
                     30.verticalSpace,
                     Obx(() {
@@ -68,7 +69,7 @@ class FinalScreen extends StatelessWidget {
                           // Get.to(() => Login_Screen(), transition: Transition.fadeIn);
                         },
                         width: 390.w,
-                        height: 50.h,
+                        // height: 50.h,
                         color: buttonColor,
                         textColor: Colors.white,
                         fontSize: 18,

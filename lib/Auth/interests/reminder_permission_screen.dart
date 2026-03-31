@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/Auth/interests/Interests_controller.dart';
 
 import 'package:ollie/Auth/interests/final_screen.dart';
@@ -25,12 +26,7 @@ class Reminder_Permission_Screen extends StatelessWidget {
             bottom: 0,
             left: 0,
             right: 0,
-            child: Image.asset(
-              "assets/images/Group 1000000919.png",
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: 400.h,
-            ),
+            child: Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
           ),
 
           // Content
@@ -43,20 +39,12 @@ class Reminder_Permission_Screen extends StatelessWidget {
                   140.verticalSpace,
                   Text(
                     "Stay on track with reminders.",
-                    style: TextStyle(
-                      fontSize: 26.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+                    style: GoogleFonts.darkerGrotesque(fontSize: 26.sp, fontWeight: FontWeight.bold, color: Colors.black),
                   ),
                   10.verticalSpace,
                   Text(
                     "We will remind\nyou for your\ndaily activities.",
-                    style: TextStyle(
-                      fontSize: 50.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
-                    ),
+                    style: GoogleFonts.darkerGrotesque(fontSize: 50.sp, fontWeight: FontWeight.w700, color: Colors.black),
                   ),
                   40.verticalSpace,
 
@@ -65,15 +53,12 @@ class Reminder_Permission_Screen extends StatelessWidget {
                     text: "Allow",
                     onPressed: () {
                       controller.dailyActivityselectAnswer(true);
-                      Get.to(
-                        () => FinalScreen(),
-                        transition: Transition.fadeIn,
-                      );
+                      Get.to(() => FinalScreen(), transition: Transition.fadeIn);
                     },
                     color: buttonColor,
                     textColor: Colors.white,
                     fontSize: 18,
-                    height: 55.h,
+                    // height: 55.h,
                   ),
                   20.verticalSpace,
 
@@ -82,15 +67,12 @@ class Reminder_Permission_Screen extends StatelessWidget {
                     text: "Cancel",
                     onPressed: () {
                       controller.dailyActivityselectAnswer(false);
-                      Get.to(
-                        () => FinalScreen(),
-                        transition: Transition.fadeIn,
-                      );
+                      Get.to(() => FinalScreen(), transition: Transition.fadeIn);
                     },
                     color: Colors.grey.shade300,
                     textColor: Colors.grey,
                     fontSize: 18,
-                    height: 55.h,
+                    // height: 55.h,
                   ),
                   100.verticalSpace,
                 ],

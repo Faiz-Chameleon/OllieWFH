@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/CareCircle/groups/Create_group_controller.dart';
 import 'package:ollie/CareCircle/groups/edit_group_screen.dart';
 import 'package:ollie/CareCircle/groups/groups_screen.dart';
@@ -28,18 +29,21 @@ class GroupReviewScreen extends StatelessWidget {
                   100.verticalSpace,
                   GestureDetector(
                     onTap: () => Get.back(),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(Icons.arrow_back, color: Colors.black),
                         SizedBox(width: 8),
-                        Text("Create new group", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        Text(
+                          "Create new group",
+                          style: GoogleFonts.darkerGrotesque(fontSize: 18.sp, fontWeight: FontWeight.w600),
+                        ),
                       ],
                     ),
                   ),
                   30.verticalSpace,
                   Text(
                     "Review group\ninformation",
-                    style: TextStyle(color: HeadingColor, fontSize: 34.sp, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 36.sp, fontWeight: FontWeight.bold),
                   ),
                   30.verticalSpace,
 
@@ -122,7 +126,7 @@ class GroupReviewScreen extends StatelessWidget {
                         //   transition: Transition.fadeIn,
                         // );
                       },
-                      height: 50.h,
+                      // height: 50.h,
                       color: buttonColor,
                       textColor: Colors.white,
                       width: double.infinity,

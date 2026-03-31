@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:ollie/Constants/Constants.dart';
 
@@ -111,7 +112,7 @@ class CustomButton extends StatelessWidget {
         ),
         child: Text(
           text,
-          style: TextStyle(color: textColor, fontSize: fontSize, fontWeight: FontWeight.w600),
+          style: GoogleFonts.darkerGrotesque(color: textColor, fontSize: fontSize, fontWeight: FontWeight.w700),
         ),
       ),
     );
