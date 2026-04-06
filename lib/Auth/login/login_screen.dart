@@ -38,53 +38,60 @@ class Login_Screen extends StatelessWidget {
               bottom: 55,
               left: 0,
               right: 0,
-
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "By continuing, you agree to our",
-                    style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, color: Colors.black, fontWeight: FontWeight.w600),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      // ignore: avoid_print
-                      print("Terms & Conditions tapped");
-                    },
-                    child: Text(
-                      "Terms & Conditions",
-                      style: GoogleFonts.darkerGrotesque(
-                        fontSize: 16.sp,
-                        color: Colors.black,
-                        decoration: TextDecoration.underline,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.68), borderRadius: BorderRadius.circular(18.r)),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        "Don't have an account? ",
-                        style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, color: Colors.black, fontWeight: FontWeight.w600),
+                        "By continuing, you agree to our",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, color: buttonColor, fontWeight: FontWeight.w700),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Get.to(() => Sign_Up_Screen(), transition: Transition.fadeIn);
+                      TextButton(
+                        onPressed: () {
+                          // ignore: avoid_print
+                          print("Terms & Conditions tapped");
                         },
                         child: Text(
-                          "Sign Up",
+                          "Terms & Conditions",
                           style: GoogleFonts.darkerGrotesque(
-                            fontSize: 14.sp,
+                            fontSize: 16.sp,
                             color: txtColor,
-                            fontWeight: FontWeight.bold,
                             decoration: TextDecoration.underline,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Don't have an account? ",
+                            style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, color: buttonColor, fontWeight: FontWeight.w700),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => Sign_Up_Screen(), transition: Transition.fadeIn);
+                            },
+                            child: Text(
+                              "Sign Up",
+                              style: GoogleFonts.darkerGrotesque(
+                                fontSize: 14.sp,
+                                color: txtColor,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
 

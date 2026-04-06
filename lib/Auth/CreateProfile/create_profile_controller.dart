@@ -23,6 +23,7 @@ class CreateProfileController extends GetxController {
   RxString selectedGender = ''.obs;
   Rx<DateTime?> selectedDate = Rx<DateTime?>(null);
   final phoneController = TextEditingController();
+  final fullPhoneNumber = ''.obs;
   final formattedDateString = ''.obs;
 
   Future<DateTime?> pickDate(BuildContext context) async {
@@ -86,6 +87,7 @@ class CreateProfileController extends GetxController {
     stateValue.value = "";
     countryValue.value = "";
     phoneController.clear();
+    fullPhoneNumber.value = "";
 
     interestController.selectedPhoneNumber.value = "";
     interestController.selectedAnswer.value = false;

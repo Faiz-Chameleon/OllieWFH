@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:ollie/api_service.dart';
 import 'package:ollie/app_urls.dart';
 import 'dart:io';
+import 'dart:core';
 
 class CareCircleRepository {
   Future<Map<String, dynamic>> saveAndUnsavePost(id) async {
@@ -97,11 +98,25 @@ class CareCircleRepository {
     return ApiService.getMethod(ApiUrls.getcreatedAssistance, token: requiredToken);
   }
 
-  Future<Map<String, dynamic>> getOthersCreatedAssistance() async {
+  Future<Map<String, dynamic>> getOthersCreatedAssistance({double? latitude, double? longitude, double? radiusKm}) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
 
-    return ApiService.getMethod(ApiUrls.getOthersCreatedAssistance, token: requiredToken);
+    final queryParameters = <String, String>{};
+
+    if (latitude != null && longitude != null) {
+      queryParameters['latitude'] = latitude.toString();
+      queryParameters['longitude'] = longitude.toString();
+      if (radiusKm != null) {
+        queryParameters['radiusKm'] = radiusKm.toString();
+      }
+    }
+
+    final endpoint = queryParameters.isEmpty
+        ? ApiUrls.getOthersCreatedAssistance
+        : '${ApiUrls.getOthersCreatedAssistance}?${Uri(queryParameters: queryParameters).query}';
+
+    return ApiService.getMethod(endpoint, token: requiredToken);
   }
 
   Future<Map<String, dynamic>> reachOutOnAssistanceRequest(assistanceId) async {

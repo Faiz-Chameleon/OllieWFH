@@ -40,112 +40,113 @@ class MyProfileScreen extends StatelessWidget {
           children: [
             const SizedBox(height: 12),
             Center(
-              child: CircleAvatar(
-                radius: 48,
-                backgroundImage: userController.user.value?.image != null && userController.user.value?.image!.isNotEmpty == true
-                    ? NetworkImage(userController.user.value!.image!)
-                    : const AssetImage("assets/icons/Frame 1686560584.png") as ImageProvider,
+              child: Obx(
+                () => CircleAvatar(
+                  radius: 48,
+                  backgroundImage: userController.user.value?.image != null && userController.user.value?.image!.isNotEmpty == true
+                      ? NetworkImage(userController.user.value!.image!)
+                      : const AssetImage("assets/icons/Frame 1686560584.png") as ImageProvider,
+                ),
               ),
             ),
             const SizedBox(height: 16),
 
-            Stack(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Get.to(() => CreditsSubscriptionScreen(), transition: Transition.fadeIn);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(color: const Color(0xff463C33), borderRadius: BorderRadius.circular(16)),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Unlock Full Access. Get Premium Now!",
-                                style: GoogleFonts.darkerGrotesque(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18.sp),
-                              ),
-                              const SizedBox(height: 10),
-                              SizedBox(
-                                height: 36,
-                                child: ElevatedButton(
-                                  onPressed: controller.subscribe,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: ksecondaryColor,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                  ),
-                                  child: Text(
-                                    "Subscribe Now",
-                                    style: GoogleFonts.darkerGrotesque(color: Black, fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 50), // Space for image positioning
-                      ],
-                    ),
-                  ),
-                ),
+            // Stack(
+            //   children: [
+            //     GestureDetector(
+            //       onTap: () {
+            //         Get.to(() => CreditsSubscriptionScreen(), transition: Transition.fadeIn);
+            //       },
+            //       child: Container(
+            //         padding: const EdgeInsets.all(16),
+            //         decoration: BoxDecoration(color: const Color(0xff463C33), borderRadius: BorderRadius.circular(16)),
+            //         child: Row(
+            //           crossAxisAlignment: CrossAxisAlignment.start,
+            //           children: [
+            //             Expanded(
+            //               child: Column(
+            //                 crossAxisAlignment: CrossAxisAlignment.start,
+            //                 children: [
+            //                   Text(
+            //                     "Unlock Full Access. Get Premium Now!",
+            //                     style: GoogleFonts.darkerGrotesque(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18.sp),
+            //                   ),
+            //                   const SizedBox(height: 10),
+            //                   SizedBox(
+            //                     height: 36,
+            //                     child: ElevatedButton(
+            //                       onPressed: controller.subscribe,
+            //                       style: ElevatedButton.styleFrom(
+            //                         backgroundColor: ksecondaryColor,
+            //                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            //                       ),
+            //                       child: Text(
+            //                         "Subscribe Now",
+            //                         style: GoogleFonts.darkerGrotesque(color: Black, fontWeight: FontWeight.bold),
+            //                       ),
+            //                     ),
+            //                   ),
+            //                 ],
+            //               ),
+            //             ),
+            //             const SizedBox(width: 50), // Space for image positioning
+            //           ],
+            //         ),
+            //       ),
+            //     ),
 
-                // Positioned image
-                const Positioned(
-                  right: 30,
-                  bottom: -45,
-                  child: Image(image: AssetImage("assets/icons/Group 1000000907 (1).png"), height: 100, width: 95, fit: BoxFit.cover),
-                ),
-              ],
-            ),
-
+            //     // Positioned image
+            //     const Positioned(
+            //       right: 30,
+            //       bottom: -45,
+            //       child: Image(image: AssetImage("assets/icons/Group 1000000907 (1).png"), height: 100, width: 95, fit: BoxFit.cover),
+            //     ),
+            //   ],
+            // ),
             const SizedBox(height: 16),
 
-            Obx(
-              () => GestureDetector(
-                onTap: () {
-                  Get.to(() => WalletScreen(), transition: Transition.fadeIn);
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(color: const Color(0xffFFE1A4), borderRadius: BorderRadius.circular(16)),
-                  child: Row(
-                    children: [
-                      Image(image: AssetImage("assets/icons/Frame 1686560309.png"), height: 60, width: 60, fit: BoxFit.cover),
-                      const SizedBox(width: 12),
-                      Text(
-                        "Wallet",
-                        style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, fontWeight: FontWeight.w600),
-                      ),
-                      const Spacer(),
-                      Text("\$${controller.walletBalance.value.toStringAsFixed(2)}", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
+            // Obx(
+            //   () => GestureDetector(
+            //     onTap: () {
+            //       Get.to(() => WalletScreen(), transition: Transition.fadeIn);
+            //     },
+            //     child: Container(
+            //       padding: const EdgeInsets.all(16),
+            //       decoration: BoxDecoration(color: const Color(0xffFFE1A4), borderRadius: BorderRadius.circular(16)),
+            //       child: Row(
+            //         children: [
+            //           Image(image: AssetImage("assets/icons/Frame 1686560309.png"), height: 60, width: 60, fit: BoxFit.cover),
+            //           const SizedBox(width: 12),
+            //           Text(
+            //             "Wallet",
+            //             style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, fontWeight: FontWeight.w600),
+            //           ),
+            //           const Spacer(),
+            //           Text("\$${controller.walletBalance.value.toStringAsFixed(2)}", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            // const SizedBox(height: 12),
 
-            GestureDetector(
-              onTap: controller.donate,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: const Color(0xffFFE1A4), borderRadius: BorderRadius.circular(16)),
-                child: Row(
-                  children: [
-                    Image(image: AssetImage("assets/icons/Frame 1686560309.png"), height: 60, width: 60, fit: BoxFit.cover),
-                    SizedBox(width: 12),
-                    Text(
-                      "Donate Now!",
-                      style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            // GestureDetector(
+            //   onTap: controller.donate,
+            //   child: Container(
+            //     padding: const EdgeInsets.all(16),
+            //     decoration: BoxDecoration(color: const Color(0xffFFE1A4), borderRadius: BorderRadius.circular(16)),
+            //     child: Row(
+            //       children: [
+            //         Image(image: AssetImage("assets/icons/Frame 1686560309.png"), height: 60, width: 60, fit: BoxFit.cover),
+            //         SizedBox(width: 12),
+            //         Text(
+            //           "Donate Now!",
+            //           style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, fontWeight: FontWeight.w600),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
             const SizedBox(height: 24),
 
             Text("General", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),

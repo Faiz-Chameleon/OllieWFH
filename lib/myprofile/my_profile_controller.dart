@@ -122,38 +122,37 @@ class ProfileController extends GetxController {
   Future<void> saveProfile() async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    // Validate the fields before calling the update
-    if (firstName.value.isEmpty || lastName.value.isEmpty || email.value.isEmpty || gender.value.isEmpty) {
-      // Show validation error if any field is empty
+    final firstName = firstNameController.text.trim();
+    final lastName = lastNameController.text.trim();
+    final email = emailController.text.trim();
+    final selectedGender = gender.value.trim();
+
+    if (firstName.isEmpty || lastName.isEmpty || email.isEmpty || selectedGender.isEmpty) {
       Get.snackbar("Error", "Please fill all the fields.");
       return;
     }
     isLoading.value = true;
 
-    // Call the repository's method to update the profile
     final response = await _userRepository.updateProfile(
-      firstName: firstNameController.value.text,
-      lastName: lastNameController.value.text,
-      email: emailController.value.text,
-      gender: gender.value,
-      filePath: profileImage.value!.path,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      gender: selectedGender,
+      filePath: profileImage.value?.path,
       token: requiredToken,
     );
     isLoading.value = false;
 
-    // Check the response and show success or error
     if (response['success']) {
       final userModel = UserModel.fromJson(response);
-      final userController = Get.put(UserController());
 
       if (userModel.data != null) {
         userController.setUser(userModel.data!);
       }
+      profileImage.value = null;
       Get.close(1);
-      // Profile updated successfully
       Get.snackbar("Success", "Profile updated successfully!");
     } else {
-      // Handle error
       Get.snackbar("Error", response['message']);
     }
   }

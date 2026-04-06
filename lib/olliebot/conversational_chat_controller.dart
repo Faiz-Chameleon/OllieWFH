@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ollie/Constants/constants.dart';
-import 'package:ollie/services/chatbot_service.dart';
 import 'package:ollie/services/elevenlabs_conversational_service.dart';
-import 'package:ollie/services/elevenlabs_service.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'dart:async';
 import 'package:http/http.dart' as http;
@@ -30,10 +27,11 @@ class ConversationalChatController extends GetxController {
   var isProcessingTool = false.obs;
 
   final ElevenLabsConversationalService _conversationalService = ElevenLabsConversationalService();
-  final ChatbotService _chatbotService = ChatbotService();
-  ElevenLabsService? _elevenLabsService;
   final stt.SpeechToText speech = stt.SpeechToText();
   final TextEditingController messageController = TextEditingController();
+  final List<StreamSubscription<dynamic>> _subscriptions = [];
+  bool _isCleaningUp = false;
+  bool _isClosed = false;
 
   // Configuration
   var agentId = 'agent_8701k4dytec6e43ar0ms2v7ryn9e'.obs;
@@ -70,35 +68,69 @@ class ConversationalChatController extends GetxController {
   }
 
   void _setupServiceListeners() {
-    _conversationalService.connectionStream.listen((connected) {
-      isConnected.value = connected;
-      if (connected) {
-        connectionStatus.value = 'Connected to ElevenLabs Conversational AI ✅';
-        print('✅ Conversational AI is ready!');
-      } else {
-        connectionStatus.value = 'Disconnected from Conversational AI';
-        print('❌ Conversational AI disconnected');
-      }
-    });
+    _subscriptions.add(
+      _conversationalService.connectionStream.listen((connected) {
+        isConnected.value = connected;
+        if (connected) {
+          connectionStatus.value = 'Connected to ElevenLabs Conversational AI ✅';
+          print('✅ Conversational AI is ready!');
+        } else {
+          connectionStatus.value = 'Disconnected from Conversational AI';
+          print('❌ Conversational AI disconnected');
+        }
+      }),
+    );
 
-    _conversationalService.responseStream.listen((response) {
-      print('🤖 AI Response: $response');
-      _handleAgentMessage(response);
-    });
+    _subscriptions.add(
+      _conversationalService.responseStream.listen((response) {
+        print('🤖 AI Response: $response');
+        _handleAgentMessage(response);
+      }),
+    );
 
-    _conversationalService.toolCallStream.listen((toolCall) {
-      print('🔧 Tool call: ${toolCall}');
-      handleToolCall(toolCall);
-    });
+    _subscriptions.add(
+      _conversationalService.toolCallStream.listen((toolCall) {
+        print('🔧 Tool call: ${toolCall}');
+        handleToolCall(toolCall);
+      }),
+    );
 
-    _conversationalService.transcriptStream.listen((transcript) {
-      if (!transcript.toLowerCase().contains('error')) {
-        print('🎤 User said: $transcript');
-        currentTranscript.value = transcript;
-      } else {
-        print('❌ Transcript error: $transcript');
-      }
-    });
+    _subscriptions.add(
+      _conversationalService.transcriptStream.listen((transcript) {
+        if (!transcript.toLowerCase().contains('error')) {
+          print('🎤 User said: $transcript');
+          currentTranscript.value = transcript;
+        } else {
+          print('❌ Transcript error: $transcript');
+        }
+      }),
+    );
+  }
+
+  Future<void> cleanup() async {
+    if (_isCleaningUp || _isClosed) return;
+    _isCleaningUp = true;
+
+    for (final subscription in _subscriptions) {
+      await subscription.cancel();
+    }
+    _subscriptions.clear();
+
+    try {
+      await speech.stop();
+    } catch (_) {}
+
+    try {
+      await _conversationalService.endConversation(
+        notifyText: 'User has left the chat.',
+      ).timeout(const Duration(seconds: 2));
+    } catch (_) {}
+
+    try {
+      await _conversationalService.dispose().timeout(const Duration(seconds: 2));
+    } catch (_) {}
+
+    _isClosed = true;
   }
 
   void _handleAgentMessage(String message) {
@@ -338,13 +370,7 @@ class ConversationalChatController extends GetxController {
 
   @override
   void onClose() {
-    _conversationalService.dispose();
-    _conversationalService.endConversation(
-      notifyText: 'User has left the chat.', // optional
-    );
-    try {
-      speech.stop();
-    } catch (_) {}
+    unawaited(cleanup());
     messageController.dispose();
     super.onClose();
   }

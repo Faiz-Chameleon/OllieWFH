@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/CareCircle/groups/group_members_screen.dart';
 import 'package:ollie/CareCircle/groups/one_to_many_chat_controller.dart';
-import 'package:ollie/Volunteers/one_to_one_chat_controller.dart';
 import 'package:ollie/Volunteers/socket_controller.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
@@ -28,18 +27,42 @@ class _GrouoChatScreenState extends State<GrouoChatScreen> {
   final userController = Get.find<UserController>();
 
   final TextEditingController messageController = TextEditingController();
+  final ScrollController _messagesScrollController = ScrollController();
 
   final RxBool isSelected = false.obs;
   final ImagePicker _picker = ImagePicker();
   late stt.SpeechToText speech;
+  Worker? _messagesWorker;
   bool isListening = false;
+
+  void _log(String message) {
+    debugPrint('[GroupChatScreen] $message');
+  }
 
   @override
   void initState() {
     super.initState();
+    _messagesWorker = ever(groupChatController.messages, (_) {
+      _scrollToLatestMessage();
+    });
+    _log(
+      'Opening group chat screen: groupName=${widget.userName}, groupId=${widget.groupDetails.id}, currentConversationId=${groupChatController.groupConversationId.value}',
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _log('Post frame joinGroupRoom call with conversationId=${groupChatController.groupConversationId.value}');
       groupChatController.joinGroupRoom(groupChatController.groupConversationId.value.toString());
       speech = stt.SpeechToText();
+    });
+  }
+
+  void _scrollToLatestMessage() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_messagesScrollController.hasClients) {
+        return;
+      }
+
+      final maxScrollExtent = _messagesScrollController.position.maxScrollExtent;
+      _messagesScrollController.animateTo(maxScrollExtent, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
     });
   }
 
@@ -58,7 +81,8 @@ class _GrouoChatScreenState extends State<GrouoChatScreen> {
                 var data = {"attachmentType": "image"};
                 final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
                 if (file != null) {
-                  groupChatController.sendAttachementInChat(data, file, groupChatController.groupConversationId.value.toString());
+                  _log('Gallery image selected for upload: path=${file.path}');
+                  await groupChatController.sendAttachementInChat(data, file, groupChatController.groupConversationId.value.toString());
                 }
                 Get.back();
               },
@@ -67,8 +91,12 @@ class _GrouoChatScreenState extends State<GrouoChatScreen> {
               leading: const Icon(Icons.camera_alt),
               title: const Text('Take Picture'),
               onTap: () async {
+                var data = {"attachmentType": "image"};
                 final XFile? file = await _picker.pickImage(source: ImageSource.camera);
-                if (file != null) groupChatController.messages.add({"from": "me", "image": File(file.path), "time": "10:26 AM"});
+                if (file != null) {
+                  _log('Camera image selected for upload: path=${file.path}');
+                  await groupChatController.sendAttachementInChat(data, file, groupChatController.groupConversationId.value.toString());
+                }
                 Get.back();
               },
             ),
@@ -93,6 +121,7 @@ class _GrouoChatScreenState extends State<GrouoChatScreen> {
   void _sendMessage() {
     final text = messageController.text.trim();
     if (text.isNotEmpty) {
+      _log('Sending message from UI: conversationId=${groupChatController.groupConversationId.value}, textLength=${text.length}, text=$text');
       groupChatController.sendMessageInGroupRoom(groupChatController.groupConversationId.value.toString(), text);
       messageController.clear();
     }
@@ -101,6 +130,14 @@ class _GrouoChatScreenState extends State<GrouoChatScreen> {
   void _stopListening() {
     speech.stop();
     setState(() => isListening = false);
+  }
+
+  @override
+  void dispose() {
+    _messagesWorker?.dispose();
+    _messagesScrollController.dispose();
+    messageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -114,7 +151,12 @@ class _GrouoChatScreenState extends State<GrouoChatScreen> {
         leading: const BackButton(color: Colors.black),
         title: GestureDetector(
           onTap: () {
-            Get.to(() => GroupInfoScreen(groupDetails: widget.groupDetails));
+            Get.to(
+              () => GroupInfoScreen(
+                groupDetails: widget.groupDetails,
+                chatRoomId: groupChatController.groupConversationId.value,
+              ),
+            );
           },
           child: Row(
             children: [
@@ -160,6 +202,7 @@ class _GrouoChatScreenState extends State<GrouoChatScreen> {
                 return Center(child: Text("No messages yet."));
               }
               return ListView.builder(
+                controller: _messagesScrollController,
                 padding: const EdgeInsets.all(16),
                 itemCount: groupChatController.messages.length,
                 itemBuilder: (context, index) {
@@ -182,12 +225,10 @@ class _GrouoChatScreenState extends State<GrouoChatScreen> {
                             color: message["senderId"] == loggedInUserId ? const Color(0xFFF4BD2A) : Colors.white,
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: message["attachmentUrl"] == null
-                              ? Text(message["content"].toString(), style: const TextStyle(fontSize: 15))
-                              : Image.network(message["attachmentUrl"], fit: BoxFit.cover),
+                          child: _GroupMessageBody(message: message),
                         ),
                         Text(
-                          groupChatController.getReadableDateTime(message["createdAt"].toString()),
+                          groupChatController.getReadableDateTime(message["createdAt"]?.toString()),
                           style: const TextStyle(fontSize: 12, color: Colors.grey),
                         ),
                       ],
@@ -269,5 +310,47 @@ class _GrouoChatScreenState extends State<GrouoChatScreen> {
         ],
       ),
     );
+  }
+}
+
+class _GroupMessageBody extends StatelessWidget {
+  const _GroupMessageBody({required this.message});
+
+  final dynamic message;
+
+  @override
+  Widget build(BuildContext context) {
+    final attachmentUrl = message["attachmentUrl"]?.toString();
+    final hasAttachment = attachmentUrl != null && attachmentUrl.isNotEmpty && attachmentUrl.toLowerCase() != 'null';
+
+    if (hasAttachment) {
+      final isLocalFile = message["isLocalFile"] == true;
+      final isUploading = message["isUploading"] == true;
+      final uploadFailed = message["uploadFailed"] == true;
+
+      return Stack(
+        alignment: Alignment.center,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: isLocalFile ? Image.file(File(attachmentUrl), fit: BoxFit.cover) : Image.network(attachmentUrl, fit: BoxFit.cover),
+          ),
+          if (isUploading)
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(20)),
+              child: const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
+            ),
+          if (uploadFailed)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(20)),
+              child: const Text("Upload failed", style: TextStyle(color: Colors.white)),
+            ),
+        ],
+      );
+    }
+
+    return Text(message["content"].toString(), style: const TextStyle(fontSize: 15));
   }
 }

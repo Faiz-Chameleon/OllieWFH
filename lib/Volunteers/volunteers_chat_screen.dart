@@ -55,7 +55,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 var data = {"attachmentType": "image"};
                 final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
                 if (file != null) {
-                  chatController.sendAttachementInChat(data, file, chatController.oneOnOneConversationId.value.toString());
+                  await chatController.sendAttachementInChat(data, file, chatController.oneOnOneConversationId.value.toString());
                 }
                 Get.back();
               },
@@ -64,8 +64,11 @@ class _ChatScreenState extends State<ChatScreen> {
               leading: const Icon(Icons.camera_alt),
               title: const Text('Take Picture'),
               onTap: () async {
+                var data = {"attachmentType": "image"};
                 final XFile? file = await _picker.pickImage(source: ImageSource.camera);
-                if (file != null) chatController.messages.add({"from": "me", "image": File(file.path), "time": "10:26 AM"});
+                if (file != null) {
+                  await chatController.sendAttachementInChat(data, file, chatController.oneOnOneConversationId.value.toString());
+                }
                 Get.back();
               },
             ),
@@ -100,6 +103,86 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() => isListening = false);
   }
 
+  bool _isCurrentUserMessage(Map message, String loggedInUserId) {
+    return message["senderId"]?.toString() == loggedInUserId;
+  }
+
+  ImageProvider _buildAvatarImage(String? imageUrl) {
+    final trimmedUrl = imageUrl?.trim() ?? '';
+    if (trimmedUrl.isNotEmpty) {
+      return NetworkImage(trimmedUrl);
+    }
+    return const AssetImage('assets/icons/Group 1000000907 (1).png');
+  }
+
+  String? _extractSenderImage(Map message, String loggedInUserId) {
+    if (_isCurrentUserMessage(message, loggedInUserId)) {
+      return userController.user.value?.image;
+    }
+
+    final sender = message["sender"];
+    if (sender is Map) {
+      for (final key in ["image", "avatar", "profileImage", "userImage"]) {
+        final value = sender[key]?.toString().trim();
+        if (value != null && value.isNotEmpty) {
+          return value;
+        }
+      }
+    }
+
+    for (final key in ["senderImage", "image", "avatar", "profileImage", "userImage"]) {
+      final value = message[key]?.toString().trim();
+      if (value != null && value.isNotEmpty) {
+        return value;
+      }
+    }
+
+    return widget.userImage;
+  }
+
+  String _extractSenderName(Map message, String loggedInUserId) {
+    if (_isCurrentUserMessage(message, loggedInUserId)) {
+      final currentUser = userController.user.value;
+      final fullName = [currentUser?.firstName?.trim(), currentUser?.lastName?.trim()].where((part) => (part ?? '').isNotEmpty).join(' ');
+
+      if (fullName.isNotEmpty) {
+        return fullName;
+      }
+
+      return 'You';
+    }
+
+    final sender = message["sender"];
+    if (sender is Map) {
+      final senderFullName = [
+        sender["firstName"]?.toString().trim(),
+        sender["lastName"]?.toString().trim(),
+      ].where((part) => (part ?? '').isNotEmpty).join(' ');
+
+      if (senderFullName.isNotEmpty) {
+        return senderFullName;
+      }
+
+      final fallbackKeys = ["name", "userName", "username", "displayName", "fullName"];
+      for (final key in fallbackKeys) {
+        final value = sender[key]?.toString().trim();
+        if (value != null && value.isNotEmpty) {
+          return value;
+        }
+      }
+    }
+
+    final directKeys = ["senderName", "userName", "username", "displayName", "fullName", "name"];
+    for (final key in directKeys) {
+      final value = message[key]?.toString().trim();
+      if (value != null && value.isNotEmpty) {
+        return value;
+      }
+    }
+
+    return widget.userName.trim().isNotEmpty ? widget.userName.trim() : 'Unknown User';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,12 +194,7 @@ class _ChatScreenState extends State<ChatScreen> {
         leading: const BackButton(color: Colors.black),
         title: Row(
           children: [
-            // CircleAvatar(
-            //   radius: 16,
-            //   backgroundImage: widget.userImage.isNotEmpty
-            //       ? NetworkImage(widget.userImage)
-            //       : AssetImage('assets/icons/Group 1000000907 (1).png') as ImageProvider,
-            // ),
+            CircleAvatar(radius: 16, backgroundImage: _buildAvatarImage(widget.userImage)),
             const SizedBox(width: 8),
             Text(
               widget.userName,
@@ -158,30 +236,43 @@ class _ChatScreenState extends State<ChatScreen> {
                   final message = chatController.messages[index];
 
                   final String loggedInUserId = userController.user.value?.id ?? '';
+                  final bool isCurrentUser = _isCurrentUserMessage(message, loggedInUserId);
+                  final String senderName = _extractSenderName(message, loggedInUserId);
+                  final String? senderImage = _extractSenderImage(message, loggedInUserId);
                   return Align(
-                    alignment: message["senderId"] == loggedInUserId ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: message["senderId"] == loggedInUserId ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (message["senderId"] != loggedInUserId)
-                          const CircleAvatar(radius: 16, backgroundImage: AssetImage("assets/icons/Frame 1686560584.png")),
-                        const SizedBox(height: 4),
-                        Container(
-                          constraints: const BoxConstraints(maxWidth: 260),
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: message["senderId"] == loggedInUserId ? const Color(0xFFF4BD2A) : Colors.white,
-                            borderRadius: BorderRadius.circular(16),
+                        if (!isCurrentUser) ...[CircleAvatar(radius: 16, backgroundImage: _buildAvatarImage(senderImage)), const SizedBox(width: 8)],
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                senderName,
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54),
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                constraints: const BoxConstraints(maxWidth: 260),
+                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: isCurrentUser ? const Color(0xFFF4BD2A) : Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: _MessageBody(message: message),
+                              ),
+                              Text(
+                                chatController.getReadableDateTime(message["createdAt"]?.toString()),
+                                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                            ],
                           ),
-                          child: message["attachmentUrl"] == null
-                              ? Text(message["content"].toString(), style: const TextStyle(fontSize: 15))
-                              : Image.network(message["attachmentUrl"], fit: BoxFit.cover),
                         ),
-                        Text(
-                          chatController.getReadableDateTime(message["createdAt"].toString()),
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
+                        if (isCurrentUser) ...[const SizedBox(width: 8), CircleAvatar(radius: 16, backgroundImage: _buildAvatarImage(senderImage))],
                       ],
                     ),
                   );
@@ -261,5 +352,47 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+}
+
+class _MessageBody extends StatelessWidget {
+  const _MessageBody({required this.message});
+
+  final dynamic message;
+
+  @override
+  Widget build(BuildContext context) {
+    final attachmentUrl = message["attachmentUrl"]?.toString();
+    final hasAttachment = attachmentUrl != null && attachmentUrl.isNotEmpty && attachmentUrl.toLowerCase() != 'null';
+
+    if (hasAttachment) {
+      final isLocalFile = message["isLocalFile"] == true;
+      final isUploading = message["isUploading"] == true;
+      final uploadFailed = message["uploadFailed"] == true;
+
+      return Stack(
+        alignment: Alignment.center,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: isLocalFile ? Image.file(File(attachmentUrl), fit: BoxFit.cover) : Image.network(attachmentUrl, fit: BoxFit.cover),
+          ),
+          if (isUploading)
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(20)),
+              child: const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
+            ),
+          if (uploadFailed)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(20)),
+              child: const Text("Upload failed", style: TextStyle(color: Colors.white)),
+            ),
+        ],
+      );
+    }
+
+    return Text(message["content"].toString(), style: const TextStyle(fontSize: 15));
   }
 }

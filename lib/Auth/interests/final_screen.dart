@@ -49,7 +49,7 @@ class FinalScreen extends StatelessWidget {
                         text: "Next",
                         onPressed: () {
                           var data = {
-                            "userPhoneNumber": controller.phoneController.value.text,
+                            "userPhoneNumber": controller.fullPhoneNumber.value,
                             "userFirstName": controller.firstNameController.value.text,
                             "userLastName": controller.lastNameController.value.text,
                             "userDateOfBirth": controller.formattedDateString.value.toString(),

@@ -16,6 +16,7 @@ class Assistance_Controller extends GetxController {
   final AssistanceRepository createAssistanceRepository = AssistanceRepository();
 
   final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController locationSearchController = TextEditingController();
   final RxBool isExpanded = false.obs;
   final Rx<DateTime> selectedDate = DateTime.now().obs;
   final Rx<TimeOfDay> selectedTime = TimeOfDay.now().obs;
@@ -27,6 +28,7 @@ class Assistance_Controller extends GetxController {
   RxDouble selectedLatitude = 0.0.obs;
   RxDouble selectedLongitude = 0.0.obs;
   final RxBool hasLocationPermission = false.obs;
+  final RxBool isSearchingLocation = false.obs;
 
   ////////// voucher ////////////
   final RxString selectedVolunteer = ''.obs;
@@ -67,10 +69,7 @@ class Assistance_Controller extends GetxController {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      Get.snackbar(
-        "Permission Required",
-        "Location permission is permanently denied. Please enable it from settings to continue.",
-      );
+      Get.snackbar("Permission Required", "Location permission is permanently denied. Please enable it from settings to continue.");
       hasLocationPermission.value = false;
       return false;
     }
@@ -99,8 +98,6 @@ class Assistance_Controller extends GetxController {
     );
 
     formattedDateAndTime.value = combinedDateTime.toUtc().toIso8601String().toString();
-
-    print("dateAndTime: $formattedDateAndTime");
   }
 
   RxString formattedDateAndTime = "".obs;
@@ -128,15 +125,56 @@ class Assistance_Controller extends GetxController {
 
   Future<void> setLocationFromLatLng(LatLng latLng) async {
     selectedLatLng.value = latLng;
+    selectedLatitude.value = latLng.latitude;
+    selectedLongitude.value = latLng.longitude;
     final placemarks = await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
     if (placemarks.isNotEmpty) {
       final p = placemarks.first;
       selectedAddress.value = "${p.street}, ${p.locality}, ${p.administrativeArea} ${p.postalCode}";
+      locationSearchController.text = selectedAddress.value;
     }
+  }
+
+  Future<void> searchLocationByText(String query) async {
+    final normalizedQuery = query.trim();
+    if (normalizedQuery.isEmpty) {
+      Get.snackbar("Location Required", "Please enter an address to search.");
+      return;
+    }
+
+    try {
+      isSearchingLocation.value = true;
+      final results = await locationFromAddress(normalizedQuery);
+      if (results.isEmpty) {
+        Get.snackbar("Not found", "No location matched your search.");
+        return;
+      }
+
+      final match = results.first;
+      final latLng = LatLng(match.latitude, match.longitude);
+      await setLocationFromLatLng(latLng);
+
+      if (selectedAddress.value.isEmpty) {
+        selectedAddress.value = normalizedQuery;
+        locationSearchController.text = normalizedQuery;
+      }
+    } catch (_) {
+      Get.snackbar("Error", "Unable to search this location.");
+    } finally {
+      isSearchingLocation.value = false;
+    }
+  }
+
+  @override
+  void onClose() {
+    descriptionController.dispose();
+    locationSearchController.dispose();
+    super.onClose();
   }
 
   clearAssistanceData() {
     descriptionController.clear();
+    locationSearchController.clear();
     selectedDate.value = DateTime.now();
     selectedTime.value = TimeOfDay.now();
     hasSelectedDate.value = false;

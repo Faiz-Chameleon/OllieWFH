@@ -26,6 +26,13 @@ class LoginController extends GetxController {
   var shouldNavigateToHome = false.obs;
   var autoLoginUserData = Rxn<Map<String, dynamic>>();
 
+  UserController _getOrCreateUserController() {
+    if (Get.isRegistered<UserController>()) {
+      return Get.find<UserController>();
+    }
+    return Get.put(UserController());
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -52,7 +59,7 @@ class LoginController extends GetxController {
 
     // Check user state
     try {
-      final userController = Get.find<UserController>();
+      final userController = _getOrCreateUserController();
       print('  - UserController found: ${userController.user.value != null}');
       if (userController.user.value != null) {
         print('  - User logged in: ${userController.user.value!.firstName}');
@@ -135,13 +142,7 @@ class LoginController extends GetxController {
           final userModel = UserModel.fromJson(result);
 
           // Ensure UserController is initialized
-          UserController userController;
-          try {
-            userController = Get.find<UserController>();
-          } catch (e) {
-            print('🔄 UserController not found, creating new instance...');
-            userController = Get.put(UserController());
-          }
+          final userController = _getOrCreateUserController();
 
           if (userModel.data != null) {
             userController.setUser(userModel.data!);
@@ -193,7 +194,7 @@ class LoginController extends GetxController {
       if (result['success'] == true && result['data'] != null) {
         // User is still logged in, set user data
         final userModel = UserModel.fromJson(result);
-        final userController = Get.put(UserController());
+        final userController = _getOrCreateUserController();
 
         if (userModel.data != null) {
           userController.setUser(userModel.data!);
@@ -283,7 +284,7 @@ class LoginController extends GetxController {
   // Check if user is logged in
   bool isUserLoggedIn() {
     try {
-      final userController = Get.find<UserController>();
+      final userController = _getOrCreateUserController();
       return userController.user.value != null;
     } catch (e) {
       return false;
@@ -318,7 +319,7 @@ class LoginController extends GetxController {
 
     if (result['success'] == true) {
       final userModel = UserModel.fromJson(result);
-      final userController = Get.put(UserController());
+      final userController = _getOrCreateUserController();
       if (userModel.data != null) {
         userController.setUser(userModel.data!);
       }

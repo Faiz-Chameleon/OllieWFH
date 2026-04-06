@@ -33,6 +33,9 @@ class MyGroupsData {
   String? name;
   String? description;
   String? image;
+  String? creatorId;
+  GroupCreator? creator;
+  bool? isCurrentUserCreator;
   String? createdAt;
   String? updatedAt;
   LastMessage? lastMessage;
@@ -45,6 +48,9 @@ class MyGroupsData {
     this.name,
     this.description,
     this.image,
+    this.creatorId,
+    this.creator,
+    this.isCurrentUserCreator,
     this.createdAt,
     this.updatedAt,
     this.lastMessage,
@@ -58,6 +64,9 @@ class MyGroupsData {
     name = json['name'];
     description = json['description'];
     image = json['image'];
+    creatorId = json['creatorId'];
+    creator = json['creator'] != null ? GroupCreator.fromJson(json['creator']) : null;
+    isCurrentUserCreator = json['isCurrentUserCreator'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
     lastMessage = json['lastMessage'] != null ? new LastMessage.fromJson(json['lastMessage']) : null;
@@ -72,6 +81,11 @@ class MyGroupsData {
     data['name'] = this.name;
     data['description'] = this.description;
     data['image'] = this.image;
+    data['creatorId'] = this.creatorId;
+    if (this.creator != null) {
+      data['creator'] = this.creator!.toJson();
+    }
+    data['isCurrentUserCreator'] = this.isCurrentUserCreator;
     data['createdAt'] = this.createdAt;
     data['updatedAt'] = this.updatedAt;
     if (this.lastMessage != null) {
@@ -88,8 +102,9 @@ class MyGroupsData {
 class Participants {
   List<Users>? users;
   List<String?>? adminIds; // Updated to List<String?> instead of List<Null>
+  List<GroupAdmin>? admins;
 
-  Participants({this.users, this.adminIds});
+  Participants({this.users, this.adminIds, this.admins});
 
   Participants.fromJson(Map<String, dynamic> json) {
     if (json['users'] != null) {
@@ -104,6 +119,12 @@ class Participants {
         adminIds!.add(v); // Just add the value directly
       });
     }
+    if (json['admins'] != null) {
+      admins = <GroupAdmin>[];
+      json['admins'].forEach((v) {
+        admins!.add(GroupAdmin.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -114,6 +135,59 @@ class Participants {
     if (this.adminIds != null) {
       data['adminIds'] = this.adminIds;
     }
+    if (this.admins != null) {
+      data['admins'] = this.admins!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+
+class GroupCreator {
+  String? id;
+  String? firstName;
+  String? lastName;
+  String? image;
+
+  GroupCreator({this.id, this.firstName, this.lastName, this.image});
+
+  GroupCreator.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    firstName = json['firstName'];
+    lastName = json['lastName'];
+    image = json['image'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['firstName'] = this.firstName;
+    data['lastName'] = this.lastName;
+    data['image'] = this.image;
+    return data;
+  }
+}
+
+class GroupAdmin {
+  String? id;
+  String? firstName;
+  String? lastName;
+  String? image;
+
+  GroupAdmin({this.id, this.firstName, this.lastName, this.image});
+
+  GroupAdmin.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    firstName = json['firstName'];
+    lastName = json['lastName'];
+    image = json['image'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['firstName'] = this.firstName;
+    data['lastName'] = this.lastName;
+    data['image'] = this.image;
     return data;
   }
 }

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geocoding/geocoding.dart';
 import 'assistance_controller.dart';
 
 const String darkMapStyle = '''[
@@ -57,6 +56,7 @@ class MapLocationDialog extends StatefulWidget {
 class _MapLocationDialogState extends State<MapLocationDialog> {
   final Assistance_Controller controller = Get.find();
   GoogleMapController? mapController;
+  bool canUseDeviceLocation = false;
 
   @override
   void dispose() {
@@ -71,31 +71,23 @@ class _MapLocationDialogState extends State<MapLocationDialog> {
 
   Future<void> _getCurrentLocation() async {
     try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      double lat = position.latitude;
-      double lng = position.longitude;
-
-      // Save separately
-      controller.selectedLatitude.value = lat;
-      controller.selectedLongitude.value = lng;
-      LatLng currentLatLng = LatLng(position.latitude, position.longitude);
-      controller.selectedLatLng.value = currentLatLng;
-
-      // Set map camera to current location
-      mapController?.moveCamera(CameraUpdate.newLatLng(currentLatLng));
-
-      // Get address from current location
-      final placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
-      if (placemarks.isNotEmpty) {
-        final p = placemarks.first;
-        controller.selectedAddress.value =
-            "${p.street}, ${p.locality}, ${p.administrativeArea} ${p.postalCode}";
+      final granted = await controller.ensureLocationPermission();
+      if (!mounted || !granted) {
+        setState(() {
+          canUseDeviceLocation = false;
+        });
+        return;
       }
+
+      setState(() {
+        canUseDeviceLocation = true;
+      });
+
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      LatLng currentLatLng = LatLng(position.latitude, position.longitude);
+      await controller.setLocationFromLatLng(currentLatLng);
+
+      mapController?.moveCamera(CameraUpdate.newLatLng(currentLatLng));
     } catch (e) {
       Get.snackbar("Error", "Failed to get current location: $e");
     }
@@ -121,36 +113,18 @@ class _MapLocationDialogState extends State<MapLocationDialog> {
           children: [
             GoogleMap(
               onMapCreated: _onMapCreated,
-              initialCameraPosition: CameraPosition(
-                target:
-                    controller.selectedLatLng.value ??
-                    const LatLng(37.7749, -122.4194),
-                zoom: 14,
-              ),
-              myLocationEnabled: true,
-              myLocationButtonEnabled: true,
+              initialCameraPosition: CameraPosition(target: controller.selectedLatLng.value ?? const LatLng(37.7749, -122.4194), zoom: 14),
+              myLocationEnabled: canUseDeviceLocation,
+              myLocationButtonEnabled: canUseDeviceLocation,
               onTap: (LatLng point) async {
-                controller.selectedLatLng.value = point;
-                final placemarks = await placemarkFromCoordinates(
-                  point.latitude,
-                  point.longitude,
-                );
-                if (placemarks.isNotEmpty) {
-                  final p = placemarks.first;
-                  controller.selectedAddress.value =
-                      "${p.street}, ${p.locality}, ${p.administrativeArea} ${p.postalCode}";
-                }
+                await controller.setLocationFromLatLng(point);
                 Get.back();
               },
               markers: controller.selectedLatLng.value != null
-                  ? {
-                      Marker(
-                        markerId: const MarkerId("selected"),
-                        position: controller.selectedLatLng.value!,
-                      ),
-                    }
+                  ? {Marker(markerId: const MarkerId("selected"), position: controller.selectedLatLng.value!)}
                   : {},
             ),
+
             Positioned(
               top: 12,
               right: 12,
@@ -162,6 +136,20 @@ class _MapLocationDialogState extends State<MapLocationDialog> {
                 ),
               ),
             ),
+            if (!canUseDeviceLocation)
+              Positioned(
+                left: 12,
+                right: 56,
+                top: 12,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                  child: const Text(
+                    "Location permission is off. You can still tap anywhere on the map to choose a place.",
+                    style: TextStyle(fontSize: 12, color: Colors.black87),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

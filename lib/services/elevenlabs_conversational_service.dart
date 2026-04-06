@@ -3,7 +3,6 @@ import 'dart:async';
 import 'dart:developer' as dev;
 import 'dart:typed_data';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -14,7 +13,6 @@ class ElevenLabsConversationalService {
   static const String _baseUrl =
       // "wss://api.elevenlabs.io/v1/conversational-ai/conversation";
       'wss://api.elevenlabs.io/v1/convai/conversation';
-  static const String _apiKey = 'sk_9397cfffae1c9e05795c482352f9b1d546ab90a3f2308fcd';
 
   WebSocketChannel? _channel;
   AudioPlayer? _audioPlayer;
@@ -26,6 +24,7 @@ class ElevenLabsConversationalService {
   bool _isConnected = false;
   String? _conversationId;
   Timer? _pingTimer;
+  bool _isDisposing = false;
 
   // Streams for UI updates
   Stream<String> get transcriptStream => _transcriptController?.stream ?? Stream.empty();
@@ -59,7 +58,8 @@ class ElevenLabsConversationalService {
     String language = 'en',
   }) async {
     try {
-      final UserController userController = Get.find<UserController>();
+      final UserController? userController = Get.isRegistered<UserController>() ? Get.find<UserController>() : null;
+      final userData = userController?.user.value;
       // Initialize controllers
       _transcriptController = StreamController<String>.broadcast();
       _responseController = StreamController<String>.broadcast();
@@ -79,8 +79,8 @@ class ElevenLabsConversationalService {
       final initMessage = {
         'type': 'conversation_initiation_client_data',
         'dynamic_variables': {
-          'secret__auth_token': userController.user.value?.userToken ?? '',
-          'user_name': userController.user.value?.firstName ?? 'User',
+          'secret__auth_token': userData?.userToken ?? '',
+          'user_name': userData?.firstName ?? 'User',
           'user_context': "text",
           'current_date_time': DateTime.now().toIso8601String(),
           'latitude': 90.01234,
@@ -318,6 +318,9 @@ class ElevenLabsConversationalService {
 
   // Update the dispose method to return Future<void>:
   Future<void> dispose() async {
+    if (_isDisposing) return;
+    _isDisposing = true;
+
     try {
       _stopPingTimer();
       await _channel?.sink.close();
@@ -328,13 +331,25 @@ class ElevenLabsConversationalService {
       await _connectionController?.close();
       await _toolCallController?.close();
       _isConnected = false;
+      _channel = null;
+      _audioPlayer = null;
+      _transcriptController = null;
+      _responseController = null;
+      _audioController = null;
+      _connectionController = null;
+      _toolCallController = null;
+      _conversationId = null;
     } catch (e) {
       print('❌ Error disposing service: $e');
+    } finally {
+      _isDisposing = false;
     }
   }
 
   /// Gracefully end the conversation and free resources.
   Future<void> endConversation({String? notifyText}) async {
+    if (_isDisposing) return;
+
     // 1) Optionally notify the agent (not required)
     try {
       if (_isConnected && notifyText != null && notifyText.isNotEmpty) {
@@ -372,5 +387,12 @@ class ElevenLabsConversationalService {
     } catch (_) {}
 
     _channel = null;
+    _audioPlayer = null;
+    _transcriptController = null;
+    _responseController = null;
+    _audioController = null;
+    _connectionController = null;
+    _toolCallController = null;
+    _conversationId = null;
   }
 }

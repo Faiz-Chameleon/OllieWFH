@@ -21,7 +21,7 @@ class TopicPostScreen extends StatefulWidget {
 }
 
 class _TopicPostScreenState extends State<TopicPostScreen> {
-  final CareCircleController controller = Get.put(CareCircleController());
+  final CareCircleController controller = Get.find<CareCircleController>();
 
   @override
   void initState() {

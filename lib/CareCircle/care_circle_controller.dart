@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/widgets.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
@@ -36,6 +38,10 @@ class CareCircleController extends GetxController {
   var currentPage = 0.obs;
   var taskCompleted = false.obs;
   var currentYourRequestPage = 0.obs;
+  var assistanceFilterEnabled = false.obs;
+  var assistanceFilterRadiusKm = 3.0.obs;
+  var assistanceFilterLoading = false.obs;
+  var assistanceFilterLocation = Rxn<LatLng>();
 
   @override
   void onInit() {
@@ -202,20 +208,22 @@ class CareCircleController extends GetxController {
     }
   }
 
-  void savePostToUpdate(int index) {
-    // Toggle the value
-    interestBasePostList[index].isSavePost = true;
-    // Refresh the list to notify listeners
+  void savePostToUpdate(int index, bool isSaved) {
+    interestBasePostList[index].isSavePost = isSaved;
     interestBasePostList.refresh();
   }
 
   var saveAndUnsavePostStatus = RequestStatus.idle.obs;
   Future<void> savePostToggle(String postId, int index) async {
+    final bool isCurrentlySaved = interestBasePostList[index].isSavePost == true;
     saveAndUnsavePostStatus.value = RequestStatus.loading;
 
     final result = await careCircleRepository.saveAndUnsavePost(postId);
     if (result['success'] == true) {
-      savePostToUpdate(index);
+      final bool isSaved = !isCurrentlySaved;
+      savePostToUpdate(index, isSaved);
+      await getYourSavedPost();
+      Get.snackbar("Success", isSaved ? "Post saved successfully" : "Post removed from saved posts");
       saveAndUnsavePostStatus.value = RequestStatus.success;
     } else {
       saveAndUnsavePostStatus.value = RequestStatus.error;
@@ -491,10 +499,14 @@ class CareCircleController extends GetxController {
     final userController = Get.put(UserController());
     final String loggedInUserId = userController.user.value?.id ?? '';
     getOthersCrteatedAssistanceStatus.value = RequestStatus.loading;
-    final result = await careCircleRepository.getOthersCreatedAssistance();
+    final LatLng? activeLocation = assistanceFilterEnabled.value ? assistanceFilterLocation.value : null;
+    final result = await careCircleRepository.getOthersCreatedAssistance(
+      latitude: activeLocation?.latitude,
+      longitude: activeLocation?.longitude,
+      radiusKm: assistanceFilterEnabled.value ? assistanceFilterRadiusKm.value : null,
+    );
     if (result['success'] == true) {
       List<dynamic> othersCreatedAssistanceList = result['data'] ?? [];
-      postLoadingStatus.value = List.generate(othersCreatedAssistanceList.length, (_) => false.obs);
       List<OthersCreatedAssistance> filteredList = othersCreatedAssistanceList
           .where((assistancetJson) {
             final assistance = OthersCreatedAssistance.fromJson(assistancetJson);
@@ -502,17 +514,65 @@ class CareCircleController extends GetxController {
           })
           .map((assistancetJson) => OthersCreatedAssistance.fromJson(assistancetJson))
           .toList();
-      for (int i = 0; i < othersCreatedAssistance.length; i++) {
-        postLoadingStatus[i].value = false;
-      }
 
       othersCreatedAssistance.value = filteredList;
+      postLoadingStatus.value = List.generate(filteredList.length, (_) => false.obs);
       getOthersCrteatedAssistanceStatus.value = RequestStatus.success;
     } else {
       getOthersCrteatedAssistanceStatus.value = RequestStatus.error;
 
       Get.snackbar("Error", result['message'] ?? "message required frontend");
     }
+  }
+
+  Future<void> loadAssistanceFilterCurrentLocation() async {
+    assistanceFilterLoading.value = true;
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        Get.snackbar("Location Disabled", "Please enable location services to filter nearby assistance.");
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        Get.snackbar("Permission Required", "Location permission is needed to filter nearby assistance.");
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high));
+      assistanceFilterLocation.value = LatLng(position.latitude, position.longitude);
+    } catch (e) {
+      Get.snackbar("Error", "Unable to fetch current location.");
+    } finally {
+      assistanceFilterLoading.value = false;
+    }
+  }
+
+  Future<void> applyAssistanceNearbyFilter({double? radiusKm}) async {
+    if (radiusKm != null) {
+      assistanceFilterRadiusKm.value = radiusKm;
+    }
+
+    if (assistanceFilterLocation.value == null) {
+      await loadAssistanceFilterCurrentLocation();
+    }
+
+    if (assistanceFilterLocation.value == null) {
+      return;
+    }
+
+    assistanceFilterEnabled.value = true;
+    await userFetchOthersCreatedAssitance();
+  }
+
+  Future<void> clearAssistanceNearbyFilter() async {
+    assistanceFilterEnabled.value = false;
+    await userFetchOthersCreatedAssitance();
   }
 
   var voluntersRequestLoadingStatus = <RxBool>[].obs;

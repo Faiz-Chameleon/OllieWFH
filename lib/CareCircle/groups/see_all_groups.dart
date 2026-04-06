@@ -1,14 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:ollie/CareCircle/care_circle_controller.dart';
 import 'package:ollie/CareCircle/groups/group_chat_screen.dart';
 import 'package:ollie/CareCircle/groups/one_to_many_chat_controller.dart';
-import 'package:ollie/HomeMain/HomeMain.dart';
-import 'package:ollie/HomeMain/bottomController.dart';
 import 'package:ollie/Models/my_groups_model.dart';
 
 class GroupListScreen extends StatefulWidget {
@@ -78,85 +73,194 @@ class _GroupListScreenState extends State<GroupListScreen> {
 
   Widget _groupCard(String title, String members, String action, String imagePath, List<Users> membersImages, {required bool joined}) {
     List<String> memberImages = members.isNotEmpty ? membersImages.take(2).map((p) => p.image ?? "").toList() : [];
+    final validMemberImages = memberImages.where((image) => image.trim().isNotEmpty).toList();
     return Container(
-      width: 195.w,
-      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black12),
+        color: const Color(0xFFFFFCF6),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE8D8BB)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 16,
+            offset: Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              imagePath,
-              height: 80.h,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 80.h,
-                  width: double.infinity,
-                  color: Colors.grey[300],
-                  child: Icon(Icons.broken_image, color: Colors.grey[700]),
-                );
-              },
+          Container(
+            height: 104.h,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              gradient: const LinearGradient(
+                colors: [Color(0xFFF6D58C), Color(0xFFECA95F)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
-          ),
-          SizedBox(height: 8.h),
-          SizedBox(
-            width: 170.w,
-            height: 50,
-            child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          ),
-          SizedBox(height: 10.h),
-          SizedBox(
-            height: 35.h,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Stack(
+              fit: StackFit.expand,
               children: [
-                SizedBox(
-                  width: 60.w,
-                  child: Stack(
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  child: Image.network(
+                    imagePath,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: const Color(0xFFF4E4C3),
+                        alignment: Alignment.center,
+                        child: Icon(
+                          Icons.groups_rounded,
+                          size: 42,
+                          color: Colors.brown.shade400,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Container(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                    gradient: LinearGradient(
+                      colors: [Color(0x12000000), Color(0x9A000000)],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 14,
+                  right: 14,
+                  bottom: 12,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      if (memberImages.isNotEmpty)
-                        Positioned(left: 0, child: CircleAvatar(radius: 10, backgroundImage: NetworkImage(memberImages[0]))),
-                      if (memberImages.length > 1)
-                        Positioned(left: 12, child: CircleAvatar(radius: 10, backgroundImage: NetworkImage(memberImages[1]))),
-                      if (memberImages.isEmpty)
-                        Positioned(
-                          left: 0,
-                          child: CircleAvatar(
-                            radius: 10,
-                            backgroundColor: Colors.grey[400],
-                            child: Icon(Icons.person, size: 12, color: Colors.white),
+                      Expanded(
+                        child: Text(
+                          title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w800,
+                            height: 1.05,
                           ),
                         ),
-                      // Positioned(left: 0, child: CircleAvatar(radius: 10, backgroundColor: const Color(0xFFD6CCBC))),
-                      // Positioned(left: 12, child: CircleAvatar(radius: 10, backgroundColor: const Color(0xFFD6CCBC))),
-                      Positioned(
-                        left: 24,
-                        child: CircleAvatar(
-                          radius: 10,
-                          backgroundColor: const Color(0xFF3C3129),
-                          child: Text(members, style: TextStyle(fontSize: 10, color: Colors.white)),
+                      ),
+                      const SizedBox(width: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xE6FFF4D7),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          action,
+                          style: TextStyle(
+                            color: const Color(0xFF4B3510),
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: joined ? const Color(0xFFF4BD2A) : Colors.orange.shade200,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Text(action, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                ),
               ],
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    joined ? 'Already active in this circle' : 'Discover and connect with this circle',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: const Color(0xFF6E6256),
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      height: 1.1,
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF7E8C9),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 52,
+                          height: 22,
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              if (validMemberImages.isNotEmpty)
+                                Positioned(
+                                  left: 0,
+                                  child: CircleAvatar(
+                                    radius: 11,
+                                    backgroundColor: Colors.white,
+                                    backgroundImage: NetworkImage(validMemberImages[0]),
+                                  ),
+                                )
+                              else
+                                const Positioned(
+                                  left: 0,
+                                  child: CircleAvatar(
+                                    radius: 11,
+                                    backgroundColor: Color(0xFFD8C6A6),
+                                    child: Icon(Icons.person, size: 14, color: Colors.white),
+                                  ),
+                                ),
+                              if (validMemberImages.length > 1)
+                                Positioned(
+                                  left: 16,
+                                  child: CircleAvatar(
+                                    radius: 11,
+                                    backgroundColor: Colors.white,
+                                    backgroundImage: NetworkImage(validMemberImages[1]),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            '$members members',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: const Color(0xFF2F241B),
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: joined ? const Color(0xFF7BB662) : const Color(0xFFE59A48),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

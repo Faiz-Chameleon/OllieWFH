@@ -60,22 +60,22 @@ class _Care_Circle_screenState extends State<Care_Circle_screen> {
                   child: Image.asset("assets/icons/Vector (2).png", scale: 4),
                 ),
                 const SizedBox(width: 10),
-                GestureDetector(
-                  onTap: () {
-                    Get.to(() => CreditsSubscriptionScreen(), transition: Transition.fadeIn);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    decoration: BoxDecoration(color: kprimaryColor, borderRadius: BorderRadius.circular(20)),
-                    child: Row(
-                      children: [
-                        Image.asset("assets/icons/Vector (1).png", scale: 4),
-                        const SizedBox(width: 5),
-                        Text("0", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ),
-                ),
+                // GestureDetector(
+                //   onTap: () {
+                //     Get.to(() => CreditsSubscriptionScreen(), transition: Transition.fadeIn);
+                //   },
+                //   child: Container(
+                //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                //     decoration: BoxDecoration(color: kprimaryColor, borderRadius: BorderRadius.circular(20)),
+                //     child: Row(
+                //       children: [
+                //         Image.asset("assets/icons/Vector (1).png", scale: 4),
+                //         const SizedBox(width: 5),
+                //         Text("0", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
+                //       ],
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),

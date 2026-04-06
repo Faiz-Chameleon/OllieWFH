@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:ollie/CareCircle/care_circle_controller.dart';
-import 'package:ollie/CareCircle/interests/comments_screen_on_post.dart';
 import 'package:ollie/CareCircle/interests/open_pdf.dart';
 import 'package:ollie/CareCircle/interests/open_word_file.dart';
 import 'package:ollie/CareCircle/interests/topics_post_screen.dart';
@@ -65,37 +64,30 @@ class InterestsScreen extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Image.network(
-                                    fit: BoxFit.fill,
-                                    post.image ?? "",
-                                    height: 110,
-                                    width: double.infinity,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        height: 110,
-                                        width: double.infinity,
-                                        color: Colors.grey[300],
-                                        child: const Icon(Icons.broken_image, color: Colors.grey),
-                                      );
-                                    },
-                                  ),
-                                  20.verticalSpace,
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(post.category?.name ?? "", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                      Row(
-                                        children: [
-                                          // CircleAvatar(radius: 8, backgroundColor: Color(0xFFD6CCBC)),
-                                          // CircleAvatar(radius: 8, backgroundColor: Color(0xFFD6CCBC)),
-                                          CircleAvatar(
-                                            radius: 8,
-                                            backgroundColor: Color(0xFF3C3129),
-                                            child: Text(post.views.toString(), style: TextStyle(fontSize: 10, color: Colors.white)),
+                                  Expanded(child: _buildCarouselImage(post.image ?? "")),
+                                  12.verticalSpace,
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            post.category?.name ?? "",
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                           ),
-                                        ],
-                                      ),
-                                    ],
+                                        ),
+                                        const SizedBox(width: 12),
+                                        CircleAvatar(
+                                          radius: 10,
+                                          backgroundColor: const Color(0xFF3C3129),
+                                          child: Text(post.views.toString(), style: const TextStyle(fontSize: 10, color: Colors.white)),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
@@ -248,7 +240,7 @@ class InterestsScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 10),
                             Text("Title: ${post["userPost"]["title"]}", style: const TextStyle(fontSize: 14)),
-                            Text('Description: ${post["userPost"]["content"]}' ?? "", style: const TextStyle(fontSize: 14)),
+                            Text('Description: ${post["userPost"]["content"]}', style: const TextStyle(fontSize: 14)),
 
                             if (post["userPost"]["image"] != null) ...[
                               const SizedBox(height: 10),
@@ -334,6 +326,30 @@ class InterestsScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildCarouselImage(String url) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: SizedBox.expand(
+        child: url.isEmpty
+            ? _placeholder()
+            : Image.network(
+                url,
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  }
+                  return Container(color: Colors.grey[200], alignment: Alignment.center, child: const CircularProgressIndicator(strokeWidth: 2));
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return _placeholder(icon: Icons.broken_image);
+                },
+              ),
+      ),
+    );
+  }
+
   Widget _buildMediaWidget(String url) {
     final extension = url.split('.').last.toLowerCase();
 
@@ -393,12 +409,12 @@ class InterestsScreen extends StatelessWidget {
     }
   }
 
-  Widget _placeholder() {
+  Widget _placeholder({IconData icon = Icons.insert_drive_file}) {
     return Container(
       height: 150,
       width: double.infinity,
       color: Colors.grey[300],
-      child: const Icon(Icons.insert_drive_file, color: Colors.grey),
+      child: Icon(icon, color: Colors.grey),
     );
   }
 }

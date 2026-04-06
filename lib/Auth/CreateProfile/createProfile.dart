@@ -214,11 +214,13 @@ class CreateProfileScreen extends StatelessWidget {
                                   ),
                                   initialCountryCode: 'CA',
                                   onChanged: (phone) {
-                                    controller.phoneController.text = phone.completeNumber;
+                                    controller.fullPhoneNumber.value = phone.completeNumber;
                                     state.didChange(phone.completeNumber);
                                   },
-                                  onCountryChanged: (_) {
-                                    state.didChange(controller.phoneController.text);
+                                  onCountryChanged: (country) {
+                                    final nationalNumber = controller.phoneController.text.trim();
+                                    controller.fullPhoneNumber.value = nationalNumber.isEmpty ? '' : '+${country.dialCode}$nationalNumber';
+                                    state.didChange(controller.fullPhoneNumber.value);
                                   },
                                   style: dropdownValueStyle,
                                 ),

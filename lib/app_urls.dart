@@ -58,9 +58,11 @@ class ApiUrls {
   static const String getYoursGroup = "/user/chat/getGroupChatRooms";
   static const String getOthersGroup = "/user/chat/getFeatureGroups";
   static const String joinGroupChatRoom = "/user/chat/addParticipantinChatRoom";
+  static const String removeParticipantFromGroupChatRoom = "/user/chat/removeParticipantFromChatRoom";
   static const String postOnYourInteres = "/user/post/showAllPostByUserSelectedInterest";
   static const String interestBaseMultiplePost = "/user/post/showAllPostByInterest";
   static const String onlyYourPost = "/user/post/showUserAllPost";
   static const String createUserPost = "/user/post/createUserPost";
   static const String getMe = "/user/auth/getMe";
+  static const String showAllNotification = "/user/notification/showAllNotification";
 }

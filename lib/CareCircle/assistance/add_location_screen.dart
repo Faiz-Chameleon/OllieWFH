@@ -46,35 +46,52 @@ class AddLocationScreen extends StatelessWidget {
               const SizedBox(height: 28),
 
               Obx(
-                () => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: Colors.black),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          controller.selectedAddress.isNotEmpty ? controller.selectedAddress.value : "Add Location",
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.darkerGrotesque(
-                            color: controller.selectedAddress.isNotEmpty ? Colors.black : Colors.grey.shade500,
-                            fontSize: 16,
-                          ),
+                () => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: controller.locationSearchController,
+                      textInputAction: TextInputAction.search,
+                      onSubmitted: controller.searchLocationByText,
+                      style: GoogleFonts.darkerGrotesque(fontSize: 18.sp, fontWeight: FontWeight.w500),
+                      decoration: InputDecoration(
+                        hintText: "Search your location",
+                        hintStyle: GoogleFonts.darkerGrotesque(color: Colors.grey.shade500, fontSize: 18.sp),
+                        prefixIcon: const Icon(Icons.search, color: Colors.black),
+                        suffixIcon: controller.isSearchingLocation.value
+                            ? const Padding(
+                                padding: EdgeInsets.all(14),
+                                child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                              )
+                            : IconButton(
+                                icon: const Icon(Icons.location_on_outlined, color: Colors.black),
+                                onPressed: () async {
+                                  if (!context.mounted) return;
+                                  await showDialog(context: context, builder: (_) => const MapLocationDialog());
+                                },
+                              ),
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: const BorderSide(color: Colors.black),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: const BorderSide(color: Colors.black),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.location_on_outlined, color: Colors.black),
-                        onPressed: () async {
-                          final granted = await controller.ensureLocationPermission();
-                          if (!granted) return;
-                          // Only open dialog if permission granted
-                          await showDialog(context: context, builder: (_) => MapLocationDialog());
-                        },
+                    ),
+                    if (controller.selectedAddress.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        controller.selectedAddress.value,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.darkerGrotesque(color: Colors.black, fontSize: 18.sp, fontWeight: FontWeight.w500),
                       ),
                     ],
-                  ),
+                  ],
                 ),
               ),
               12.verticalSpace,

@@ -33,6 +33,7 @@ class OthersCreatedAssistance {
   String? description;
   double? latitude;
   double? longitude;
+  double? distanceKm;
   String? status;
   String? userId;
   User? user;
@@ -45,6 +46,7 @@ class OthersCreatedAssistance {
     this.description,
     this.latitude,
     this.longitude,
+    this.distanceKm,
     this.status,
     this.userId,
     this.user,
@@ -58,6 +60,7 @@ class OthersCreatedAssistance {
     description = json['description'];
     latitude = (json['latitude'] as num?)?.toDouble();
     longitude = (json['longitude'] as num?)?.toDouble();
+    distanceKm = (json['distanceKm'] as num?)?.toDouble();
     status = json['status'];
     userId = json['userId'];
     user = json['user'] != null ? new User.fromJson(json['user']) : null;
@@ -82,6 +85,7 @@ class OthersCreatedAssistance {
     data['description'] = this.description;
     data['latitude'] = this.latitude;
     data['longitude'] = this.longitude;
+    data['distanceKm'] = this.distanceKm;
     data['status'] = this.status;
     data['userId'] = this.userId;
     if (this.user != null) {

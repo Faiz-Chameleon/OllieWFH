@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
@@ -195,12 +196,35 @@ class OneToOneChatController extends GetxController {
     }
   }
 
-  String getReadableDateTime(String dateTimeStr) {
-    DateTime parsedDate = DateTime.parse(dateTimeStr);
+  void _addOrReplacePendingMessage(Map<String, dynamic> message) {
+    final localId = message['localId'];
+    if (localId == null) {
+      messages.add(message);
+      return;
+    }
 
-    DateTime currentDate = DateTime.now();
+    final existingIndex = messages.indexWhere((item) => item is Map && item['localId'] == localId);
+    if (existingIndex == -1) {
+      messages.add(message);
+    } else {
+      messages[existingIndex] = message;
+    }
+    messages.refresh();
+  }
 
-    Duration difference = currentDate.difference(parsedDate);
+  String getReadableDateTime(String? dateTimeStr) {
+    final normalizedDate = dateTimeStr?.trim();
+    if (normalizedDate == null || normalizedDate.isEmpty || normalizedDate.toLowerCase() == 'null') {
+      return '';
+    }
+
+    final parsedDate = DateTime.tryParse(normalizedDate);
+    if (parsedDate == null) {
+      return '';
+    }
+
+    final currentDate = DateTime.now();
+    final difference = currentDate.difference(parsedDate);
 
     if (difference.inDays == 0) {
       return DateFormat('hh:mm:ss a').format(parsedDate);
@@ -213,13 +237,46 @@ class OneToOneChatController extends GetxController {
 
   var sendAttachementRequestStatus = RequestStatus.idle.obs;
   Future<void> sendAttachementInChat(data, file, String conversationID) async {
+    final targetConversationId = conversationID.isNotEmpty ? conversationID : oneOnOneConversationId.value;
+    if (targetConversationId.isEmpty) {
+      Get.snackbar("Error", "No conversation ID found");
+      return;
+    }
+
+    final localId = 'local_${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(99999)}';
+    final pendingMessage = {
+      'localId': localId,
+      'chatRoomId': targetConversationId,
+      'attachmentUrl': file.path,
+      'content': '',
+      'createdAt': DateTime.now().toIso8601String(),
+      'isLocalFile': true,
+      'isUploading': true,
+    };
+    _addOrReplacePendingMessage(pendingMessage);
+
     sendAttachementRequestStatus.value = RequestStatus.loading;
     final fileToSend = File(file.path);
-    final result = await chatRepository.sendAttachementOnOneToOneChatRoom(data, fileToSend, conversationID);
+    final result = await chatRepository.sendAttachementOnOneToOneChatRoom(data, fileToSend, targetConversationId);
     if (result['success'] == true) {
+      final responseData = result['data'];
+      if (responseData is Map) {
+        final serverMessage = Map<String, dynamic>.from(responseData);
+        serverMessage['localId'] = localId;
+        serverMessage['isLocalFile'] = false;
+        serverMessage['isUploading'] = false;
+        if ((serverMessage['attachmentUrl']?.toString().isEmpty ?? true) && responseData['url'] != null) {
+          serverMessage['attachmentUrl'] = responseData['url'];
+        }
+        _addOrReplacePendingMessage(serverMessage);
+      } else {
+        _addOrReplacePendingMessage({...pendingMessage, 'isUploading': false});
+        socketController.socket.emit('joinRoom', {'chatRoom': targetConversationId});
+      }
       sendAttachementRequestStatus.value = RequestStatus.success;
       Get.snackbar("Success", result['data'] ?? "");
     } else {
+      _addOrReplacePendingMessage({...pendingMessage, 'isUploading': false, 'uploadFailed': true});
       sendAttachementRequestStatus.value = RequestStatus.error;
       Get.snackbar("Error", result['message'] ?? "Something went wrong");
     }

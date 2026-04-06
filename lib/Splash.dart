@@ -75,9 +75,7 @@ class _Splash_ScreenState extends State<Splash_Screen> {
             // Fallback to login
           }
         } else {
-          print(
-            '✅ User logged in but no navigation needed, staying on current screen',
-          );
+          print('✅ User logged in but no navigation needed, staying on current screen');
           return; // Don't navigate, user is already logged in
         }
       }
@@ -100,10 +98,7 @@ class _Splash_ScreenState extends State<Splash_Screen> {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage("assets/images/962.png"),
-          fit: BoxFit.fill,
-        ),
+        image: DecorationImage(image: AssetImage("assets/images/962.png"), fit: BoxFit.fill),
       ),
     );
   }

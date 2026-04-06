@@ -59,34 +59,36 @@ class _Home_ScreenState extends State<Home_Screen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Get.to(() => MyProfileScreen(), transition: Transition.fadeIn);
-                        },
-                        child: CircleAvatar(
-                          radius: 20,
-                          backgroundImage: userController.user.value?.image != null && userController.user.value?.image!.isNotEmpty == true
-                              ? NetworkImage(userController.user.value!.image!)
-                              : const AssetImage("assets/icons/Frame 1686560584.png") as ImageProvider,
+                  Obx(
+                    () => Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Get.to(() => MyProfileScreen(), transition: Transition.fadeIn);
+                          },
+                          child: CircleAvatar(
+                            radius: 20,
+                            backgroundImage: userController.user.value?.image != null && userController.user.value?.image!.isNotEmpty == true
+                                ? NetworkImage(userController.user.value!.image!)
+                                : const AssetImage("assets/icons/Frame 1686560584.png") as ImageProvider,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Hi ${userController.user.value?.firstName}!",
-                            style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold, fontSize: 22.sp),
-                          ),
-                          Text(
-                            controller.today,
-                            style: GoogleFonts.darkerGrotesque(fontSize: 17.sp, color: Colors.black54),
-                          ),
-                        ],
-                      ),
-                    ],
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Hi ${userController.user.value?.firstName ?? ''}!",
+                              style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold, fontSize: 22.sp),
+                            ),
+                            Text(
+                              controller.today,
+                              style: GoogleFonts.darkerGrotesque(fontSize: 17.sp, color: Colors.black54),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                   Row(
                     children: [
@@ -97,22 +99,22 @@ class _Home_ScreenState extends State<Home_Screen> {
                         child: Image.asset("assets/icons/Vector (2).png", scale: 4),
                       ),
                       const SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: () {
-                          Get.to(() => CreditsSubscriptionScreen(), transition: Transition.fadeIn);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                          decoration: BoxDecoration(color: kprimaryColor, borderRadius: BorderRadius.circular(20)),
-                          child: Row(
-                            children: [
-                              Image.asset("assets/icons/Vector (1).png", scale: 4),
-                              const SizedBox(width: 5),
-                              Text("0", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
-                            ],
-                          ),
-                        ),
-                      ),
+                      // GestureDetector(
+                      //   onTap: () {
+                      //     Get.to(() => CreditsSubscriptionScreen(), transition: Transition.fadeIn);
+                      //   },
+                      //   child: Container(
+                      //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      //     decoration: BoxDecoration(color: kprimaryColor, borderRadius: BorderRadius.circular(20)),
+                      //     child: Row(
+                      //       children: [
+                      //         Image.asset("assets/icons/Vector (1).png", scale: 4),
+                      //         const SizedBox(width: 5),
+                      //         Text("0", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ],
