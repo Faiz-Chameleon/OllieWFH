@@ -9,9 +9,12 @@ import 'package:ollie/home/Dailytask/daily_task_screen.dart';
 import 'conversational_chat_controller.dart';
 
 class ConversationalChatScreen extends StatelessWidget {
-  ConversationalChatScreen({super.key});
+  ConversationalChatScreen({super.key, this.initialMessage});
 
-  final ConversationalChatController controller = Get.isRegistered<ConversationalChatController>()
+  final String? initialMessage;
+
+  final ConversationalChatController controller =
+      Get.isRegistered<ConversationalChatController>()
       ? Get.find<ConversationalChatController>()
       : Get.put(ConversationalChatController());
 
@@ -29,6 +32,9 @@ class ConversationalChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (initialMessage != null && initialMessage!.trim().isNotEmpty) {
+      controller.sendInitialMessage(initialMessage!);
+    }
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final safeBottom = MediaQuery.of(context).viewPadding.bottom;
 
@@ -52,11 +58,22 @@ class ConversationalChatScreen extends StatelessWidget {
                 icon: const Icon(Icons.arrow_back, color: Black),
                 onPressed: _closeScreen,
               ),
-              CircleAvatar(backgroundColor: buttonColor, radius: 16, child: Image.asset("assets/icons/Frame 1686560557.png")),
+              CircleAvatar(
+                backgroundColor: buttonColor,
+                radius: 16,
+                child: Image.asset("assets/icons/Frame 1686560557.png"),
+              ),
               const SizedBox(width: 8),
               Text("Ollie AI", style: mediumTextStyle18),
               const SizedBox(width: 6),
-              Obx(() => CircleAvatar(backgroundColor: controller.isConnected.value ? Colors.green : Colors.red, radius: 4)),
+              Obx(
+                () => CircleAvatar(
+                  backgroundColor: controller.isConnected.value
+                      ? Colors.green
+                      : Colors.red,
+                  radius: 4,
+                ),
+              ),
             ],
           ),
           actions: [
@@ -78,13 +95,22 @@ class ConversationalChatScreen extends StatelessWidget {
               Obx(
                 () => Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  color: controller.isConnected.value ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 16,
+                  ),
+                  color: controller.isConnected.value
+                      ? Colors.green.withOpacity(0.1)
+                      : Colors.red.withOpacity(0.1),
                   child: Row(
                     children: [
                       Icon(
-                        controller.isConnected.value ? Icons.wifi : Icons.wifi_off,
-                        color: controller.isConnected.value ? Colors.green : Colors.red,
+                        controller.isConnected.value
+                            ? Icons.wifi
+                            : Icons.wifi_off,
+                        color: controller.isConnected.value
+                            ? Colors.green
+                            : Colors.red,
                         size: 16,
                       ),
                       const SizedBox(width: 8),
@@ -92,7 +118,9 @@ class ConversationalChatScreen extends StatelessWidget {
                         child: Text(
                           controller.connectionStatus.value,
                           style: TextStyle(
-                            color: controller.isConnected.value ? Colors.green : Colors.red,
+                            color: controller.isConnected.value
+                                ? Colors.green
+                                : Colors.red,
                             fontWeight: FontWeight.w500,
                             fontSize: 12,
                           ),
@@ -106,7 +134,10 @@ class ConversationalChatScreen extends StatelessWidget {
                 () => controller.currentTranscript.value.isNotEmpty
                     ? Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 16,
+                        ),
                         color: Colors.blue.withOpacity(0.1),
                         child: Row(
                           children: [
@@ -115,7 +146,11 @@ class ConversationalChatScreen extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 "You said: ${controller.currentTranscript.value}",
-                                style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w500, fontSize: 12),
+                                style: const TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
                           ],
@@ -127,19 +162,31 @@ class ConversationalChatScreen extends StatelessWidget {
                 () => controller.isListening.value
                     ? Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 16,
+                        ),
                         color: Colors.orange.withOpacity(0.1),
                         child: Row(
                           children: const [
                             SizedBox(
                               width: 16,
                               height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.orange)),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.orange,
+                                ),
+                              ),
                             ),
                             SizedBox(width: 8),
                             Text(
                               "Listening... Speak now",
-                              style: TextStyle(color: Colors.orange, fontWeight: FontWeight.w500, fontSize: 12),
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                              ),
                             ),
                           ],
                         ),
@@ -149,7 +196,10 @@ class ConversationalChatScreen extends StatelessWidget {
               Expanded(
                 child: Obx(
                   () => ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     itemCount: controller.messages.length,
                     itemBuilder: (context, index) {
                       final msg = controller.messages[index];
@@ -159,7 +209,9 @@ class ConversationalChatScreen extends StatelessWidget {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 6),
                         child: Row(
-                          mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+                          mainAxisAlignment: isUser
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             if (!isUser)
@@ -168,22 +220,32 @@ class ConversationalChatScreen extends StatelessWidget {
                                 child: CircleAvatar(
                                   backgroundColor: buttonColor,
                                   radius: 16,
-                                  child: Image.asset("assets/icons/Frame 1686560557.png"),
+                                  child: Image.asset(
+                                    "assets/icons/Frame 1686560557.png",
+                                  ),
                                 ),
                               ),
                             Column(
-                              crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                              crossAxisAlignment: isUser
+                                  ? CrossAxisAlignment.end
+                                  : CrossAxisAlignment.start,
                               children: [
                                 Container(
-                                  constraints: BoxConstraints(maxWidth: 0.65.sw),
+                                  constraints: BoxConstraints(
+                                    maxWidth: 0.65.sw,
+                                  ),
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
                                     color: isUser ? kprimaryColor : white,
                                     borderRadius: BorderRadius.only(
                                       topLeft: const Radius.circular(18),
                                       topRight: const Radius.circular(18),
-                                      bottomLeft: Radius.circular(isUser ? 18 : 0),
-                                      bottomRight: Radius.circular(isUser ? 0 : 18),
+                                      bottomLeft: Radius.circular(
+                                        isUser ? 18 : 0,
+                                      ),
+                                      bottomRight: Radius.circular(
+                                        isUser ? 0 : 18,
+                                      ),
                                     ),
                                   ),
                                   child: Row(
@@ -193,22 +255,45 @@ class ConversationalChatScreen extends StatelessWidget {
                                         const SizedBox(
                                           width: 16,
                                           height: 16,
-                                          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(txtColor)),
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  txtColor,
+                                                ),
+                                          ),
                                         ),
                                       if (isStreaming) const SizedBox(width: 8),
                                       Flexible(
-                                        child: Text(msg.text, style: regularTextStyle16.copyWith(color: txtColor)),
+                                        child: Text(
+                                          msg.text,
+                                          style: regularTextStyle16.copyWith(
+                                            color: txtColor,
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
                                 const SizedBox(height: 4),
                                 Row(
-                                  mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+                                  mainAxisAlignment: isUser
+                                      ? MainAxisAlignment.end
+                                      : MainAxisAlignment.start,
                                   children: [
-                                    Text("10:24 AM", style: lightTextStyle12.copyWith(color: Colors.grey)),
+                                    Text(
+                                      "10:24 AM",
+                                      style: lightTextStyle12.copyWith(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
                                     if (isUser) const SizedBox(width: 4),
-                                    if (isUser) const Icon(Icons.done_all, size: 16, color: Colors.grey),
+                                    if (isUser)
+                                      const Icon(
+                                        Icons.done_all,
+                                        size: 16,
+                                        color: Colors.grey,
+                                      ),
                                   ],
                                 ),
                               ],
@@ -223,14 +308,22 @@ class ConversationalChatScreen extends StatelessWidget {
               AnimatedPadding(
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeOut,
-                padding: EdgeInsets.fromLTRB(12, 4, 12, math.max(bottomInset, safeBottom) + 8),
+                padding: EdgeInsets.fromLTRB(
+                  12,
+                  4,
+                  12,
+                  math.max(bottomInset, safeBottom) + 8,
+                ),
                 child: Row(
                   children: [
                     const SizedBox(width: 8),
                     Expanded(
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(color: cardbg, borderRadius: BorderRadius.circular(30)),
+                        decoration: BoxDecoration(
+                          color: cardbg,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
                         child: Row(
                           children: [
                             const SizedBox(width: 8),
@@ -250,7 +343,9 @@ class ConversationalChatScreen extends StatelessWidget {
                                 style: regularTextStyle16,
                                 decoration: InputDecoration(
                                   hintText: "Type your message...",
-                                  hintStyle: lightTextStyle14.copyWith(color: Colors.grey),
+                                  hintStyle: lightTextStyle14.copyWith(
+                                    color: Colors.grey,
+                                  ),
                                   border: InputBorder.none,
                                 ),
                               ),
@@ -262,7 +357,9 @@ class ConversationalChatScreen extends StatelessWidget {
                     const SizedBox(width: 8),
                     Obx(() {
                       final isListening = controller.isListening.value;
-                      final hasTypedMessage = controller.currentMessage.value.trim().isNotEmpty;
+                      final hasTypedMessage = controller.currentMessage.value
+                          .trim()
+                          .isNotEmpty;
 
                       if (isListening) {
                         return GestureDetector(
@@ -270,7 +367,11 @@ class ConversationalChatScreen extends StatelessWidget {
                           child: const CircleAvatar(
                             backgroundColor: Colors.red,
                             radius: 24,
-                            child: Icon(Icons.mic_off, color: Colors.white, size: 20),
+                            child: Icon(
+                              Icons.mic_off,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                           ),
                         );
                       }
@@ -281,7 +382,11 @@ class ConversationalChatScreen extends StatelessWidget {
                           child: const CircleAvatar(
                             backgroundColor: buttonColor,
                             radius: 24,
-                            child: Icon(Icons.send, color: Colors.white, size: 20),
+                            child: Icon(
+                              Icons.send,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                           ),
                         );
                       }

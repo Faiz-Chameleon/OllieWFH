@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ollie/request_status.dart';
 import '../care_circle_controller.dart';
+import 'package:ollie/common/common.dart';
 
 class CreatePostScreen extends StatefulWidget {
   final String topicId;
@@ -64,7 +65,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     final content = postContentController.text.trim();
 
     if (title.isEmpty || content.isEmpty) {
-      Get.snackbar("Error", "Please fill in both title and content");
+      appSnackbar("Error", "Please fill in both title and content");
       return;
     }
 

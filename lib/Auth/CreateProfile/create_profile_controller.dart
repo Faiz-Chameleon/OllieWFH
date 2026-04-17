@@ -12,6 +12,7 @@ import 'package:ollie/HomeMain/HomeMain.dart';
 import 'package:ollie/HomeMain/bottomController.dart';
 import 'package:ollie/Models/user_model.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/common/common.dart';
 
 class CreateProfileController extends GetxController {
   RxString countryValue = "".obs;
@@ -113,11 +114,11 @@ class CreateProfileController extends GetxController {
       bottomController.updateIndex(0);
       Get.to(() => ConvexStyledBarScreen(), transition: Transition.fadeIn);
 
-      Get.snackbar("Success", result['message'] ?? "User registered");
+      appSnackbar("Success", result['message'] ?? "User registered");
     } else {
       createProfileStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "Registration failed");
+      appSnackbar("Error", result['message'] ?? "Registration failed");
     }
   }
 }

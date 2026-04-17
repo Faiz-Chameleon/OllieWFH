@@ -4,6 +4,7 @@ import 'package:ollie/Auth/Otp/otp_screen.dart';
 import 'package:ollie/Auth/auth_repository.dart';
 import 'package:ollie/Auth/login/login_screen.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/common/common.dart';
 
 class ForgotPasswordController extends GetxController {
   final AuthRepository authRepository = AuthRepository();
@@ -36,15 +37,15 @@ class ForgotPasswordController extends GetxController {
           () => Otp_Screen(comesFromWhere: "fromForgotPassword"),
           transition: Transition.fadeIn,
         );
-        Get.snackbar("Success", result['message'] ?? 'User registered');
+        appSnackbar("Success", result['message'] ?? 'User registered');
       } else {
         forgotPasswordStatus.value = RequestStatus.success;
 
-        Get.snackbar("Error", result['message'] ?? "Registration failed");
+        appSnackbar("Error", result['message'] ?? "Registration failed");
       }
     } catch (e) {
       forgotPasswordStatus.value = RequestStatus.error;
-      Get.snackbar("Error", e.toString());
+      appSnackbar("Error", e.toString());
     }
   }
 
@@ -56,15 +57,15 @@ class ForgotPasswordController extends GetxController {
       if (result['success'] == true) {
         resetPasswordStatus.value = RequestStatus.success;
         Get.offAll(() => Login_Screen(), transition: Transition.fadeIn);
-        Get.snackbar("Success", result['message'] ?? 'User registered');
+        appSnackbar("Success", result['message'] ?? 'User registered');
       } else {
         resetPasswordStatus.value = RequestStatus.success;
 
-        Get.snackbar("Error", result['message'] ?? "Registration failed");
+        appSnackbar("Error", result['message'] ?? "Registration failed");
       }
     } catch (e) {
       forgotPasswordStatus.value = RequestStatus.error;
-      Get.snackbar("Error", e.toString());
+      appSnackbar("Error", e.toString());
     }
   }
 }

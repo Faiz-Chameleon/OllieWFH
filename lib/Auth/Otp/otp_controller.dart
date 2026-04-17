@@ -9,6 +9,7 @@ import 'package:ollie/Auth/auth_repository.dart';
 import 'package:ollie/Auth/forgetPassword.dart/reset_password_screen.dart';
 import 'package:ollie/Auth/interests/wellcome_sreen.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/common/common.dart';
 
 class OtpController extends GetxController {
   final AuthRepository authRepository = AuthRepository();
@@ -71,10 +72,10 @@ class OtpController extends GetxController {
         Get.to(() => Reset_Password_Screen(), transition: Transition.fadeIn);
       }
 
-      Get.snackbar("Success", result['message'] ?? 'User registered');
+      appSnackbar("Success", result['message'] ?? 'User registered');
     } catch (e) {
       registerStatus.value = RequestStatus.error;
-      Get.snackbar("Error", e.toString());
+      appSnackbar("Error", e.toString());
     }
   }
 
@@ -85,10 +86,10 @@ class OtpController extends GetxController {
 
       registerStatus.value = RequestStatus.success;
 
-      Get.snackbar("Success", result['message'] ?? 'User registered');
+      appSnackbar("Success", result['message'] ?? 'User registered');
     } catch (e) {
       registerStatus.value = RequestStatus.error;
-      Get.snackbar("Error", e.toString());
+      appSnackbar("Error", e.toString());
     }
   }
 }

@@ -9,20 +9,43 @@ class CareCircleRepository {
   Future<Map<String, dynamic>> saveAndUnsavePost(id) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    return ApiService.postMethod("${ApiUrls.saveBlog}/$id", {}, token: requiredToken);
+    return ApiService.postMethod(
+      "${ApiUrls.saveBlog}/$id",
+      {},
+      token: requiredToken,
+    );
   }
 
   Future<Map<String, dynamic>> likeOrUnlikePost(data) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    return ApiService.postMethod(ApiUrls.postLikeOrUnlike, data, token: requiredToken);
+    return ApiService.postMethod(
+      ApiUrls.postLikeOrUnlike,
+      data,
+      token: requiredToken,
+    );
   }
 
-  Future<Map<String, dynamic>> interestBasePostForUser(String interestId) async {
+  Future<Map<String, dynamic>> interestBasePostForUser(
+    String interestId,
+  ) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
 
-    return ApiService.getMethod("${ApiUrls.interestBaseMultiplePost}/$interestId", token: requiredToken);
+    return ApiService.getMethod(
+      "${ApiUrls.interestBaseMultiplePost}/$interestId",
+      token: requiredToken,
+    );
+  }
+
+  Future<Map<String, dynamic>> getSingleUserPost(String postId) async {
+    final storage = FlutterSecureStorage();
+    final requiredToken = await storage.read(key: 'userToken');
+
+    return ApiService.getMethod(
+      "${ApiUrls.singleUserPost}/$postId",
+      token: requiredToken,
+    );
   }
 
   Future<Map<String, dynamic>> createdPostByUser() async {
@@ -36,7 +59,10 @@ class CareCircleRepository {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
 
-    return ApiService.getMethod(ApiUrls.postOnYourInteres, token: requiredToken);
+    return ApiService.getMethod(
+      ApiUrls.postOnYourInteres,
+      token: requiredToken,
+    );
   }
 
   Future<Map<String, dynamic>> getBlogsTopics() async {
@@ -54,7 +80,10 @@ class CareCircleRepository {
   Future<Map<String, dynamic>> getYourInterestedTopics() async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    return ApiService.getMethod(ApiUrls.getYourInterestedTopics, token: requiredToken);
+    return ApiService.getMethod(
+      ApiUrls.getYourInterestedTopics,
+      token: requiredToken,
+    );
   }
 
   Future<Map<String, dynamic>> getOthersGroups() async {
@@ -81,7 +110,11 @@ class CareCircleRepository {
   Future<Map<String, dynamic>> onEventMarkAsGoing(eventId) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    return ApiService.putMethod("${ApiUrls.markAsGoingOnEvent}/$eventId", data: {}, token: requiredToken);
+    return ApiService.putMethod(
+      "${ApiUrls.markAsGoingOnEvent}/$eventId",
+      data: {},
+      token: requiredToken,
+    );
   }
 
   Future<Map<String, dynamic>> getNearesEvent() async {
@@ -95,10 +128,17 @@ class CareCircleRepository {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
 
-    return ApiService.getMethod(ApiUrls.getcreatedAssistance, token: requiredToken);
+    return ApiService.getMethod(
+      ApiUrls.getcreatedAssistance,
+      token: requiredToken,
+    );
   }
 
-  Future<Map<String, dynamic>> getOthersCreatedAssistance({double? latitude, double? longitude, double? radiusKm}) async {
+  Future<Map<String, dynamic>> getOthersCreatedAssistance({
+    double? latitude,
+    double? longitude,
+    double? radiusKm,
+  }) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
 
@@ -122,44 +162,75 @@ class CareCircleRepository {
   Future<Map<String, dynamic>> reachOutOnAssistanceRequest(assistanceId) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    return ApiService.postMethod("${ApiUrls.reachOnOthersCreatedAssistance}/$assistanceId", {}, token: requiredToken);
+    return ApiService.postMethod(
+      "${ApiUrls.reachOnOthersCreatedAssistance}/$assistanceId",
+      {},
+      token: requiredToken,
+    );
   }
 
-  Future<Map<String, dynamic>> assistanceRequestCompleteByVolunter(assistanceId) async {
+  Future<Map<String, dynamic>> assistanceRequestCompleteByVolunter(
+    assistanceId,
+  ) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    return ApiService.postMethod("${ApiUrls.volunterCompletedCreatedAssistance}/$assistanceId", {}, token: requiredToken);
+    return ApiService.postMethod(
+      "${ApiUrls.volunterCompletedCreatedAssistance}/$assistanceId",
+      {},
+      token: requiredToken,
+    );
   }
 
   Future<Map<String, dynamic>> postYourFavouriteTopic(topicId) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    return ApiService.postMethod("${ApiUrls.markTopicAsFavourite}/$topicId", {}, token: requiredToken);
+    return ApiService.postMethod(
+      "${ApiUrls.markTopicAsFavourite}/$topicId",
+      {},
+      token: requiredToken,
+    );
   }
 
-  Future<Map<String, dynamic>> acceptRequestOnAssistance(assistanceId, data) async {
+  Future<Map<String, dynamic>> acceptRequestOnAssistance(
+    assistanceId,
+    data,
+  ) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    return ApiService.postMethod("${ApiUrls.acceptVoluntersRequest}/$assistanceId", data, token: requiredToken);
+    return ApiService.postMethod(
+      "${ApiUrls.acceptVoluntersRequest}/$assistanceId",
+      data,
+      token: requiredToken,
+    );
   }
 
   Future<Map<String, dynamic>> getVoluntersRequests() async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
 
-    return ApiService.getMethod(ApiUrls.getRequestOfVolunteers, token: requiredToken);
+    return ApiService.getMethod(
+      ApiUrls.getRequestOfVolunteers,
+      token: requiredToken,
+    );
   }
 
   Future<Map<String, dynamic>> completeAssistanceFromOwner(assistanceId) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    return ApiService.postMethod("${ApiUrls.completeAssistanceByOwner}/$assistanceId", {}, token: requiredToken);
+    return ApiService.postMethod(
+      "${ApiUrls.completeAssistanceByOwner}/$assistanceId",
+      {},
+      token: requiredToken,
+    );
   }
 
   Future<Map<String, dynamic>> userReportPost(postId) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    return ApiService.putMethod("${ApiUrls.reportPost}/$postId", token: requiredToken);
+    return ApiService.putMethod(
+      "${ApiUrls.reportPost}/$postId",
+      token: requiredToken,
+    );
   }
 
   Future<Map<String, dynamic>> createUserPost(
@@ -172,6 +243,13 @@ class CareCircleRepository {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
 
-    return ApiService.postMultipartWithFiles("${ApiUrls.createUserPost}/$interestId", data, imageFile, videoFile, documentFile, token: requiredToken);
+    return ApiService.postMultipartWithFiles(
+      "${ApiUrls.createUserPost}/$interestId",
+      data,
+      imageFile,
+      videoFile,
+      documentFile,
+      token: requiredToken,
+    );
   }
 }

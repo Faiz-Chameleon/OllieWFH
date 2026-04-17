@@ -52,7 +52,16 @@ class _popular_screenState extends State<popular_screen> {
               return SizedBox(
                 width: 0.9.sw,
                 height: 250.h,
-                child: Center(child: const Text("No blog found")),
+                child: Center(
+                  child: Text(
+                    "No blog found",
+                    style: GoogleFonts.darkerGrotesque(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
               );
             }
 
@@ -77,7 +86,14 @@ class _popular_screenState extends State<popular_screen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(color: const Color(0xFFFFECA3), borderRadius: BorderRadius.circular(12)),
-                            child: const Text("Sponsored", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                            child: Text(
+                              "Sponsored",
+                              style: GoogleFonts.darkerGrotesque(
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black87,
+                              ),
+                            ),
                           ),
                         ),
                         Positioned(
@@ -115,20 +131,49 @@ class _popular_screenState extends State<popular_screen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(blog.blog?.title ?? "", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-                          12.verticalSpace,
+                          Text(
+                            blog.blog?.title ?? "",
+                            style: GoogleFonts.darkerGrotesque(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 21.sp,
+                              height: 1.15,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          10.verticalSpace,
                           Row(
                             children: [
-                              const Icon(Icons.person_outline, size: 16, color: Colors.grey),
-                              const SizedBox(width: 4),
-                              Text(blog.blog?.admin?.name ?? "", style: TextStyle(fontSize: 13, color: Colors.grey)),
-                              const SizedBox(width: 12),
-                              Text(widget.controller.timeAgo(blog.blog?.createdAt ?? ""), style: TextStyle(fontSize: 13, color: Colors.grey)),
+                              Icon(Icons.person_outline, size: 18.sp, color: Colors.black54),
+                              SizedBox(width: 5.w),
+                              Text(
+                                blog.blog?.admin?.name ?? "",
+                                style: GoogleFonts.darkerGrotesque(
+                                  fontSize: 17.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              SizedBox(width: 12.w),
+                              Text(
+                                widget.controller.timeAgo(blog.blog?.createdAt ?? ""),
+                                style: GoogleFonts.darkerGrotesque(
+                                  fontSize: 17.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black54,
+                                ),
+                              ),
                               const Spacer(),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(color: const Color(0xFFFFF3C2), borderRadius: BorderRadius.circular(12)),
-                                child: Text(blog.blog?.category?.name ?? "", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                                child: Text(
+                                  blog.blog?.category?.name ?? "",
+                                  style: GoogleFonts.darkerGrotesque(
+                                    fontSize: 15.sp,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.black87,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -154,7 +199,7 @@ class _popular_screenState extends State<popular_screen> {
             children: [
               Text(
                 "Browse Topics",
-                style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold, fontSize: 18.sp),
+                style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w700, fontSize: 20.sp, color: Colors.black87),
               ),
               GestureDetector(
                 onTap: () {
@@ -163,7 +208,7 @@ class _popular_screenState extends State<popular_screen> {
 
                 child: Text(
                   "See All",
-                  style: GoogleFonts.darkerGrotesque(color: Colors.grey.shade600, fontSize: 18.sp),
+                  style: GoogleFonts.darkerGrotesque(color: Colors.black54, fontSize: 18.sp, fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -189,7 +234,7 @@ class _popular_screenState extends State<popular_screen> {
                           decoration: BoxDecoration(color: const Color(0xFFFFE08A), borderRadius: BorderRadius.circular(18)),
                           child: Text(
                             topic.name ?? "",
-                            style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w600, fontSize: 18.sp),
+                            style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w700, fontSize: 18.sp, color: Colors.black87),
                           ),
                         ),
                       ),
@@ -206,7 +251,7 @@ class _popular_screenState extends State<popular_screen> {
             children: [
               Text(
                 "Latest Blogs",
-                style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold, fontSize: 18.sp),
+                style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w700, fontSize: 20.sp, color: Colors.black87),
               ),
               GestureDetector(
                 onTap: () {
@@ -214,7 +259,7 @@ class _popular_screenState extends State<popular_screen> {
                 },
                 child: Text(
                   "See All",
-                  style: GoogleFonts.darkerGrotesque(color: Colors.grey.shade600, fontSize: 18.sp),
+                  style: GoogleFonts.darkerGrotesque(color: Colors.black54, fontSize: 18.sp, fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -227,7 +272,16 @@ class _popular_screenState extends State<popular_screen> {
               return SizedBox(
                 width: 0.9.sw,
                 height: 250.h,
-                child: Center(child: const Text("No blogs available")),
+                child: Center(
+                  child: Text(
+                    "No blogs available",
+                    style: GoogleFonts.darkerGrotesque(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
               );
             }
 

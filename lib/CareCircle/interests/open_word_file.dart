@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:ollie/common/common.dart';
 
 Future<void> openDocFile(String pathOrUrl) async {
   try {
@@ -24,11 +25,11 @@ Future<void> openDocFile(String pathOrUrl) async {
     final result = await OpenFilex.open(localPath); // hands off to OS
     if (result.type != ResultType.done) {
       // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Unable to open: ${result.message}')));
-      Get.snackbar('Error', 'Unable to open document: ${result.message}');
+      appSnackbar('Error', 'Unable to open document: ${result.message}');
     }
   } catch (e) {
     // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error opening document')));
-    Get.snackbar('Error', 'Error opening document');
+    appSnackbar('Error', 'Error opening document');
     debugPrint('❌ Error opening document: $e');
   }
 }

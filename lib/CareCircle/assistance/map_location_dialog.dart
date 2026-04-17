@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'assistance_controller.dart';
+import 'package:ollie/common/common.dart';
 
 const String darkMapStyle = '''[
   {
@@ -89,7 +90,7 @@ class _MapLocationDialogState extends State<MapLocationDialog> {
 
       mapController?.moveCamera(CameraUpdate.newLatLng(currentLatLng));
     } catch (e) {
-      Get.snackbar("Error", "Failed to get current location: $e");
+      appSnackbar("Error", "Failed to get current location: $e");
     }
   }
 

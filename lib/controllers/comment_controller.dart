@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:ollie/controllers/comments_repository.dart';
 import 'package:ollie/request_status.dart';
 import '../Models/comment_model.dart';
+import 'package:ollie/common/common.dart';
 
 class CommentController extends GetxController {
   final CommentsRepository commentsRepository = CommentsRepository();
@@ -42,11 +43,11 @@ class CommentController extends GetxController {
         mainComments.assignAll(_parseComments(commentsData));
       } else {
         getCommentsStatus.value = RequestStatus.error;
-        Get.snackbar('Error', result['message'] ?? 'Failed to load comments');
+        appSnackbar('Error', result['message'] ?? 'Failed to load comments');
       }
     } catch (e) {
       getCommentsStatus.value = RequestStatus.error;
-      Get.snackbar('Error', 'Failed to load comments: $e');
+      appSnackbar('Error', 'Failed to load comments: $e');
     } finally {
       isLoading.value = false;
     }
@@ -88,7 +89,7 @@ class CommentController extends GetxController {
   Future<void> postComment(String blogId) async {
     final message = messageController.text.trim();
     if (message.isEmpty) {
-      Get.snackbar("Error", "Please enter a comment");
+      appSnackbar("Error", "Please enter a comment");
       return;
     }
 
@@ -103,17 +104,17 @@ class CommentController extends GetxController {
         mainCommentStatus.value = RequestStatus.success;
         messageController.clear();
         await loadComments(blogId); // Reload comments
-        Get.snackbar(
+        appSnackbar(
           "Success",
           result['message'] ?? "Comment posted successfully",
         );
       } else {
         mainCommentStatus.value = RequestStatus.error;
-        Get.snackbar("Error", result['message'] ?? "Failed to post comment");
+        appSnackbar("Error", result['message'] ?? "Failed to post comment");
       }
     } catch (e) {
       mainCommentStatus.value = RequestStatus.error;
-      Get.snackbar("Error", "Failed to post comment: $e");
+      appSnackbar("Error", "Failed to post comment: $e");
     }
   }
 
@@ -139,11 +140,11 @@ class CommentController extends GetxController {
         }
       } else {
         likeStatus.value = RequestStatus.error;
-        Get.snackbar("Error", result['message'] ?? "Failed to update like");
+        appSnackbar("Error", result['message'] ?? "Failed to update like");
       }
     } catch (e) {
       likeStatus.value = RequestStatus.error;
-      Get.snackbar("Error", "Failed to update like: $e");
+      appSnackbar("Error", "Failed to update like: $e");
     }
   }
 
@@ -183,11 +184,11 @@ class CommentController extends GetxController {
         }
       } else {
         likeStatus.value = RequestStatus.error;
-        Get.snackbar("Error", result['message'] ?? "Failed to update like");
+        appSnackbar("Error", result['message'] ?? "Failed to update like");
       }
     } catch (e) {
       likeStatus.value = RequestStatus.error;
-      Get.snackbar("Error", "Failed to update like: $e");
+      appSnackbar("Error", "Failed to update like: $e");
     }
   }
 
@@ -208,7 +209,7 @@ class CommentController extends GetxController {
   Future<void> submitMessage(String blogId) async {
     final message = messageController.text.trim();
     if (message.isEmpty) {
-      Get.snackbar("Error", "Please enter a message");
+      appSnackbar("Error", "Please enter a message");
       return;
     }
 
@@ -224,15 +225,15 @@ class CommentController extends GetxController {
           messageController.clear();
           cancelReply();
           await loadComments(blogId); // Reload comments to show new reply
-          Get.snackbar(
+          appSnackbar(
             "Success",
             result['message'] ?? "Reply posted successfully",
           );
         } else {
-          Get.snackbar("Error", result['message'] ?? "Failed to post reply");
+          appSnackbar("Error", result['message'] ?? "Failed to post reply");
         }
       } catch (e) {
-        Get.snackbar("Error", "Failed to post reply: $e");
+        appSnackbar("Error", "Failed to post reply: $e");
       }
     } else {
       // Submit main comment

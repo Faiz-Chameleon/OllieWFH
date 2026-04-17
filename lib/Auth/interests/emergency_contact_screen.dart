@@ -43,7 +43,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
   //   PermissionStatus status = await Permission.contacts.status;
 
   //   if (status.isPermanentlyDenied) {
-  //     Get.snackbar(
+  //     appSnackbar(
   //       "Permission Required",
   //       "Please allow contacts access from settings.",
   //       snackPosition: SnackPosition.BOTTOM,
@@ -65,7 +65,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
   //     status = await Permission.contacts.request();
 
   //     if (status != PermissionStatus.granted) {
-  //       Get.snackbar(
+  //       appSnackbar(
   //         "Permission Denied",
   //         "We need access to your contacts to continue.",
   //         snackPosition: SnackPosition.BOTTOM,
@@ -85,7 +85,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
   //       contact.selectedPhoneNumber!.isNotEmpty) {
   //     controller.selectContact(contact.fullName!, contact.selectedPhoneNumber!);
   //   } else {
-  //     Get.snackbar(
+  //     appSnackbar(
   //       "No Number Found",
   //       "Please select a contact with a valid phone number.",
   //       snackPosition: SnackPosition.BOTTOM,
@@ -211,7 +211,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                     onPressed: () {
                       // Validate before proceeding
                       if (controller.selectedPhoneNumber.value == null || controller.selectedPhoneNumber.value!.isEmpty) {
-                        Get.snackbar(
+                        appSnackbar(
                           "Missing Information",
                           "Please select an emergency contact to continue",
                           snackPosition: SnackPosition.BOTTOM,

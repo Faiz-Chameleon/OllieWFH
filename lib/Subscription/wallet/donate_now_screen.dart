@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:ollie/Constants/Constants.dart';
 import 'payment_method_screen.dart';
 import 'wallet_controller.dart';
+import 'package:ollie/common/common.dart';
 
 class DonateNowScreen extends StatelessWidget {
   DonateNowScreen({super.key});
@@ -159,7 +160,7 @@ class DonateNowScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   if (controller.amount == 0) {
-                    Get.snackbar(
+                    appSnackbar(
                       "Oops!",
                       "Please select an amount to donate.",
                       backgroundColor: Colors.red.shade100,
@@ -167,7 +168,7 @@ class DonateNowScreen extends StatelessWidget {
                     );
                   } else {
                     // Trigger donation logic here
-                    Get.snackbar(
+                    appSnackbar(
                       "Thank You!",
                       "Your donation of \$${controller.amount} has been received.",
                       backgroundColor: Colors.green.shade100,

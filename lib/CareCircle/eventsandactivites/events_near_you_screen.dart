@@ -76,81 +76,92 @@ class _EventsNearYouScreenState extends State<EventsNearYouScreen> {
             //   alignment: Alignment.center,
             //   child: const Text("ADVERTISEMENT", style: TextStyle(color: Colors.black54)),
             // ),
-            Obx(() {
-              if (widget.controller.getEventNearYouStatus.value == RequestStatus.loading) {
-                return const Center(child: CircularProgressIndicator());
-              }
+            Expanded(
+              child: Obx(() {
+                if (widget.controller.getEventNearYouStatus.value == RequestStatus.loading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-              if (widget.controller.nearestEvents.isEmpty) {
-                return const Center(child: Text("No events found"));
-              }
+                if (widget.controller.nearestEvents.isEmpty) {
+                  return const Center(child: Text("No events found"));
+                }
 
-              List<NearestEventsData> eventsToDisplay = widget.controller.nearestEvents.toList();
+                List<NearestEventsData> eventsToDisplay = widget.controller.nearestEvents.toList();
 
-              return ListView.builder(
-                shrinkWrap: true,
+                return ListView.builder(
+                  itemCount: widget.controller.nearestEvents.length,
+                  itemBuilder: (context, index) {
+                    final event = eventsToDisplay[index];
 
-                itemCount: widget.controller.nearestEvents.length,
-                itemBuilder: (context, index) {
-                  final event = eventsToDisplay[index];
-
-                  return GestureDetector(
-                    onTap: () => Get.to(() => EventDetailsScreen(careCirclecontroller: controller)), // Navigate to full detail screen
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.network(
-                                  event.image ?? "https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg",
-                                  height: 140.h,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      height: 120.h,
-                                      width: double.infinity,
-                                      color: Colors.grey[200],
-                                      child: Icon(Icons.error, color: Colors.red, size: 50),
-                                    );
-                                  },
-                                ),
-                              ),
-                              Positioned(
-                                top: 8,
-                                right: 8,
-                                child: Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(color: const Color(0xFFFFE38E), borderRadius: BorderRadius.circular(10)),
-                                  child: Text(
-                                    widget.controller.formatDate(event.eventDateAndTime.toString()),
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+                    return GestureDetector(
+                      onTap: () => Get.to(() => EventDetailsScreen(careCirclecontroller: controller)),
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.network(
+                                    event.image ?? "https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg",
+                                    height: 140.h,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        height: 120.h,
+                                        width: double.infinity,
+                                        color: Colors.grey[200],
+                                        child: Icon(Icons.error, color: Colors.red, size: 50),
+                                      );
+                                    },
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            event.eventName ?? "",
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(widget.controller.formatDateAndTime(event.eventDateAndTime.toString()), style: TextStyle(fontSize: 16.sp)),
-                          Text("${event.eventAddress} ${event.eventCity} ${event.eventCountry}", style: TextStyle(fontSize: 16.sp)),
-                        ],
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(color: const Color(0xFFFFE38E), borderRadius: BorderRadius.circular(10)),
+                                    child: Text(
+                                      widget.controller.formatDate(event.eventDateAndTime.toString()),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              event.eventName ?? "",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              widget.controller.formatDateAndTime(event.eventDateAndTime.toString()),
+                              style: TextStyle(fontSize: 16.sp),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              "${event.eventAddress} ${event.eventCity} ${event.eventCountry}",
+                              style: TextStyle(fontSize: 16.sp),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                  ;
-                },
-              );
-            }),
+                    );
+                  },
+                );
+              }),
+            ),
           ],
         ),
       ),

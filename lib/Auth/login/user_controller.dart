@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:ollie/Auth/login/login_controller.dart';
 import 'package:ollie/myprofile/profile_repository.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/common/common.dart';
 
 class UserController extends GetxController {
   final NewUserRepository userRepository = NewUserRepository();
@@ -39,7 +40,7 @@ class UserController extends GetxController {
     } else {
       deleteAccountStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 }

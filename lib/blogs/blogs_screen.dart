@@ -28,22 +28,22 @@ class BlogsScreen extends StatelessWidget {
           elevation: 0,
           title: Text(
             "Blogs",
-            style: GoogleFonts.darkerGrotesque(color: Black, fontSize: 20, fontWeight: FontWeight.bold),
+            style: GoogleFonts.darkerGrotesque(color: Black, fontSize: 24.sp, fontWeight: FontWeight.w700, height: 1.1),
           ),
           actions: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(8.w),
               child: Row(
                 children: [
-                  Image.asset("assets/icons/MagnifyingGlass.png", scale: 4),
-                  const SizedBox(width: 10),
+                  Image.asset("assets/icons/MagnifyingGlass.png", scale: 3.4),
+                  SizedBox(width: 12.w),
                   GestureDetector(
                     onTap: () {
                       Get.to(() => NotificationsScreen(), transition: Transition.fadeIn);
                     },
-                    child: Image.asset("assets/icons/Vector (2).png", scale: 4),
+                    child: Image.asset("assets/icons/Vector (2).png", scale: 3.4),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 12.w),
                   // GestureDetector(
                   //   onTap: () {
                   //     Get.to(() => CreditsSubscriptionScreen(), transition: Transition.fadeIn);
@@ -67,20 +67,36 @@ class BlogsScreen extends StatelessWidget {
           bottom: TabBar(
             isScrollable: false,
             labelColor: Black,
-            unselectedLabelColor: Colors.grey,
+            unselectedLabelColor: Colors.black54,
             indicatorColor: kprimaryColor,
-            indicatorWeight: 3,
-            labelStyle: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold, fontSize: 22.sp),
+            indicatorWeight: 3.5,
+            labelStyle: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w700, fontSize: 21.sp, height: 1.1),
+            unselectedLabelStyle: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w600, fontSize: 20.sp, height: 1.1),
             onTap: (index) {
               // Handle tab changes here
               final blogTypes = ["popular", "trending", "recent"];
               controller.currentTab.value = blogTypes[index];
               controller.loadBlogForTab(blogTypes[index]);
             },
-            tabs: const [
-              Tab(text: "Popular"),
-              Tab(text: "Trending"),
-              Tab(text: "Recent"),
+            tabs: [
+              Tab(
+                child: Text(
+                  "Popular",
+                  style: GoogleFonts.darkerGrotesque(fontSize: 20.sp, fontWeight: FontWeight.w700),
+                ),
+              ),
+              Tab(
+                child: Text(
+                  "Trending",
+                  style: GoogleFonts.darkerGrotesque(fontSize: 20.sp, fontWeight: FontWeight.w700),
+                ),
+              ),
+              Tab(
+                child: Text(
+                  "Recent",
+                  style: GoogleFonts.darkerGrotesque(fontSize: 20.sp, fontWeight: FontWeight.w700),
+                ),
+              ),
             ],
           ),
         ),

@@ -112,7 +112,7 @@ class Interests_screen extends StatelessWidget {
                     text: "Continue",
                     onPressed: () {
                       if (!controller.hasSelection) {
-                        Get.snackbar(
+                        appSnackbar(
                           "Select an Interest",
                           "Please choose at least one interest to continue.",
                           backgroundColor: Colors.white,

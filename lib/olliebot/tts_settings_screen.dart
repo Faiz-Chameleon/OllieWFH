@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/services/elevenlabs_service.dart';
 import 'ollie_controller.dart';
+import 'package:ollie/common/common.dart';
 
 class TTSSettingsScreen extends StatefulWidget {
   @override
@@ -37,7 +38,7 @@ class _TTSSettingsScreenState extends State<TTSSettingsScreen> {
       setState(() {
         isLoadingVoices = false;
       });
-      Get.snackbar('Error', 'Failed to load voices: $e', snackPosition: SnackPosition.BOTTOM);
+      appSnackbar('Error', 'Failed to load voices: $e', snackPosition: SnackPosition.BOTTOM);
     }
   }
 

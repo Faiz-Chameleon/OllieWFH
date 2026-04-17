@@ -24,6 +24,7 @@ class Otp_Screen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Container(color: BGcolor),
@@ -32,10 +33,13 @@ class Otp_Screen extends StatelessWidget {
             bottom: 0,
             left: 0,
             right: 0,
-            child: Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
+            child: IgnorePointer(
+              child: Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
+            ),
           ),
 
           SingleChildScrollView(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -47,7 +51,11 @@ class Otp_Screen extends StatelessWidget {
                         width: 380.w,
                         child: Text(
                           "Enter Your OTP",
-                          style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
+                          style: GoogleFonts.darkerGrotesque(
+                            color: HeadingColor,
+                            fontSize: responsiveFontSize(34, min: 28, max: 38),
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ],
@@ -83,7 +91,11 @@ class Otp_Screen extends StatelessWidget {
                             },
                             child: Text(
                               "Resend OTP",
-                              style: GoogleFonts.darkerGrotesque(fontSize: 18.sp, fontWeight: FontWeight.bold, color: Colors.black),
+                              style: GoogleFonts.darkerGrotesque(
+                                fontSize: responsiveFontSize(18, min: 16, max: 22),
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
                             ),
                           )
                         : Column(
@@ -107,7 +119,11 @@ class Otp_Screen extends StatelessWidget {
                                       backgroundColor: ksecondaryColor,
                                       child: Text(
                                         "${controller.timer.value}s",
-                                        style: GoogleFonts.darkerGrotesque(fontSize: 24.sp, fontWeight: FontWeight.bold, color: Colors.black),
+                                        style: GoogleFonts.darkerGrotesque(
+                                          fontSize: responsiveFontSize(22, min: 18, max: 26),
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -116,7 +132,11 @@ class Otp_Screen extends StatelessWidget {
                               10.verticalSpace,
                               Text(
                                 "Please wait to resend OTP",
-                                style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, color: Colors.black87, fontWeight: FontWeight.bold),
+                                style: GoogleFonts.darkerGrotesque(
+                                  fontSize: responsiveFontSize(17, min: 15, max: 20),
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ],
                           );
@@ -128,14 +148,14 @@ class Otp_Screen extends StatelessWidget {
                     onPressed: () {
                       final code = controller.enteredOtp.value;
                       if (code.length < 6) {
-                        Get.snackbar("Invalid OTP", "Please enter a valid 6-digit OTP");
+                        appSnackbar("Invalid OTP", "Please enter a valid 6-digit OTP");
                         return;
                       }
                       // else if (userRegisterController
                       //         .receivedOTPFromAPI
                       //         .value !=
                       //     controller.enteredOtp.value) {
-                      //   Get.snackbar("Wrong OTP", "You have entered wrong otp");
+                      //   appSnackbar("Wrong OTP", "You have entered wrong otp");
                       //   return;
                       // }
                       var verifyAtForgotPassword = {
@@ -157,12 +177,12 @@ class Otp_Screen extends StatelessWidget {
                       //   transition: Transition.fadeIn,
                       // );
                     },
-                    width: 390.w,
+                    width: double.infinity,
 
                     // height: 50.h,
                     color: buttonColor,
                     textColor: Colors.white,
-                    fontSize: 18,
+                    fontSize: 20,
                   ),
                 ],
               ),

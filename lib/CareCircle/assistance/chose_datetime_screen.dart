@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/CareCircle/assistance/add_task_description_screen.dart';
 import 'package:ollie/CareCircle/assistance/assistance_controller.dart';
+import 'package:ollie/common/common.dart';
 
 class ChooseDateTimeScreen extends StatefulWidget {
   const ChooseDateTimeScreen({super.key});
@@ -107,7 +108,7 @@ class _ChooseDateTimeScreenState extends State<ChooseDateTimeScreen> {
                                   final selectedDate = controller.hasSelectedDate.value ? controller.selectedDate.value : DateTime.now();
                                   if (selectedDate.year == now.year && selectedDate.month == now.month && selectedDate.day == now.day) {
                                     if (picked.hour < now.hour || (picked.hour == now.hour && picked.minute < now.minute)) {
-                                      Get.snackbar("Error", "You cannot select a past time.");
+                                      appSnackbar("Error", "You cannot select a past time.");
                                       return;
                                     }
                                   }
@@ -158,7 +159,7 @@ class _ChooseDateTimeScreenState extends State<ChooseDateTimeScreen> {
                                 Get.to(() => AddTaskDescriptionScreen(), transition: Transition.fadeIn);
                               }
                             : () {
-                                Get.snackbar(
+                                appSnackbar(
                                   "Error",
                                   "Please select both date and time to proceed.",
                                   backgroundColor: Colors.redAccent,

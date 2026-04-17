@@ -11,6 +11,7 @@ import 'package:ollie/CareCircle/groups/see_all_groups.dart';
 import 'package:ollie/HomeMain/HomeMain.dart';
 import 'package:ollie/HomeMain/bottomController.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/common/common.dart';
 
 class CreateGroupController extends GetxController {
   final GroupRepository groupsRepository = GroupRepository();
@@ -44,12 +45,12 @@ class CreateGroupController extends GetxController {
     final result = await groupsRepository.createGroups(data, fileToSend);
     if (result['success'] == true) {
       createGrouptRequestStatus.value = RequestStatus.success;
-      Get.snackbar("Success", result['message'] ?? "");
+      appSnackbar("Success", result['message'] ?? "");
       clearAll();
       navigateToCareCircle(1);
     } else {
       createGrouptRequestStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
   }
 

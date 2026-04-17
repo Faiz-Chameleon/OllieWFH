@@ -7,6 +7,7 @@ import 'package:flutter_native_contact_picker/model/contact.dart';
 import 'package:get/get.dart';
 import 'package:ollie/Auth/auth_repository.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/common/common.dart';
 
 class InterestModel {
   final String name;
@@ -45,7 +46,7 @@ class InterestController extends GetxController {
         contacts.value = [contact];
         selectedPhoneNumber.value = contact.selectedPhoneNumber!;
       } else {
-        Get.snackbar("No Contact", "Please select a valid contact.");
+        appSnackbar("No Contact", "Please select a valid contact.");
       }
     } catch (e) {
       print('Error picking contact: $e');
@@ -98,11 +99,11 @@ class InterestController extends GetxController {
             )
             .toList();
       } else {
-        Get.snackbar("Failed to Load Interests", result['message']);
+        appSnackbar("Failed to Load Interests", result['message']);
       }
     } catch (e) {
       getInterestStatus.value = RequestStatus.error;
-      Get.snackbar("Error", e.toString());
+      appSnackbar("Error", e.toString());
     }
   }
 

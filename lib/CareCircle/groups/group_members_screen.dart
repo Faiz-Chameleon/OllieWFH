@@ -5,6 +5,7 @@ import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/CareCircle/groups/one_to_many_chat_controller.dart';
 import 'package:ollie/Models/my_groups_model.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/common/common.dart';
 
 class GroupInfoScreen extends StatefulWidget {
   final MyGroupsData groupDetails;
@@ -72,7 +73,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   Future<void> _removeMember(_GroupMemberEntry member) async {
     final chatRoomId = _resolvedChatRoomId;
     if (chatRoomId.isEmpty || member.id.isEmpty) {
-      Get.snackbar("Error", "Unable to remove this member right now");
+      appSnackbar("Error", "Unable to remove this member right now");
       return;
     }
 

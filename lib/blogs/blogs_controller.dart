@@ -9,6 +9,7 @@ import 'package:ollie/Models/complete_blog_detail_model.dart';
 import 'package:ollie/Models/latest_blogs_model.dart';
 import 'package:ollie/blogs/blog_repository.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/common/common.dart';
 
 class BlogsController extends GetxController {
   var selectedTab = 0.obs;
@@ -173,7 +174,7 @@ class BlogsController extends GetxController {
     } else {
       getBlogStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -208,7 +209,7 @@ class BlogsController extends GetxController {
     } else {
       getBlogTopicsStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -225,7 +226,7 @@ class BlogsController extends GetxController {
       getLatestBlogsStatus.value = RequestStatus.success;
     } else {
       getLatestBlogsStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -241,7 +242,7 @@ class BlogsController extends GetxController {
       getBlogsByTopicsStatus.value = RequestStatus.success;
     } else {
       getBlogsByTopicsStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -258,7 +259,7 @@ class BlogsController extends GetxController {
       getBlogsByTopicOnFilterStatus.value = RequestStatus.success;
     } else {
       getBlogsByTopicOnFilterStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -273,7 +274,7 @@ class BlogsController extends GetxController {
       getIndividuaBlogDetailsStatus.value = RequestStatus.success;
     } else {
       getIndividuaBlogDetailsStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -294,7 +295,7 @@ class BlogsController extends GetxController {
       likeOrUnlikeBlogStatus.value = RequestStatus.success;
     } else {
       likeOrUnlikeBlogStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
   }
 
@@ -337,7 +338,7 @@ class BlogsController extends GetxController {
       saveAndUnsaveBlogStatus.value = RequestStatus.success;
     } else {
       saveAndUnsaveBlogStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
   }
 }

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -17,6 +17,7 @@ import 'package:ollie/Models/post_with_interest_model.dart';
 import 'package:ollie/Models/volunters_request_model.dart';
 import 'package:ollie/Models/your_post_model.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/common/common.dart';
 
 class PostModel {
   final String user;
@@ -26,7 +27,14 @@ class PostModel {
   final File? document;
   final List<String>? pollOptions;
 
-  PostModel({required this.user, required this.time, required this.text, this.image, this.document, this.pollOptions});
+  PostModel({
+    required this.user,
+    required this.time,
+    required this.text,
+    this.image,
+    this.document,
+    this.pollOptions,
+  });
 }
 
 class CareCircleController extends GetxController {
@@ -59,8 +67,17 @@ class CareCircleController extends GetxController {
   }
 
   final List<String> topics = ['Fitness', 'Wellness', 'Mindfulness'];
-  final List<String> images = ['assets/images/Frame 73.png', 'assets/images/Frame 73.png', 'assets/images/Frame 73.png'];
-  final List<String> tabs = ['Assistance', 'Groups', 'Interests', 'Events & Activities'];
+  final List<String> images = [
+    'assets/images/Frame 73.png',
+    'assets/images/Frame 73.png',
+    'assets/images/Frame 73.png',
+  ];
+  final List<String> tabs = [
+    'Assistance',
+    'Groups',
+    'Interests',
+    'Events & Activities',
+  ];
 
   var posts = <PostModel>[].obs;
 
@@ -105,7 +122,7 @@ class CareCircleController extends GetxController {
     } else {
       getBlogTopicsStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -117,19 +134,21 @@ class CareCircleController extends GetxController {
     final result = await careCircleRepository.getSavedPosts();
     if (result['success'] == true) {
       yourSavePostList.clear();
-      if (result['data'] != null && result['data'].isNotEmpty && result['data'][0].isNotEmpty) {
+      if (result['data'] != null &&
+          result['data'].isNotEmpty &&
+          result['data'][0].isNotEmpty) {
         yourSavePostList.value = result['data'][0];
       } else {
         // List is empty
         yourSavePostList.clear();
-        Get.snackbar("Info", "No saved posts found");
+        appSnackbar("Info", "No saved posts found");
       }
 
       getYourSavePostStatus.value = RequestStatus.success;
     } else {
       getYourSavePostStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -144,13 +163,14 @@ class CareCircleController extends GetxController {
 
       yourInterestedTopics.assignAll(result['data']);
       getYourInterestedTopicsStatus.value = RequestStatus.success;
-    } else if (result['success'] == false && result['message'] == "favourite topic not found") {
+    } else if (result['success'] == false &&
+        result['message'] == "favourite topic not found") {
       yourInterestedTopics.clear();
       getYourInterestedTopicsStatus.value = RequestStatus.empty;
     } else {
       getYourInterestedTopicsStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -159,6 +179,8 @@ class CareCircleController extends GetxController {
   }
 
   var interestBasePostList = <PostWithInterestData>[].obs;
+  var selectedInterestPost = Rxn<PostWithInterestData>();
+  var singleInterestPostStatus = RequestStatus.idle.obs;
 
   var interestBastePostStatus = RequestStatus.idle.obs;
   Future<void> interestBasePost(String topicId) async {
@@ -172,15 +194,31 @@ class CareCircleController extends GetxController {
         interestBasePostList.addAll(parsed.data!);
       }
       interestBastePostStatus.value = RequestStatus.success;
-    } else if (result['success'] == false && result['message'] == "No posts found") {
+    } else if (result['success'] == false &&
+        result['message'] == "No posts found") {
       interestBasePostList.clear();
       interestBastePostStatus.value = RequestStatus.success;
 
-      Get.snackbar("Info", "No posts available for this topic");
+      appSnackbar("Info", "No posts available for this topic");
     } else {
       interestBastePostStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
+    }
+  }
+
+  Future<PostWithInterestData?> fetchSingleUserPost(String postId) async {
+    singleInterestPostStatus.value = RequestStatus.loading;
+    final result = await careCircleRepository.getSingleUserPost(postId);
+    if (result['success'] == true && result['data'] != null) {
+      final parsed = PostWithInterestData.fromJson(result['data']);
+      selectedInterestPost.value = parsed;
+      singleInterestPostStatus.value = RequestStatus.success;
+      return parsed;
+    } else {
+      singleInterestPostStatus.value = RequestStatus.error;
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
+      return null;
     }
   }
 
@@ -192,19 +230,22 @@ class CareCircleController extends GetxController {
     if (result['success'] == true) {
       if (result["data"]["action"] == "liked") {
         interestBasePostList[index].isLikePost = true;
-        interestBasePostList[index].cCount?.userpostlikes = (interestBasePostList[index].cCount?.userpostlikes ?? 0) + 1;
+        interestBasePostList[index].cCount?.userpostlikes =
+            (interestBasePostList[index].cCount?.userpostlikes ?? 0) + 1;
         interestBasePostList.refresh();
       } else if (result["data"]["action"] == "unliked") {
         interestBasePostList[index].isLikePost = false;
-        if (interestBasePostList[index].cCount?.userpostlikes != null && interestBasePostList[index].cCount!.userpostlikes! > 0) {
-          interestBasePostList[index].cCount?.userpostlikes = (interestBasePostList[index].cCount?.userpostlikes ?? 0) - 1;
+        if (interestBasePostList[index].cCount?.userpostlikes != null &&
+            interestBasePostList[index].cCount!.userpostlikes! > 0) {
+          interestBasePostList[index].cCount?.userpostlikes =
+              (interestBasePostList[index].cCount?.userpostlikes ?? 0) - 1;
           interestBasePostList.refresh();
         }
       }
       likeOrUnlikePostStatus.value = RequestStatus.success;
     } else {
       likeOrUnlikePostStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
   }
 
@@ -215,7 +256,8 @@ class CareCircleController extends GetxController {
 
   var saveAndUnsavePostStatus = RequestStatus.idle.obs;
   Future<void> savePostToggle(String postId, int index) async {
-    final bool isCurrentlySaved = interestBasePostList[index].isSavePost == true;
+    final bool isCurrentlySaved =
+        interestBasePostList[index].isSavePost == true;
     saveAndUnsavePostStatus.value = RequestStatus.loading;
 
     final result = await careCircleRepository.saveAndUnsavePost(postId);
@@ -223,11 +265,14 @@ class CareCircleController extends GetxController {
       final bool isSaved = !isCurrentlySaved;
       savePostToUpdate(index, isSaved);
       await getYourSavedPost();
-      Get.snackbar("Success", isSaved ? "Post saved successfully" : "Post removed from saved posts");
+      appSnackbar(
+        "Success",
+        isSaved ? "Post saved successfully" : "Post removed from saved posts",
+      );
       saveAndUnsavePostStatus.value = RequestStatus.success;
     } else {
       saveAndUnsavePostStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
   }
 
@@ -246,19 +291,24 @@ class CareCircleController extends GetxController {
         postAccordingToMyInterest.addAll(parsed.data!);
       }
       getYourPostAsInteresStatus.value = RequestStatus.success;
-    } else if (result['success'] == false && result['message'] == "User has no selected interests") {
+    } else if (result['success'] == false &&
+        result['message'] == "User has no selected interests") {
       getYourPostAsInteresStatus.value = RequestStatus.success;
 
-      Get.snackbar("No Interests", "Please select your interests to see posts.");
-    } else if (result['success'] == false && result['message'] == "No posts found") {
+      appSnackbar(
+        "No Interests",
+        "Please select your interests to see posts.",
+      );
+    } else if (result['success'] == false &&
+        result['message'] == "No posts found") {
       /// Special case: no selected interests
       getYourPostAsInteresStatus.value = RequestStatus.success;
 
-      Get.snackbar("Success", "No posts found");
+      appSnackbar("Success", "No posts found");
     } else {
       getYourPostAsInteresStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -276,13 +326,14 @@ class CareCircleController extends GetxController {
         myGroups.addAll(parsed.data!);
       }
       getYourGroupsStatus.value = RequestStatus.success;
-    } else if (result['success'] == false && result['message'] == "Group chat rooms not found") {
+    } else if (result['success'] == false &&
+        result['message'] == "Group chat rooms not found") {
       myGroups.clear();
       getYourGroupsStatus.value = RequestStatus.success;
     } else {
       getYourGroupsStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -298,7 +349,7 @@ class CareCircleController extends GetxController {
 
       final parsed = MyGroupsModel.fromJson(result);
       if (parsed.data != null) {
-        parsed.data!.forEach((group) {
+        for (final group in parsed.data!) {
           bool isParticipant = false;
 
           for (var user in group.participants?.users ?? []) {
@@ -311,16 +362,17 @@ class CareCircleController extends GetxController {
           if (!isParticipant) {
             othersGroups.add(group);
           }
-        });
+        }
       }
       getOthersGroupsStatus.value = RequestStatus.success;
-    } else if (result['success'] == false && result["message"] == 'No featured groups found') {
+    } else if (result['success'] == false &&
+        result["message"] == 'No featured groups found') {
       othersGroups.clear();
       getOthersGroupsStatus.value = RequestStatus.success;
     } else {
       getOthersGroupsStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -329,53 +381,70 @@ class CareCircleController extends GetxController {
   Future<void> reachOutOnAssistance(String assistancId, int index) async {
     postReachOutOnAssistanceStatus.value = RequestStatus.loading;
 
-    final result = await careCircleRepository.reachOutOnAssistanceRequest(assistancId);
+    final result = await careCircleRepository.reachOutOnAssistanceRequest(
+      assistancId,
+    );
     if (result['success'] == true) {
-      othersCreatedAssistance[index].status = "VolunteerRequestSent";
-
+      await userFetchOthersCreatedAssitance();
       postReachOutOnAssistanceStatus.value = RequestStatus.success;
-      Get.snackbar("Success", result['message'] ?? "");
+      appSnackbar("Success", result['message'] ?? "");
     } else {
       postReachOutOnAssistanceStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
   }
 
   Future<void> completeAssistanceByVolunter(String assistancId) async {
     postReachOutOnAssistanceStatus.value = RequestStatus.loading;
 
-    final result = await careCircleRepository.assistanceRequestCompleteByVolunter(assistancId);
+    final result = await careCircleRepository
+        .assistanceRequestCompleteByVolunter(assistancId);
     if (result['success'] == true) {
+      await Future.wait([
+        userFetchOthersCreatedAssitance(),
+        userFetchCreatedAssitance(),
+      ]);
       postReachOutOnAssistanceStatus.value = RequestStatus.success;
-      Get.snackbar("Success", result['message'] ?? "");
+      appSnackbar("Success", result['message'] ?? "");
     } else {
       postReachOutOnAssistanceStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
   }
 
   Future<void> markTopicAsFavourite(String topicId) async {
     final result = await careCircleRepository.postYourFavouriteTopic(topicId);
     if (result['success'] == true) {
-      Get.snackbar("Success", result['message'] ?? "");
+      appSnackbar("Success", result['message'] ?? "");
     } else {
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
   }
 
   var acceptVolunterRequestStatus = RequestStatus.idle.obs;
-  Future<void> acceptrequestOnAssistance(String assistancId, data, int index) async {
+  Future<void> acceptrequestOnAssistance(
+    String assistancId,
+    data,
+    int index,
+  ) async {
     acceptVolunterRequestStatus.value = RequestStatus.loading;
 
-    final result = await careCircleRepository.acceptRequestOnAssistance(assistancId, data);
+    final result = await careCircleRepository.acceptRequestOnAssistance(
+      assistancId,
+      data,
+    );
     if (result['success'] == true) {
-      data["action"] == "reject" ? voluntersRequestsList.removeAt(index) : voluntersRequestsList[index].status = "ReachOut";
-      voluntersRequestsList.refresh();
+      final postId = voluntersRequestsList[index].postId ?? "";
+      await Future.wait([
+        userFetchCreatedAssitance(),
+        userFetchOthersCreatedAssitance(),
+        if (postId.isNotEmpty) getVoluntersRequestOnEachAssistance(postId),
+      ]);
       acceptVolunterRequestStatus.value = RequestStatus.success;
-      Get.snackbar("Success", result['message'] ?? "");
+      appSnackbar("Success", result['message'] ?? "");
     } else {
       acceptVolunterRequestStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
   }
 
@@ -384,17 +453,26 @@ class CareCircleController extends GetxController {
   }
 
   var completeTaskOwnerRequestStatus = RequestStatus.idle.obs;
-  Future<void> completeTaskByOwner(String assistancId) async {
+  Future<void> completeTaskByOwner(String assistancId, {String? postId}) async {
     completeTaskOwnerRequestStatus.value = RequestStatus.loading;
-    final result = await careCircleRepository.completeAssistanceFromOwner(assistancId);
+    final result = await careCircleRepository.completeAssistanceFromOwner(
+      assistancId,
+    );
     if (result['success'] == true) {
+      await Future.wait([
+        userFetchCreatedAssitance(),
+        userFetchOthersCreatedAssitance(),
+        if (postId != null && postId.isNotEmpty)
+          getVoluntersRequestOnEachAssistance(postId),
+      ]);
       completeTaskOwnerRequestStatus.value = RequestStatus.success;
-      Get.snackbar("Success", result['message'] ?? "");
-    } else if (result['success'] == false && result['message'] == "action is required") {
-      Get.snackbar("Error", "Your Volunter need to Complete it First");
+      appSnackbar("Success", result['message'] ?? "");
+    } else if (result['success'] == false &&
+        result['message'] == "action is required") {
+      appSnackbar("Error", "Your Volunter need to Complete it First");
     } else {
       completeTaskOwnerRequestStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
     taskCompleted.value = true;
   }
@@ -412,18 +490,21 @@ class CareCircleController extends GetxController {
     if (result['success'] == true) {
       latestEvent.value = LatestEventsData.fromJson(result['data']);
       getLatestEventStatus.value = RequestStatus.success;
-    } else if (result['success'] == false && result["message"] == "Latest event not found or user is not marked as participating") {
-      getLatestEventStatus.value = RequestStatus.success; // You can set it to success because there is no event but not an error.
+    } else if (result['success'] == false &&
+        result["message"] ==
+            "Latest event not found or user is not marked as participating") {
+      getLatestEventStatus.value = RequestStatus
+          .success; // You can set it to success because there is no event but not an error.
       latestEvent.value = LatestEventsData();
     } else {
       getLatestEventStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
   String formatDate(String dateString) {
-    if (dateString == null || dateString.isEmpty) {
+    if (dateString.isEmpty) {
       return "";
     }
 
@@ -450,11 +531,11 @@ class CareCircleController extends GetxController {
         val?.isMark = true;
       });
       markAsGoingOnEventStatus.value = RequestStatus.success;
-      Get.snackbar("Success", result["message"]);
+      appSnackbar("Success", result["message"]);
     } else {
       markAsGoingOnEventStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -466,12 +547,14 @@ class CareCircleController extends GetxController {
     final result = await careCircleRepository.getNearesEvent();
     if (result['success'] == true) {
       List<dynamic> eventList = result['data'] ?? [];
-      nearestEvents.value = eventList.map((eventJson) => NearestEventsData.fromJson(eventJson)).toList();
+      nearestEvents.value = eventList
+          .map((eventJson) => NearestEventsData.fromJson(eventJson))
+          .toList();
       getEventNearYouStatus.value = RequestStatus.success;
     } else {
       getEventNearYouStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -483,12 +566,17 @@ class CareCircleController extends GetxController {
     final result = await careCircleRepository.getCreatedAssistance();
     if (result['success'] == true) {
       List<dynamic> createdAssistanceList = result['data'] ?? [];
-      createdAssistance.value = createdAssistanceList.map((assistancetJson) => CreatedAssistanceData.fromJson(assistancetJson)).toList();
+      createdAssistance.value = createdAssistanceList
+          .map(
+            (assistancetJson) =>
+                CreatedAssistanceData.fromJson(assistancetJson),
+          )
+          .toList();
       getCrteatedAssistanceStatus.value = RequestStatus.success;
     } else {
       getCrteatedAssistanceStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -499,29 +587,41 @@ class CareCircleController extends GetxController {
     final userController = Get.put(UserController());
     final String loggedInUserId = userController.user.value?.id ?? '';
     getOthersCrteatedAssistanceStatus.value = RequestStatus.loading;
-    final LatLng? activeLocation = assistanceFilterEnabled.value ? assistanceFilterLocation.value : null;
+    final LatLng? activeLocation = assistanceFilterEnabled.value
+        ? assistanceFilterLocation.value
+        : null;
     final result = await careCircleRepository.getOthersCreatedAssistance(
       latitude: activeLocation?.latitude,
       longitude: activeLocation?.longitude,
-      radiusKm: assistanceFilterEnabled.value ? assistanceFilterRadiusKm.value : null,
+      radiusKm: assistanceFilterEnabled.value
+          ? assistanceFilterRadiusKm.value
+          : null,
     );
     if (result['success'] == true) {
       List<dynamic> othersCreatedAssistanceList = result['data'] ?? [];
       List<OthersCreatedAssistance> filteredList = othersCreatedAssistanceList
           .where((assistancetJson) {
-            final assistance = OthersCreatedAssistance.fromJson(assistancetJson);
+            final assistance = OthersCreatedAssistance.fromJson(
+              assistancetJson,
+            );
             return assistance.userId != loggedInUserId;
           })
-          .map((assistancetJson) => OthersCreatedAssistance.fromJson(assistancetJson))
+          .map(
+            (assistancetJson) =>
+                OthersCreatedAssistance.fromJson(assistancetJson),
+          )
           .toList();
 
       othersCreatedAssistance.value = filteredList;
-      postLoadingStatus.value = List.generate(filteredList.length, (_) => false.obs);
+      postLoadingStatus.value = List.generate(
+        filteredList.length,
+        (_) => false.obs,
+      );
       getOthersCrteatedAssistanceStatus.value = RequestStatus.success;
     } else {
       getOthersCrteatedAssistanceStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -530,7 +630,10 @@ class CareCircleController extends GetxController {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        Get.snackbar("Location Disabled", "Please enable location services to filter nearby assistance.");
+        appSnackbar(
+          "Location Disabled",
+          "Please enable location services to filter nearby assistance.",
+        );
         return;
       }
 
@@ -539,15 +642,26 @@ class CareCircleController extends GetxController {
         permission = await Geolocator.requestPermission();
       }
 
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        Get.snackbar("Permission Required", "Location permission is needed to filter nearby assistance.");
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        appSnackbar(
+          "Permission Required",
+          "Location permission is needed to filter nearby assistance.",
+        );
         return;
       }
 
-      final position = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high));
-      assistanceFilterLocation.value = LatLng(position.latitude, position.longitude);
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+      assistanceFilterLocation.value = LatLng(
+        position.latitude,
+        position.longitude,
+      );
     } catch (e) {
-      Get.snackbar("Error", "Unable to fetch current location.");
+      appSnackbar("Error", "Unable to fetch current location.");
     } finally {
       assistanceFilterLoading.value = false;
     }
@@ -610,22 +724,35 @@ class CareCircleController extends GetxController {
   }
 
   var createPostStatus = RequestStatus.idle.obs;
-  Future<void> createUserPost(String interestId, String postTitle, String postContent, File? imageFile, XFile? videoFile, XFile? documentFile) async {
+  Future<void> createUserPost(
+    String interestId,
+    String postTitle,
+    String postContent,
+    File? imageFile,
+    XFile? videoFile,
+    XFile? documentFile,
+  ) async {
     createPostStatus.value = RequestStatus.loading;
 
     final data = {'postTitle': postTitle, 'postContent': postContent};
 
-    final result = await careCircleRepository.createUserPost(interestId, data, imageFile, videoFile, documentFile);
+    final result = await careCircleRepository.createUserPost(
+      interestId,
+      data,
+      imageFile,
+      videoFile,
+      documentFile,
+    );
 
     if (result['success'] == true) {
       createPostStatus.value = RequestStatus.success;
-      Get.snackbar("Success", result['message'] ?? "Post created successfully");
+      appSnackbar("Success", result['message'] ?? "Post created successfully");
 
       // Refresh the posts list
       await interestBasePost(interestId);
     } else {
       createPostStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Failed to create post");
+      appSnackbar("Error", result['message'] ?? "Failed to create post");
     }
   }
 
@@ -640,15 +767,21 @@ class CareCircleController extends GetxController {
       // Filter the list based on the assistanceId
       List<VolunterRequestsData> receivedVoluntersList = voluntersRequestList
           .where((voluntersJson) {
-            final voluntersResponse = VolunterRequestsData.fromJson(voluntersJson);
-            print("Post ID: ${voluntersResponse.post?.id}");
+            final voluntersResponse = VolunterRequestsData.fromJson(
+              voluntersJson,
+            );
             return voluntersResponse.postId == assistanceId;
           })
-          .map((assistancetJson) => VolunterRequestsData.fromJson(assistancetJson))
+          .map(
+            (assistancetJson) => VolunterRequestsData.fromJson(assistancetJson),
+          )
           .toList();
 
       // Initialize the loading status for each volunteer request AFTER filtering
-      voluntersRequestLoadingStatus.value = List.generate(receivedVoluntersList.length, (_) => true.obs);
+      voluntersRequestLoadingStatus.value = List.generate(
+        receivedVoluntersList.length,
+        (_) => true.obs,
+      );
 
       // Update the list of volunteer requests
       voluntersRequestsList.value = receivedVoluntersList;
@@ -661,8 +794,93 @@ class CareCircleController extends GetxController {
       getVoluntersRequesttatus.value = RequestStatus.success;
     } else {
       getVoluntersRequesttatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
+  }
+
+  String statusLabelForOtherAssistance(String? status) {
+    switch (status) {
+      case "NoRequest":
+        return "Reach Out";
+      case "VolunteerRequestSent":
+        return "Request Sent";
+      case "ReachOut":
+        return "Selected / In Progress";
+      case "MarkAsCompleted":
+        return "Waiting Owner Confirmation";
+      case "TaskCompleted":
+        return "Completed";
+      default:
+        return "Reach Out";
+    }
+  }
+
+  String statusLabelForOwnerAssistance(String? status) {
+    switch (status) {
+      case "NoRequest":
+        return "No Request Received";
+      case "VolunteerRequestSent":
+        return "Volunteer Request Received";
+      case "ReachOut":
+        return "Selected / In Progress";
+      case "MarkAsCompleted":
+        return "Confirm Completed";
+      case "TaskCompleted":
+        return "Completed";
+      default:
+        return "No Request Received";
+    }
+  }
+
+  String volunteerActionLabel(String? status) {
+    switch (status) {
+      case "ReachOut":
+        return "Unselect";
+      case "MarkAsCompleted":
+        return "Confirm Completed";
+      case "TaskCompleted":
+        return "Completed";
+      default:
+        return "Select";
+    }
+  }
+
+  Color volunteerActionBackgroundColor(String? status) {
+    switch (status) {
+      case "ReachOut":
+        return const Color(0xFFF4BD2A);
+      case "MarkAsCompleted":
+        return Colors.green;
+      case "TaskCompleted":
+        return const Color(0xFFB4E197);
+      default:
+        return Colors.white;
+    }
+  }
+
+  Color volunteerActionTextColor(String? status) {
+    switch (status) {
+      case "VolunteerRequestSent":
+        return const Color(0xFFF4BD2A);
+      case "ReachOut":
+      case "MarkAsCompleted":
+      case "TaskCompleted":
+        return Colors.white;
+      default:
+        return const Color(0xFFF4BD2A);
+    }
+  }
+
+  bool canTapVolunteerAction(String? status) {
+    return status != "TaskCompleted";
+  }
+
+  bool canVolunteerComplete(String? status) {
+    return status == "ReachOut";
+  }
+
+  bool canOwnerConfirmCompletion(String? status) {
+    return status == "MarkAsCompleted";
   }
 
   var yourPostList = <YourPostModelData>[].obs;
@@ -679,15 +897,16 @@ class CareCircleController extends GetxController {
         yourPostList.addAll(parsed.data!);
       }
       fetchingYourPostStatus.value = RequestStatus.success;
-    } else if (result['success'] == false && result['message'] == "No posts found") {
+    } else if (result['success'] == false &&
+        result['message'] == "No posts found") {
       yourPostList.clear();
       fetchingYourPostStatus.value = RequestStatus.success;
 
-      Get.snackbar("Info", "No posts available for this topic");
+      appSnackbar("Info", "No posts available for this topic");
     } else {
       interestBastePostStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -697,10 +916,10 @@ class CareCircleController extends GetxController {
     final result = await careCircleRepository.userReportPost(postId);
     if (result['success'] == true) {
       reportPostRequestStatus.value = RequestStatus.success;
-      Get.snackbar("Success", result['message'] ?? "");
+      appSnackbar("Success", result['message'] ?? "");
     } else {
       reportPostRequestStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
     taskCompleted.value = true;
   }

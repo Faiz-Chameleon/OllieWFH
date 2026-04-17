@@ -132,6 +132,89 @@ class _GrouoChatScreenState extends State<GrouoChatScreen> {
     setState(() => isListening = false);
   }
 
+  bool _isCurrentUserMessage(Map message, String loggedInUserId) {
+    return message["senderId"]?.toString() == loggedInUserId;
+  }
+
+  ImageProvider _buildAvatarImage(String? imageUrl) {
+    final trimmedUrl = imageUrl?.trim() ?? '';
+    if (trimmedUrl.isNotEmpty) {
+      return NetworkImage(trimmedUrl);
+    }
+    return const AssetImage('assets/icons/Frame 1686560584.png');
+  }
+
+  Map<String, dynamic>? _extractSenderMap(Map message) {
+    final sender = message["sender"] ?? message["user"] ?? message["createdBy"];
+    if (sender is Map) {
+      return Map<String, dynamic>.from(sender);
+    }
+    return null;
+  }
+
+  String _extractSenderName(Map message, {required bool isCurrentUser}) {
+    if (isCurrentUser) {
+      final currentUser = userController.user.value;
+      final fullName = [currentUser?.firstName?.trim(), currentUser?.lastName?.trim()].where((part) => (part ?? '').isNotEmpty).join(' ');
+      if (fullName.isNotEmpty) {
+        return fullName;
+      }
+      return 'You';
+    }
+
+    final senderMap = _extractSenderMap(message);
+    if (senderMap != null) {
+      final senderFullName = [
+        senderMap["firstName"]?.toString().trim(),
+        senderMap["lastName"]?.toString().trim(),
+      ].where((part) => (part ?? '').isNotEmpty).join(' ');
+      if (senderFullName.isNotEmpty) {
+        return senderFullName;
+      }
+
+      for (final key in ["name", "userName", "username", "displayName", "fullName"]) {
+        final value = senderMap[key]?.toString().trim();
+        if (value != null && value.isNotEmpty) {
+          return value;
+        }
+      }
+    }
+
+    for (final key in ["senderName", "userName", "username", "displayName", "fullName", "name"]) {
+      final value = message[key]?.toString().trim();
+      if (value != null && value.isNotEmpty) {
+        return value;
+      }
+    }
+
+    return 'Unknown User';
+  }
+
+  String? _extractSenderImage(Map message, {required bool isCurrentUser}) {
+    if (isCurrentUser) {
+      return userController.user.value?.image;
+    }
+
+    final senderMap = _extractSenderMap(message);
+    if (senderMap != null) {
+      for (final key in ["image", "avatar", "profileImage", "userImage"]) {
+        final value = senderMap[key]?.toString().trim();
+        if (value != null && value.isNotEmpty) {
+          return value;
+        }
+      }
+    }
+
+    for (final key in ["senderImage", "image", "avatar", "profileImage", "userImage"]) {
+      final value = message[key]?.toString().trim();
+      if (value != null && value.isNotEmpty) {
+        return value;
+      }
+    }
+
+    return null;
+  }
+
   @override
   void dispose() {
     _messagesWorker?.dispose();
@@ -151,12 +234,7 @@ class _GrouoChatScreenState extends State<GrouoChatScreen> {
         leading: const BackButton(color: Colors.black),
         title: GestureDetector(
           onTap: () {
-            Get.to(
-              () => GroupInfoScreen(
-                groupDetails: widget.groupDetails,
-                chatRoomId: groupChatController.groupConversationId.value,
-              ),
-            );
+            Get.to(() => GroupInfoScreen(groupDetails: widget.groupDetails, chatRoomId: groupChatController.groupConversationId.value));
           },
           child: Row(
             children: [
@@ -209,20 +287,41 @@ class _GrouoChatScreenState extends State<GrouoChatScreen> {
                   final message = groupChatController.messages[index];
 
                   final String loggedInUserId = userController.user.value?.id ?? '';
+                  final bool isCurrentUser = _isCurrentUserMessage(message, loggedInUserId);
+                  final String senderName = _extractSenderName(message, isCurrentUser: isCurrentUser);
+                  final String? senderImage = _extractSenderImage(message, isCurrentUser: isCurrentUser);
                   return Align(
-                    alignment: message["senderId"] == loggedInUserId ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
                     child: Column(
-                      crossAxisAlignment: message["senderId"] == loggedInUserId ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                      crossAxisAlignment: isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                       children: [
-                        if (message["senderId"] != loggedInUserId)
-                          const CircleAvatar(radius: 16, backgroundImage: AssetImage("assets/icons/Frame 1686560584.png")),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (isCurrentUser) ...[
+                              Text(
+                                senderName,
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54),
+                              ),
+                              const SizedBox(width: 8),
+                              CircleAvatar(radius: 16, backgroundImage: _buildAvatarImage(senderImage)),
+                            ] else ...[
+                              CircleAvatar(radius: 16, backgroundImage: _buildAvatarImage(senderImage)),
+                              const SizedBox(width: 8),
+                              Text(
+                                senderName,
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54),
+                              ),
+                            ],
+                          ],
+                        ),
                         const SizedBox(height: 4),
                         Container(
                           constraints: const BoxConstraints(maxWidth: 260),
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: message["senderId"] == loggedInUserId ? const Color(0xFFF4BD2A) : Colors.white,
+                            color: isCurrentUser ? const Color(0xFFF4BD2A) : Colors.white,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: _GroupMessageBody(message: message),

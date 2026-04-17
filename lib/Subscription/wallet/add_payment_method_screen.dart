@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'wallet_controller.dart';
+import 'package:ollie/common/common.dart';
 
 class AddPaymentMethodScreen extends StatelessWidget {
   AddPaymentMethodScreen({super.key});
@@ -74,7 +75,7 @@ class AddPaymentMethodScreen extends StatelessWidget {
                     controller.clearPaymentForm();
                     Get.back();
                   } else {
-                    Get.snackbar(
+                    appSnackbar(
                       "Error",
                       "Please fill in required fields (Name & Card Number).",
                       backgroundColor: Colors.red.shade100,

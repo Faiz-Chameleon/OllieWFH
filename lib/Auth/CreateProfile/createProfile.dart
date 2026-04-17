@@ -30,6 +30,7 @@ class CreateProfileScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Theme(
           data: Theme.of(context).copyWith(textTheme: Theme.of(context).textTheme),
           child: Stack(
@@ -40,9 +41,12 @@ class CreateProfileScreen extends StatelessWidget {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
+                child: IgnorePointer(
+                  child: Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
+                ),
               ),
               SingleChildScrollView(
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Form(
@@ -57,7 +61,11 @@ class CreateProfileScreen extends StatelessWidget {
                               width: 380.w,
                               child: Text(
                                 "Create Profile",
-                                style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
+                                style: GoogleFonts.darkerGrotesque(
+                                  color: HeadingColor,
+                                  fontSize: responsiveFontSize(34, min: 28, max: 38),
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
                           ],
@@ -95,7 +103,7 @@ class CreateProfileScreen extends StatelessWidget {
                             isExpanded: true,
                             style: dropdownValueStyle,
                             decoration: customInputDecoration(labelText: "").copyWith(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 18.h),
                               hintStyle: dropdownHintStyle,
                               errorStyle: dropdownErrorStyle,
                             ),
@@ -159,7 +167,7 @@ class CreateProfileScreen extends StatelessWidget {
                                         suffixIcon: Icon(Icons.calendar_month, color: Colors.grey, size: 25.sp),
                                       ).copyWith(
                                         errorText: state.errorText,
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                                        contentPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 18.h),
                                         hintStyle: dropdownHintStyle,
                                         errorStyle: dropdownErrorStyle,
                                       ),
@@ -194,7 +202,7 @@ class CreateProfileScreen extends StatelessWidget {
                                     filled: true,
                                     hintStyle: labelFieldStyle,
                                     fillColor: Colors.white,
-                                    contentPadding: EdgeInsets.only(left: 30, bottom: 15, top: 15),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 18.h),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.all(Radius.circular(50)),
                                       borderSide: BorderSide(color: Color(0xff463C3380)),
@@ -254,7 +262,7 @@ class CreateProfileScreen extends StatelessWidget {
                             const cityPlaceholder = "Select City";
 
                             final decoration = customInputDecoration(labelText: "").copyWith(
-                              contentPadding: const EdgeInsets.only(left: 30, bottom: 15, top: 15),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 18.h),
                               hintStyle: dropdownHintStyle,
                               errorStyle: dropdownErrorStyle,
                             );
@@ -272,6 +280,7 @@ class CreateProfileScreen extends StatelessWidget {
                                   labelStyle: dropdownHintStyle,
                                   decoration: decoration,
                                   spacing: 20.0,
+                                  initialCountryName: "Canada",
                                   selectedCountryLabel: countryPlaceholder,
                                   selectedStateLabel: statePlaceholder,
                                   selectedCityLabel: cityPlaceholder,
@@ -307,23 +316,23 @@ class CreateProfileScreen extends StatelessWidget {
                             final isValid = _formKey.currentState?.validate() ?? false;
                             if (!isValid) {
                               if (controller.phoneController.text.trim().isEmpty) {
-                                Get.snackbar("Phone Number Required", "Please add your phone number to continue");
+                                appSnackbar("Phone Number Required", "Please add your phone number to continue");
                               }
                               return;
                             }
 
                             if (controller.phoneController.text.trim().isEmpty) {
-                              Get.snackbar("Phone Number Required", "Please add your phone number to continue");
+                              appSnackbar("Phone Number Required", "Please add your phone number to continue");
                               return;
                             }
 
                             Get.to(() => Well_Come_Screen(), transition: Transition.fadeIn);
                           },
-                          width: 390.w,
+                          width: double.infinity,
                           // height: 50.h,
                           color: buttonColor,
                           textColor: Colors.white,
-                          fontSize: 18,
+                          fontSize: 20,
                         ),
                         80.verticalSpace,
                       ],

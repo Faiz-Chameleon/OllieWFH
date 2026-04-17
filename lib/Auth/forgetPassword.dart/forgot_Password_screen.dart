@@ -20,6 +20,7 @@ class Forgot_Password_Screen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Form(
         key: _formKey,
         child: Stack(
@@ -31,10 +32,13 @@ class Forgot_Password_Screen extends StatelessWidget {
               bottom: 0,
               left: 0,
               right: 0,
-              child: Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.contain, width: double.infinity, height: 335.h),
+              child: IgnorePointer(
+                child: Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.contain, width: double.infinity, height: 335.h),
+              ),
             ),
 
             SingleChildScrollView(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
@@ -47,7 +51,11 @@ class Forgot_Password_Screen extends StatelessWidget {
                           width: 0.85.sw,
                           child: Text(
                             "Enter Your email here",
-                            style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
+                            style: GoogleFonts.darkerGrotesque(
+                              color: HeadingColor,
+                              fontSize: responsiveFontSize(34, min: 28, max: 38),
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ],
@@ -84,7 +92,7 @@ class Forgot_Password_Screen extends StatelessWidget {
                         // height: 50.h,
                         color: buttonColor,
                         textColor: Colors.white,
-                        fontSize: 18,
+                        fontSize: 20,
                       );
                     }),
 

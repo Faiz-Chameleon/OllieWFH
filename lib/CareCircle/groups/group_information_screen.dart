@@ -102,7 +102,7 @@ class GroupReviewScreen extends StatelessWidget {
                         var data = {"name": controller.groupName.value, "description": controller.description.value};
                         controller.createGroupsForChat(data, controller.selectedImage.value);
                         // Show success toast/snackbar if needed
-                        // Get.snackbar(
+                        // appSnackbar(
                         //   "Success",
                         //   "Group has been created successfully!",
                         //   backgroundColor: const Color(0xFFF4BD2A),

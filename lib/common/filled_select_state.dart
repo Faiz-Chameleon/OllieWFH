@@ -21,6 +21,7 @@ class FilledSelectState extends StatefulWidget {
   final String? selectedCountryLabel;
   final String? selectedStateLabel;
   final String? selectedCityLabel;
+  final String? initialCountryName;
 
   const FilledSelectState({
     super.key,
@@ -33,6 +34,7 @@ class FilledSelectState extends StatefulWidget {
     this.selectedCountryLabel,
     this.selectedStateLabel,
     this.selectedCityLabel,
+    this.initialCountryName,
     this.labelStyle,
     this.dropdownColor,
     this.onCountryTap,
@@ -78,6 +80,20 @@ class _FilledSelectStateState extends State<FilledSelectState> {
         ..clear()
         ..addAll(models.map(_composeCountryLabel));
     });
+
+    final initialCountry = widget.initialCountryName;
+    if (initialCountry != null && initialCountry.isNotEmpty) {
+      String? initialLabel;
+      for (final item in _countryItems) {
+        if (item.contains(initialCountry)) {
+          initialLabel = item;
+          break;
+        }
+      }
+      if (initialLabel != null) {
+        _onCountrySelected(initialLabel);
+      }
+    }
   }
 
   status_model.StatusModel? _findCountryModel(String? countryValue) {

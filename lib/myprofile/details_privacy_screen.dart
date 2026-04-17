@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ollie/myprofile/delete_account_dialouge.dart';
+import 'package:ollie/common/common.dart';
 
 class PrivacySecurityScreen extends StatefulWidget {
   const PrivacySecurityScreen({super.key});
@@ -223,7 +224,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   }
 
   void _requestDataDownload() {
-    Get.snackbar(
+    appSnackbar(
       'Request Received',
       'Your data download will be prepared and sent to your email.',
       snackPosition: SnackPosition.BOTTOM,

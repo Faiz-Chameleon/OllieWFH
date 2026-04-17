@@ -11,6 +11,7 @@ import 'package:ollie/HomeMain/bottomController.dart';
 import 'package:ollie/Models/user_model.dart';
 import 'package:ollie/request_status.dart';
 import 'package:ollie/Auth/login/login_screen.dart';
+import 'package:ollie/common/common.dart';
 
 class LoginController extends GetxController {
   final AuthRepository authRepository = AuthRepository();
@@ -331,7 +332,7 @@ class LoginController extends GetxController {
       if (result["data"]["isCreatedProfile"] == false) {
         final storage = FlutterSecureStorage();
         await storage.write(key: 'userToken', value: userModel.data?.userToken);
-        Get.snackbar("Success", "Please Complete Your Profile");
+        appSnackbar("Success", "Please Complete Your Profile");
         Get.to(() => CreateProfileScreen(), transition: Transition.fadeIn);
       } else {
         final storage = FlutterSecureStorage();
@@ -340,12 +341,12 @@ class LoginController extends GetxController {
         bottomController.updateIndex(0);
         Get.to(() => ConvexStyledBarScreen(), transition: Transition.fadeIn);
 
-        Get.snackbar("Success", result['message'] ?? "User registered");
+        appSnackbar("Success", result['message'] ?? "User registered");
       }
     } else {
       loginStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "Registration failed");
+      appSnackbar("Error", result['message'] ?? "Registration failed");
     }
   }
 }

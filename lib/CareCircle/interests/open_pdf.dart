@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:ollie/common/common.dart';
 
 Future<void> openPdf(String pdfPathOrUrl) async {
   try {
@@ -25,11 +26,11 @@ Future<void> openPdf(String pdfPathOrUrl) async {
     final result = await OpenFilex.open(localPath);
     if (result.type != ResultType.done) {
       // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Unable to open PDF: ${result.message}')));
-      Get.snackbar('Error', 'Unable to open PDF: ${result.message}');
+      appSnackbar('Error', 'Unable to open PDF: ${result.message}');
     }
   } catch (e) {
     debugPrint('❌ Error opening PDF: $e');
     // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error opening PDF')));
-    Get.snackbar('Error', 'Error opening PDF');
+    appSnackbar('Error', 'Error opening PDF');
   }
 }

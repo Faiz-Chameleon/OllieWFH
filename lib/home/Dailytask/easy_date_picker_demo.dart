@@ -8,6 +8,7 @@ import 'package:ollie/Constants/constants.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ollie/request_status.dart';
 import 'easy_date_picker_controller.dart' as local_controller;
+import 'package:ollie/common/common.dart';
 
 // Extension to get month name from DateTime
 extension DateExtensions on DateTime {
@@ -374,7 +375,7 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                             picked.minute,
                           );
                           if (selectedDate != null && _isSameDay(selectedDate!, now) && selected.isBefore(now)) {
-                            Get.snackbar("Error", "You can't select a past time.");
+                            appSnackbar("Error", "You can't select a past time.");
 
                             return;
                           }

@@ -11,6 +11,7 @@ import 'package:ollie/HomeMain/HomeMain.dart';
 import 'package:ollie/HomeMain/bottomController.dart';
 import 'package:ollie/Models/assistance_reasons_model.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/common/common.dart';
 
 class Assistance_Controller extends GetxController {
   final AssistanceRepository createAssistanceRepository = AssistanceRepository();
@@ -58,7 +59,7 @@ class Assistance_Controller extends GetxController {
   Future<bool> ensureLocationPermission() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      Get.snackbar("Location Disabled", "Please enable location services to continue.");
+      appSnackbar("Location Disabled", "Please enable location services to continue.");
       hasLocationPermission.value = false;
       return false;
     }
@@ -69,13 +70,13 @@ class Assistance_Controller extends GetxController {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      Get.snackbar("Permission Required", "Location permission is permanently denied. Please enable it from settings to continue.");
+      appSnackbar("Permission Required", "Location permission is permanently denied. Please enable it from settings to continue.");
       hasLocationPermission.value = false;
       return false;
     }
 
     if (permission == LocationPermission.denied) {
-      Get.snackbar("Permission Required", "Please allow location access to pick your address.");
+      appSnackbar("Permission Required", "Please allow location access to pick your address.");
       hasLocationPermission.value = false;
       return false;
     }
@@ -138,7 +139,7 @@ class Assistance_Controller extends GetxController {
   Future<void> searchLocationByText(String query) async {
     final normalizedQuery = query.trim();
     if (normalizedQuery.isEmpty) {
-      Get.snackbar("Location Required", "Please enter an address to search.");
+      appSnackbar("Location Required", "Please enter an address to search.");
       return;
     }
 
@@ -146,7 +147,7 @@ class Assistance_Controller extends GetxController {
       isSearchingLocation.value = true;
       final results = await locationFromAddress(normalizedQuery);
       if (results.isEmpty) {
-        Get.snackbar("Not found", "No location matched your search.");
+        appSnackbar("Not found", "No location matched your search.");
         return;
       }
 
@@ -159,7 +160,7 @@ class Assistance_Controller extends GetxController {
         locationSearchController.text = normalizedQuery;
       }
     } catch (_) {
-      Get.snackbar("Error", "Unable to search this location.");
+      appSnackbar("Error", "Unable to search this location.");
     } finally {
       isSearchingLocation.value = false;
     }
@@ -205,7 +206,7 @@ class Assistance_Controller extends GetxController {
     } else {
       createAssistanceStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "Registration failed");
+      appSnackbar("Error", result['message'] ?? "Registration failed");
     }
   }
 
@@ -238,7 +239,7 @@ class Assistance_Controller extends GetxController {
     } else {
       getReasonsForAssistanceStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "Registration failed");
+      appSnackbar("Error", result['message'] ?? "Registration failed");
     }
   }
 }

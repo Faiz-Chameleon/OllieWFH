@@ -50,7 +50,7 @@ class Blog {
   String? image;
   String? categoryId;
   String? adminId;
-  Null? type;
+  String? type;
   int? views;
   String? createdAt;
   String? updatedAt;
@@ -152,9 +152,9 @@ class Admin {
   String? id;
   String? email;
   String? password;
-  Null? name;
+  String? name;
   String? deviceToken;
-  Null? otp;
+  String? otp;
   String? userType;
   String? image;
 

@@ -20,6 +20,7 @@ class Login_Screen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Form(
         key: _formKey,
         child: Stack(
@@ -31,7 +32,9 @@ class Login_Screen extends StatelessWidget {
               bottom: 0,
               left: 0,
               right: 0,
-              child: Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
+              child: IgnorePointer(
+                child: Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
+              ),
             ),
 
             Positioned(
@@ -49,7 +52,11 @@ class Login_Screen extends StatelessWidget {
                       Text(
                         "By continuing, you agree to our",
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, color: buttonColor, fontWeight: FontWeight.w700),
+                        style: GoogleFonts.darkerGrotesque(
+                          fontSize: responsiveFontSize(18, min: 16, max: 22),
+                          color: buttonColor,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       TextButton(
                         onPressed: () {
@@ -59,7 +66,7 @@ class Login_Screen extends StatelessWidget {
                         child: Text(
                           "Terms & Conditions",
                           style: GoogleFonts.darkerGrotesque(
-                            fontSize: 16.sp,
+                            fontSize: responsiveFontSize(18, min: 16, max: 22),
                             color: txtColor,
                             decoration: TextDecoration.underline,
                             fontWeight: FontWeight.w700,
@@ -71,7 +78,11 @@ class Login_Screen extends StatelessWidget {
                         children: [
                           Text(
                             "Don't have an account? ",
-                            style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, color: buttonColor, fontWeight: FontWeight.w700),
+                            style: GoogleFonts.darkerGrotesque(
+                              fontSize: responsiveFontSize(18, min: 16, max: 22),
+                              color: buttonColor,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                           GestureDetector(
                             onTap: () {
@@ -80,7 +91,7 @@ class Login_Screen extends StatelessWidget {
                             child: Text(
                               "Sign Up",
                               style: GoogleFonts.darkerGrotesque(
-                                fontSize: 14.sp,
+                                fontSize: responsiveFontSize(16, min: 15, max: 20),
                                 color: txtColor,
                                 fontWeight: FontWeight.bold,
                                 decoration: TextDecoration.underline,
@@ -96,6 +107,7 @@ class Login_Screen extends StatelessWidget {
             ),
 
             SingleChildScrollView(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
@@ -114,7 +126,11 @@ class Login_Screen extends StatelessWidget {
                                   SizedBox(width: 12),
                                   Text(
                                     "Logging you in...",
-                                    style: TextStyle(fontSize: 16, color: buttonColor, fontWeight: FontWeight.w500),
+                                    style: TextStyle(
+                                      fontSize: responsiveFontSize(17, min: 15, max: 20),
+                                      color: buttonColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -125,25 +141,29 @@ class Login_Screen extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          "Login here",
-                          style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
-                        ),
-                      ],
-                    ),
-                    20.verticalSpace,
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Get.to(() => Sign_Up_Screen(), transition: Transition.fadeIn);
-                          },
-                          child: Text(
-                            "Sign Up here",
-                            style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 26.sp, fontWeight: FontWeight.w700),
+                          "Login Here!",
+                          style: GoogleFonts.darkerGrotesque(
+                            color: HeadingColor,
+                            fontSize: responsiveFontSize(34, min: 28, max: 38),
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
                     ),
+                    20.verticalSpace,
+                    // Row(
+                    //   children: [
+                    //     GestureDetector(
+                    //       onTap: () {
+                    //         Get.to(() => Sign_Up_Screen(), transition: Transition.fadeIn);
+                    //       },
+                    //       child: Text(
+                    //         "Sign Up here",
+                    //         style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 26.sp, fontWeight: FontWeight.w700),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                     50.verticalSpace,
                     CustomTextField(
                       controller: controller.emailController,
@@ -181,7 +201,11 @@ class Login_Screen extends StatelessWidget {
                                 Checkbox(value: controller.rememberMe.value, onChanged: controller.toggleRememberMe, activeColor: buttonColor),
                                 Text(
                                   "Remember me",
-                                  style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 16.sp, fontWeight: FontWeight.w500),
+                                  style: GoogleFonts.darkerGrotesque(
+                                    color: HeadingColor,
+                                    fontSize: responsiveFontSize(18, min: 16, max: 22),
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ],
                             ),
@@ -193,7 +217,11 @@ class Login_Screen extends StatelessWidget {
                           },
                           child: Text(
                             "Forgot Password?",
-                            style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 16.sp, fontWeight: FontWeight.w500),
+                            style: GoogleFonts.darkerGrotesque(
+                              color: HeadingColor,
+                              fontSize: responsiveFontSize(18, min: 16, max: 22),
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],
@@ -220,11 +248,11 @@ class Login_Screen extends StatelessWidget {
                           //   transition: Transition.fadeIn,
                           // );
                         },
-                        width: 390.w,
+                        width: double.infinity,
                         // height: 50,
                         color: buttonColor,
                         textColor: Colors.white,
-                        fontSize: 26.sp,
+                        fontSize: responsiveFontSize(24, min: 20, max: 28),
                       );
                     }),
 

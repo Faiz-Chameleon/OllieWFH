@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/blogs/blog_details_screen.dart';
 import 'package:ollie/blogs/filtered_blogs_screen.dart';
@@ -33,7 +34,14 @@ class _LatestBlogsScreenState extends State<LatestBlogsScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFFFF7E9),
         elevation: 0,
-        title: const Text("Latest Blogs", style: TextStyle(color: Colors.black)),
+        title: Text(
+          "Latest Blogs",
+          style: GoogleFonts.darkerGrotesque(
+            color: Colors.black87,
+            fontSize: 24.sp,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
         leading: const BackButton(color: Colors.black),
         actions: [
           // GestureDetector(
@@ -51,7 +59,16 @@ class _LatestBlogsScreenState extends State<LatestBlogsScreen> {
         }
 
         if (widget.controller.latestBlogsList.isEmpty) {
-          return const Center(child: Text("No topics found."));
+          return Center(
+            child: Text(
+              "No topics found.",
+              style: GoogleFonts.darkerGrotesque(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          );
         }
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
@@ -86,18 +103,44 @@ class _LatestBlogsScreenState extends State<LatestBlogsScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(blog.category?.name ?? "", style: const TextStyle(color: Colors.brown, fontSize: 12)),
-                                    4.verticalSpace,
-                                    Text(blog.title ?? "", style: const TextStyle(fontWeight: FontWeight.w600)),
-                                    4.verticalSpace,
+                                    Text(
+                                      blog.category?.name ?? "",
+                                      style: GoogleFonts.darkerGrotesque(
+                                        color: Colors.brown,
+                                        fontSize: 15.sp,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    6.verticalSpace,
+                                    Text(
+                                      blog.title ?? "",
+                                      style: GoogleFonts.darkerGrotesque(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 20.sp,
+                                        height: 1.15,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    6.verticalSpace,
                                     Row(
                                       children: [
                                         Text(
                                           widget.controller.timeAgo(blog.createdAt.toString()),
-                                          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                          style: GoogleFonts.darkerGrotesque(
+                                            color: Colors.black54,
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
-                                        const SizedBox(width: 8),
-                                        Text("6 min read", style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                                        SizedBox(width: 8.w),
+                                        Text(
+                                          "6 min read",
+                                          style: GoogleFonts.darkerGrotesque(
+                                            color: Colors.black54,
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
 
                                         // if (blog["title"]!.contains(
                                         //       "Dumplings",

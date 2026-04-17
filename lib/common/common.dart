@@ -4,19 +4,64 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:get/get.dart';
 
 import 'package:ollie/Constants/Constants.dart';
 
+double responsiveFontSize(double base, {double min = 16, double max = 24}) {
+  return base.sp.clamp(min, max).toDouble();
+}
+
+void appSnackbar(
+  String title,
+  String message, {
+  SnackPosition snackPosition = SnackPosition.TOP,
+  Duration duration = const Duration(seconds: 3),
+  Color? backgroundColor,
+  Color? colorText,
+}) {
+  final isError = title.toLowerCase().contains('error') || title.toLowerCase().contains('failed');
+  final isSuccess = title.toLowerCase().contains('success');
+  final textColor = colorText ?? (isError ? Colors.white : HeadingColor);
+  final effectiveBackgroundColor =
+      backgroundColor ??
+      (isError
+          ? buttonColor
+          : isSuccess
+          ? const Color(0xFFF3E7C6)
+          : BGcolor);
+
+  Get.snackbar(
+    title,
+    message,
+    snackPosition: snackPosition,
+    duration: duration,
+    borderRadius: 16.r,
+    backgroundColor: effectiveBackgroundColor,
+    colorText: textColor,
+    titleText: Text(
+      title,
+      style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(20, min: 18, max: 24), fontWeight: FontWeight.w700, color: textColor),
+    ),
+    messageText: Text(
+      message,
+      style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(18, min: 16, max: 22), fontWeight: FontWeight.w500, color: textColor),
+    ),
+    isDismissible: true,
+    dismissDirection: DismissDirection.horizontal,
+  );
+}
+
 TextStyle prominentFieldTextStyle({Color color = const Color.fromRGBO(15, 16, 49, 1), FontWeight fontWeight = FontWeight.w600}) {
-  return TextStyle(color: color, fontWeight: fontWeight, fontSize: 20.sp);
+  return TextStyle(color: color, fontWeight: fontWeight, fontSize: responsiveFontSize(18, min: 16, max: 22));
 }
 
 TextStyle prominentFieldHintStyle({Color color = Colors.grey, FontWeight fontWeight = FontWeight.w600}) {
-  return TextStyle(color: color, fontWeight: fontWeight, fontSize: 20.sp);
+  return TextStyle(color: color, fontWeight: fontWeight, fontSize: responsiveFontSize(18, min: 16, max: 22));
 }
 
 TextStyle prominentFieldErrorStyle({Color color = const Color.fromRGBO(244, 67, 54, 1)}) {
-  return TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 20.sp);
+  return TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: responsiveFontSize(16, min: 14, max: 20));
 }
 
 class CustomTextField extends StatelessWidget {
@@ -62,7 +107,7 @@ class CustomTextField extends StatelessWidget {
         filled: true,
         fillColor: Colors.white,
         hintText: hintText,
-        contentPadding: const EdgeInsets.only(left: 30, bottom: 15, top: 15),
+        contentPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 18.h),
         labelText: labelText,
         labelStyle: prominentFieldTextStyle(color: Colors.black),
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
@@ -91,7 +136,7 @@ class CustomButton extends StatelessWidget {
     required this.text,
     required this.onPressed,
     this.width = double.infinity,
-    this.height = 50,
+    this.height = 58,
     this.color = buttonColor,
     this.textColor = white,
     this.fontSize = 16,
@@ -106,13 +151,18 @@ class CustomButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+          tapTargetSize: MaterialTapTargetSize.padded,
           backgroundColor: color,
           disabledBackgroundColor: Colors.grey.shade300,
           shape: RoundedRectangleBorder(borderRadius: borderRadius),
         ),
         child: Text(
           text,
-          style: GoogleFonts.darkerGrotesque(color: textColor, fontSize: fontSize, fontWeight: FontWeight.w700),
+          maxLines: 1,
+          softWrap: false,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.darkerGrotesque(color: textColor, fontSize: responsiveFontSize(fontSize, min: 20, max: 30), fontWeight: FontWeight.w700),
         ),
       ),
     );
@@ -131,7 +181,7 @@ InputDecoration customInputDecoration({required String labelText, String? hintTe
     fillColor: Colors.white,
     hintText: hintText,
     hintStyle: prominentFieldHintStyle(),
-    contentPadding: const EdgeInsets.only(left: 30, bottom: 15, top: 15),
+    contentPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 18.h),
     labelText: labelText,
     labelStyle: prominentFieldTextStyle(color: Colors.grey),
     prefixIcon: prefixIcon,

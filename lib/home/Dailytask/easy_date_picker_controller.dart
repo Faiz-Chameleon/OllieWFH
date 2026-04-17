@@ -3,6 +3,7 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 import 'package:ollie/home/home_repository.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/common/common.dart';
 
 class EasyDatePickerController extends GetxController {
   final HomeRepository homeRepository = HomeRepository();
@@ -50,11 +51,11 @@ class EasyDatePickerController extends GetxController {
     if (result['success'] == true) {
       await userTaskByDate();
       createTaskStatus.value = RequestStatus.success;
-      Get.snackbar("Success", result['message'] ?? "message required frontend");
+      appSnackbar("Success", result['message'] ?? "message required frontend");
     } else {
       createTaskStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -73,7 +74,7 @@ class EasyDatePickerController extends GetxController {
     } else {
       getTaskStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -94,7 +95,7 @@ class EasyDatePickerController extends GetxController {
     } else {
       getTaskStatusOnHome.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -107,10 +108,10 @@ class EasyDatePickerController extends GetxController {
 
     if (result['success']) {
       completedTaskStatus.value = RequestStatus.success;
-      Get.snackbar("Success", result['message'] ?? "Task marked as completed");
+      appSnackbar("Success", result['message'] ?? "Task marked as completed");
     } else {
       completedTaskStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
   }
 }

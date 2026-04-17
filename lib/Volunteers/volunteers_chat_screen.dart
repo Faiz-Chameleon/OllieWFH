@@ -115,15 +115,66 @@ class _ChatScreenState extends State<ChatScreen> {
     return const AssetImage('assets/icons/Group 1000000907 (1).png');
   }
 
-  String? _extractSenderImage(Map message, String loggedInUserId) {
-    if (_isCurrentUserMessage(message, loggedInUserId)) {
+  Map<String, dynamic>? _extractParticipantMap(Map message, {required bool isSender}) {
+    final preferredKey = isSender ? "sender" : "receiver";
+    final fallbackKey = isSender ? "from" : "to";
+    final participant = message[preferredKey] ?? message[fallbackKey];
+
+    if (participant is Map) {
+      return Map<String, dynamic>.from(participant);
+    }
+
+    return null;
+  }
+
+  String _extractParticipantName(Map message, {required bool isCurrentUser}) {
+    if (isCurrentUser) {
+      final currentUser = userController.user.value;
+      final fullName = [currentUser?.firstName?.trim(), currentUser?.lastName?.trim()].where((part) => (part ?? '').isNotEmpty).join(' ');
+      if (fullName.isNotEmpty) {
+        return fullName;
+      }
+      return 'You';
+    }
+
+    final senderMap = _extractParticipantMap(message, isSender: true);
+    if (senderMap != null) {
+      final senderFullName = [
+        senderMap["firstName"]?.toString().trim(),
+        senderMap["lastName"]?.toString().trim(),
+      ].where((part) => (part ?? '').isNotEmpty).join(' ');
+
+      if (senderFullName.isNotEmpty) {
+        return senderFullName;
+      }
+
+      for (final key in ["name", "userName", "username", "displayName", "fullName"]) {
+        final value = senderMap[key]?.toString().trim();
+        if (value != null && value.isNotEmpty) {
+          return value;
+        }
+      }
+    }
+
+    for (final key in ["senderName", "userName", "username", "displayName", "fullName", "name"]) {
+      final value = message[key]?.toString().trim();
+      if (value != null && value.isNotEmpty) {
+        return value;
+      }
+    }
+
+    return widget.userName.trim().isNotEmpty ? widget.userName.trim() : 'Unknown User';
+  }
+
+  String? _extractParticipantImage(Map message, {required bool isCurrentUser}) {
+    if (isCurrentUser) {
       return userController.user.value?.image;
     }
 
-    final sender = message["sender"];
-    if (sender is Map) {
+    final senderMap = _extractParticipantMap(message, isSender: true);
+    if (senderMap != null) {
       for (final key in ["image", "avatar", "profileImage", "userImage"]) {
-        final value = sender[key]?.toString().trim();
+        final value = senderMap[key]?.toString().trim();
         if (value != null && value.isNotEmpty) {
           return value;
         }
@@ -138,49 +189,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     return widget.userImage;
-  }
-
-  String _extractSenderName(Map message, String loggedInUserId) {
-    if (_isCurrentUserMessage(message, loggedInUserId)) {
-      final currentUser = userController.user.value;
-      final fullName = [currentUser?.firstName?.trim(), currentUser?.lastName?.trim()].where((part) => (part ?? '').isNotEmpty).join(' ');
-
-      if (fullName.isNotEmpty) {
-        return fullName;
-      }
-
-      return 'You';
-    }
-
-    final sender = message["sender"];
-    if (sender is Map) {
-      final senderFullName = [
-        sender["firstName"]?.toString().trim(),
-        sender["lastName"]?.toString().trim(),
-      ].where((part) => (part ?? '').isNotEmpty).join(' ');
-
-      if (senderFullName.isNotEmpty) {
-        return senderFullName;
-      }
-
-      final fallbackKeys = ["name", "userName", "username", "displayName", "fullName"];
-      for (final key in fallbackKeys) {
-        final value = sender[key]?.toString().trim();
-        if (value != null && value.isNotEmpty) {
-          return value;
-        }
-      }
-    }
-
-    final directKeys = ["senderName", "userName", "username", "displayName", "fullName", "name"];
-    for (final key in directKeys) {
-      final value = message[key]?.toString().trim();
-      if (value != null && value.isNotEmpty) {
-        return value;
-      }
-    }
-
-    return widget.userName.trim().isNotEmpty ? widget.userName.trim() : 'Unknown User';
   }
 
   @override
@@ -237,8 +245,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
                   final String loggedInUserId = userController.user.value?.id ?? '';
                   final bool isCurrentUser = _isCurrentUserMessage(message, loggedInUserId);
-                  final String senderName = _extractSenderName(message, loggedInUserId);
-                  final String? senderImage = _extractSenderImage(message, loggedInUserId);
+                  final String senderName = _extractParticipantName(message, isCurrentUser: isCurrentUser);
+                  final String? senderImage = _extractParticipantImage(message, isCurrentUser: isCurrentUser);
                   return Align(
                     alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
                     child: Row(

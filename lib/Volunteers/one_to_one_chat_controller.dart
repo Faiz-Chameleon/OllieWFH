@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:ollie/Volunteers/chat_repository.dart';
 import 'package:ollie/Volunteers/socket_controller.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/common/common.dart';
 
 class OneToOneChatController extends GetxController {
   final SocketController socketController = Get.find<SocketController>();
@@ -142,10 +143,10 @@ class OneToOneChatController extends GetxController {
       }
 
       createChatRoomRequestStatus.value = RequestStatus.success;
-      Get.snackbar("Success", result['message'] ?? "");
+      appSnackbar("Success", result['message'] ?? "");
     } else {
       createChatRoomRequestStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
   }
 
@@ -175,7 +176,7 @@ class OneToOneChatController extends GetxController {
       //   print(data);
       // });
     } else {
-      Get.snackbar("Error", "No conversation ID found");
+      appSnackbar("Error", "No conversation ID found");
     }
   }
 
@@ -192,7 +193,7 @@ class OneToOneChatController extends GetxController {
         },
       );
     } else {
-      Get.snackbar("Error", "No conversation ID found");
+      appSnackbar("Error", "No conversation ID found");
     }
   }
 
@@ -239,7 +240,7 @@ class OneToOneChatController extends GetxController {
   Future<void> sendAttachementInChat(data, file, String conversationID) async {
     final targetConversationId = conversationID.isNotEmpty ? conversationID : oneOnOneConversationId.value;
     if (targetConversationId.isEmpty) {
-      Get.snackbar("Error", "No conversation ID found");
+      appSnackbar("Error", "No conversation ID found");
       return;
     }
 
@@ -274,11 +275,11 @@ class OneToOneChatController extends GetxController {
         socketController.socket.emit('joinRoom', {'chatRoom': targetConversationId});
       }
       sendAttachementRequestStatus.value = RequestStatus.success;
-      Get.snackbar("Success", result['data'] ?? "");
+      appSnackbar("Success", result['data'] ?? "");
     } else {
       _addOrReplacePendingMessage({...pendingMessage, 'isUploading': false, 'uploadFailed': true});
       sendAttachementRequestStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
   }
 

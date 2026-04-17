@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:ollie/common/common.dart';
 
 class MapController extends GetxController {
   var currentPosition = Rx<LatLng?>(null); // User's current location
@@ -29,7 +30,7 @@ class MapController extends GetxController {
     } catch (e) {
       // Catch any errors that occur during location fetching
       print("Error fetching location: $e");
-      Get.snackbar("Error", "Failed to fetch location: $e");
+      appSnackbar("Error", "Failed to fetch location: $e");
     }
   }
 

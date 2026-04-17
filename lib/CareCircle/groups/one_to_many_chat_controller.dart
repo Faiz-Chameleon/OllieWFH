@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:ollie/Volunteers/chat_repository.dart';
 import 'package:ollie/Volunteers/socket_controller.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/common/common.dart';
 
 class OneToManyChatController extends GetxController {
   final SocketController socketController = Get.find<SocketController>();
@@ -112,7 +113,7 @@ class OneToManyChatController extends GetxController {
       socketController.socket.emit('joinRoom', {'chatRoom': conversationID});
       _log('Joined chat room with ID: $conversationID');
     } else {
-      Get.snackbar("Error", "No conversation ID found");
+      appSnackbar("Error", "No conversation ID found");
     }
   }
 
@@ -126,7 +127,7 @@ class OneToManyChatController extends GetxController {
         "message": text,
       });
     } else {
-      Get.snackbar("Error", "No conversation ID found");
+      appSnackbar("Error", "No conversation ID found");
     }
   }
 
@@ -179,7 +180,7 @@ class OneToManyChatController extends GetxController {
         ? conversationID
         : groupConversationId.value;
     if (targetConversationId.isEmpty) {
-      Get.snackbar("Error", "No conversation ID found");
+      appSnackbar("Error", "No conversation ID found");
       return;
     }
 
@@ -229,7 +230,7 @@ class OneToManyChatController extends GetxController {
         });
       }
       sendAttachementRequestStatus.value = RequestStatus.success;
-      Get.snackbar("Success", result['data'] ?? "");
+      appSnackbar("Success", result['data'] ?? "");
     } else {
       _addOrReplacePendingMessage({
         ...pendingMessage,
@@ -237,7 +238,7 @@ class OneToManyChatController extends GetxController {
         'uploadFailed': true,
       });
       sendAttachementRequestStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
   }
 
@@ -258,7 +259,7 @@ class OneToManyChatController extends GetxController {
       joinGrouoChatRoomRequestStatus.value = RequestStatus.success;
     } else {
       joinGrouoChatRoomRequestStatus.value = RequestStatus.error;
-      Get.snackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
   }
 
@@ -268,7 +269,7 @@ class OneToManyChatController extends GetxController {
     String memberType = 'USER',
   }) async {
     if (chatRoomId.isEmpty) {
-      Get.snackbar("Error", "No conversation ID found");
+      appSnackbar("Error", "No conversation ID found");
       return false;
     }
 
@@ -284,12 +285,12 @@ class OneToManyChatController extends GetxController {
     if (result['success'] == true) {
       removeParticipantRequestStatus.value = RequestStatus.success;
       socketController.socket.emit('joinRoom', {'chatRoom': chatRoomId});
-      Get.snackbar("Success", result['message'] ?? "Member removed successfully");
+      appSnackbar("Success", result['message'] ?? "Member removed successfully");
       return true;
     }
 
     removeParticipantRequestStatus.value = RequestStatus.error;
-    Get.snackbar("Error", result['message'] ?? "Something went wrong");
+    appSnackbar("Error", result['message'] ?? "Something went wrong");
     return false;
   }
 }

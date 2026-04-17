@@ -4,6 +4,7 @@ import 'package:ollie/Auth/Otp/otp_screen.dart';
 import 'package:ollie/Auth/auth_repository.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/common/common.dart';
 
 class SignUpController extends GetxController {
   final AuthRepository authRepository = AuthRepository();
@@ -61,11 +62,11 @@ class SignUpController extends GetxController {
 
       Get.to(() => Otp_Screen(comesFromWhere: "fromSignUp"), transition: Transition.fadeIn);
 
-      Get.snackbar("Success", result['message'] ?? "User registered");
+      appSnackbar("Success", result['message'] ?? "User registered");
     } else {
       registerStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "Registration failed");
+      appSnackbar("Error", result['message'] ?? "Registration failed");
     }
   }
   //   resendOtp

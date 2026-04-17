@@ -1,85 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
-import 'package:ollie/CareCircle/care_circle_controller.dart';
-import 'package:ollie/CareCircle/groups/group_chat_screen.dart';
-import 'package:ollie/CareCircle/groups/one_to_many_chat_controller.dart';
 import 'package:ollie/Models/my_groups_model.dart';
+import 'package:ollie/common/common.dart';
 
-class GroupListScreen extends StatefulWidget {
-  final CareCircleController controller;
+class GroupCardWidget extends StatelessWidget {
   final String title;
+  final String members;
+  final String action;
+  final String imagePath;
+  final List<Users> membersImages;
+  final bool joined;
+  final double? width;
 
-  const GroupListScreen({super.key, required this.title, required this.controller});
+  const GroupCardWidget({
+    super.key,
+    required this.title,
+    required this.members,
+    required this.action,
+    required this.imagePath,
+    required this.membersImages,
+    required this.joined,
+    this.width,
+  });
 
-  @override
-  State<GroupListScreen> createState() => _GroupListScreenState();
-}
-
-class _GroupListScreenState extends State<GroupListScreen> {
-  final OneToManyChatController groupChatcontroller = Get.put(OneToManyChatController());
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFFF6E8),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFFF6E8),
-        elevation: 0,
-        centerTitle: false,
-        title: Text(widget.title, style: const TextStyle(color: Colors.black)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Get.back();
-          },
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: GridView.count(
-          crossAxisCount: 2,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 0.96,
-
-          children: List.generate(widget.controller.othersGroups.length, (index) {
-            final group = widget.controller.othersGroups[index];
-
-            return GestureDetector(
-              onTap: () {
-                final group = widget.controller.othersGroups[index];
-                groupChatcontroller.joinGroupChatRoom(group.id.toString()).then((value) {
-                  Get.to(() => GrouoChatScreen(userName: group.name ?? "", groupDetails: group));
-                });
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: _groupCard(
-                  group.name ?? "",
-                  "${group.memberCount.toString()}+",
-                  "Join",
-                  group.image ?? "",
-                  group.participants?.users ?? [],
-                  joined: true,
-                  // index: index,
-                ),
-              ),
-            );
-          }),
-        ),
-      ),
-    );
-  }
-
-  Widget _groupCard(String title, String members, String action, String imagePath, List<Users> membersImages, {required bool joined}) {
-    List<String> memberImages = members.isNotEmpty ? membersImages.take(2).map((p) => p.image ?? "").toList() : [];
+    final memberImages = membersImages.take(2).map((p) => p.image ?? "").toList();
     final validMemberImages = memberImages.where((image) => image.trim().isNotEmpty).toList();
+
     return Container(
+      width: width,
       decoration: BoxDecoration(
         color: const Color(0xFFFFFCF6),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFE8D8BB)),
-        boxShadow: const [BoxShadow(color: Color(0x14000000), blurRadius: 16, offset: Offset(0, 8))],
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 16,
+            offset: Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,7 +49,11 @@ class _GroupListScreenState extends State<GroupListScreen> {
             height: 104.h,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              gradient: const LinearGradient(colors: [Color(0xFFF6D58C), Color(0xFFECA95F)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+              gradient: const LinearGradient(
+                colors: [Color(0xFFF6D58C), Color(0xFFECA95F)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
             child: Stack(
               fit: StackFit.expand,
@@ -110,7 +75,11 @@ class _GroupListScreenState extends State<GroupListScreen> {
                 Container(
                   decoration: const BoxDecoration(
                     borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                    gradient: LinearGradient(colors: [Color(0x12000000), Color(0x9A000000)], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+                    gradient: LinearGradient(
+                      colors: [Color(0x12000000), Color(0x9A000000)],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
                   ),
                 ),
                 Positioned(
@@ -125,16 +94,28 @@ class _GroupListScreenState extends State<GroupListScreen> {
                           title,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.w800, height: 1.05),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: responsiveFontSize(20, min: 18, max: 24),
+                            fontWeight: FontWeight.w800,
+                            height: 1.05,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(color: const Color(0xE6FFF4D7), borderRadius: BorderRadius.circular(999)),
+                        decoration: BoxDecoration(
+                          color: const Color(0xE6FFF4D7),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
                         child: Text(
                           action,
-                          style: TextStyle(color: const Color(0xFF4B3510), fontSize: 12.sp, fontWeight: FontWeight.w800),
+                          style: TextStyle(
+                            color: const Color(0xFF4B3510),
+                            fontSize: responsiveFontSize(14, min: 13, max: 18),
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
                     ],
@@ -145,7 +126,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+              padding: EdgeInsets.fromLTRB(14.w, 12.h, 14.w, 12.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -153,12 +134,20 @@ class _GroupListScreenState extends State<GroupListScreen> {
                     joined ? 'Already active in this circle' : 'Discover and connect with this circle',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: const Color(0xFF6E6256), fontSize: 12.sp, fontWeight: FontWeight.w500, height: 1.1),
+                    style: TextStyle(
+                      color: const Color(0xFF6E6256),
+                      fontSize: responsiveFontSize(15, min: 13, max: 18),
+                      fontWeight: FontWeight.w500,
+                      height: 1.1,
+                    ),
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(color: const Color(0xFFF7E8C9), borderRadius: BorderRadius.circular(18)),
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF7E8C9),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
                     child: Row(
                       children: [
                         SizedBox(
@@ -170,7 +159,11 @@ class _GroupListScreenState extends State<GroupListScreen> {
                               if (validMemberImages.isNotEmpty)
                                 Positioned(
                                   left: 0,
-                                  child: CircleAvatar(radius: 11, backgroundColor: Colors.white, backgroundImage: NetworkImage(validMemberImages[0])),
+                                  child: CircleAvatar(
+                                    radius: 11,
+                                    backgroundColor: Colors.white,
+                                    backgroundImage: NetworkImage(validMemberImages[0]),
+                                  ),
                                 )
                               else
                                 const Positioned(
@@ -184,7 +177,11 @@ class _GroupListScreenState extends State<GroupListScreen> {
                               if (validMemberImages.length > 1)
                                 Positioned(
                                   left: 16,
-                                  child: CircleAvatar(radius: 11, backgroundColor: Colors.white, backgroundImage: NetworkImage(validMemberImages[1])),
+                                  child: CircleAvatar(
+                                    radius: 11,
+                                    backgroundColor: Colors.white,
+                                    backgroundImage: NetworkImage(validMemberImages[1]),
+                                  ),
                                 ),
                             ],
                           ),
@@ -195,13 +192,20 @@ class _GroupListScreenState extends State<GroupListScreen> {
                             '$members members',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: const Color(0xFF2F241B), fontSize: 12.sp, fontWeight: FontWeight.w700),
+                            style: TextStyle(
+                              color: const Color(0xFF2F241B),
+                              fontSize: responsiveFontSize(15, min: 13, max: 18),
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                         Container(
                           width: 8,
                           height: 8,
-                          decoration: BoxDecoration(color: joined ? const Color(0xFF7BB662) : const Color(0xFFE59A48), shape: BoxShape.circle),
+                          decoration: BoxDecoration(
+                            color: joined ? const Color(0xFF7BB662) : const Color(0xFFE59A48),
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ],
                     ),

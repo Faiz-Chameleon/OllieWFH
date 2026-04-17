@@ -12,6 +12,7 @@ import 'package:ollie/myprofile/profile_repository.dart';
 import 'package:ollie/request_status.dart';
 
 import '../Subscription/wallet/donate_now_screen.dart';
+import 'package:ollie/common/common.dart';
 
 class ProfileController extends GetxController {
   final UserController userController = Get.find<UserController>();
@@ -128,7 +129,7 @@ class ProfileController extends GetxController {
     final selectedGender = gender.value.trim();
 
     if (firstName.isEmpty || lastName.isEmpty || email.isEmpty || selectedGender.isEmpty) {
-      Get.snackbar("Error", "Please fill all the fields.");
+      appSnackbar("Error", "Please fill all the fields.");
       return;
     }
     isLoading.value = true;
@@ -151,9 +152,9 @@ class ProfileController extends GetxController {
       }
       profileImage.value = null;
       Get.close(1);
-      Get.snackbar("Success", "Profile updated successfully!");
+      appSnackbar("Success", "Profile updated successfully!");
     } else {
-      Get.snackbar("Error", response['message']);
+      appSnackbar("Error", response['message']);
     }
   }
 
@@ -165,12 +166,12 @@ class ProfileController extends GetxController {
     final result = await _userRepository.supportFeedback(data);
     if (result['success'] == true) {
       supportTicketStatus.value = RequestStatus.success;
-      Get.snackbar("Success", result['message'] ?? "message required frontend");
+      appSnackbar("Success", result['message'] ?? "message required frontend");
       Get.close(1);
     } else {
       supportTicketStatus.value = RequestStatus.error;
 
-      Get.snackbar("Error", result['message'] ?? "message required frontend");
+      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 }

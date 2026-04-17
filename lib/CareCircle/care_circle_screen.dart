@@ -12,6 +12,7 @@ import 'package:ollie/CareCircle/interests/interests_screen.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/Subscription/credits/credits_sreen.dart';
 import 'package:ollie/home/notifications/notificatins_screen.dart';
+import 'package:ollie/common/common.dart';
 
 class Care_Circle_screen extends StatefulWidget {
   Care_Circle_screen({super.key});
@@ -43,7 +44,7 @@ class _Care_Circle_screenState extends State<Care_Circle_screen> {
         elevation: 0,
         title: Text(
           "Care Circle",
-          style: GoogleFonts.darkerGrotesque(color: Black, fontSize: 22.sp, fontWeight: FontWeight.bold),
+          style: GoogleFonts.darkerGrotesque(color: Black, fontSize: responsiveFontSize(26, min: 22, max: 30), fontWeight: FontWeight.bold),
         ),
 
         actions: [
@@ -85,27 +86,27 @@ class _Care_Circle_screenState extends State<Care_Circle_screen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: 45,
+            height: 52.h,
             child: Obx(() {
               final tabs = careControllercontroller.tabs;
               final selectedIndex = careControllercontroller.selectedTabIndex.value;
 
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
                 itemCount: tabs.length,
                 itemBuilder: (context, index) {
                   final isSelected = selectedIndex == index;
                   return GestureDetector(
                     onTap: () => careControllercontroller.changeTab(index),
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 16.0),
+                      padding: EdgeInsets.only(right: 18.w),
                       child: Text(
                         tabs[index],
                         style: GoogleFonts.darkerGrotesque(
                           color: isSelected ? Black : Colors.grey,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          fontSize: 20.sp,
+                          fontSize: responsiveFontSize(20, min: 18, max: 24),
                         ),
                       ),
                     ),
@@ -115,7 +116,7 @@ class _Care_Circle_screenState extends State<Care_Circle_screen> {
             }),
           ),
 
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
 
           Expanded(
             child: Obx(() {

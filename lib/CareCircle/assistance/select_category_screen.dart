@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ollie/CareCircle/assistance/chose_datetime_screen.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/common/common.dart';
 
 class SelectCategoryScreen extends StatefulWidget {
   const SelectCategoryScreen({super.key});
@@ -115,7 +116,7 @@ class _SelectCategoryScreenState extends State<SelectCategoryScreen> {
                         Get.to(() => ChooseDateTimeScreen(), transition: Transition.fadeIn);
                         print("Selected category: ${controller.selectedCategory.value?.name}");
                       } else {
-                        Get.snackbar("Error", "Please selct category to proceed");
+                        appSnackbar("Error", "Please selct category to proceed");
                       }
                       print("Selected category: ${controller.selectedCategories.toList()}");
                     },

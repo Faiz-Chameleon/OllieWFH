@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:ollie/common/common.dart';
 
 class SOSController extends GetxController {
   void showSOSBottomSheet(BuildContext context) {
@@ -47,7 +48,7 @@ class SOSController extends GetxController {
     if (await canLaunchUrl(phoneUri)) {
       await launchUrl(phoneUri);
     } else {
-      Get.snackbar("Error", "Could not open dialer", snackPosition: SnackPosition.BOTTOM);
+      appSnackbar("Error", "Could not open dialer", snackPosition: SnackPosition.BOTTOM);
     }
   }
 
