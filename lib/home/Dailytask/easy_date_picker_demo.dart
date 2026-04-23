@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:intl/intl.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ollie/request_status.dart';
@@ -44,13 +42,18 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: BGcolor,
       appBar: AppBar(
+        backgroundColor: BGcolor,
+        scrolledUnderElevation: 0,
+        elevation: 0,
         title: Text(
           'To-Do List',
-          style: GoogleFonts.darkerGrotesque(fontSize: 24.sp, fontWeight: FontWeight.bold),
+          style: GoogleFonts.darkerGrotesque(fontSize: 24.sp, fontWeight: FontWeight.bold, color: HeadingColor),
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Black,
         onPressed: () {
           showModalBottomSheet(
             context: context,
@@ -59,32 +62,32 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
             builder: (_) => CreateTaskSheet(controller: controller),
           );
         },
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
       body: Column(
         children: [
           const SizedBox(height: 24),
           Obx(
-            () => Text(
-              "${controller.focusedDate.value.monthName} ${controller.focusedDate.value.year}",
-              style: GoogleFonts.darkerGrotesque(fontSize: 24.sp, fontWeight: FontWeight.bold),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Obx(
-            () => EasyDateTimeLinePicker.itemBuilder(
+            () => EasyInfiniteDateTimeLine(
               firstDate: DateTime(2025, 1, 1),
               lastDate: DateTime(2030, 3, 18),
-              focusedDate: controller.focusedDate.value,
-              itemExtent: 64.0,
-              itemBuilder: (context, date, isSelected, isDisabled, isToday, onTap) {
+              focusDate: controller.focusedDate.value,
+              activeColor: ksecondaryColor,
+              showTimelineHeader: true,
+              timeLineProps: const EasyTimeLineProps(hPadding: 16),
+              dayProps: const EasyDayProps(width: 64, height: 64),
+              itemBuilder: (context, date, isSelected, onTap) {
                 return InkResponse(
                   onTap: onTap,
                   child: CircleAvatar(
-                    backgroundColor: isSelected ? Colors.blue : null,
+                    backgroundColor: isSelected ? ksecondaryColor : Colors.white,
                     child: Text(
                       date.day.toString(),
-                      style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.darkerGrotesque(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: isSelected ? Colors.white : HeadingColor,
+                      ),
                     ),
                   ),
                 );
@@ -101,120 +104,137 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
               final taskList = controller.tasks;
 
               if (taskList.isEmpty) {
-                return const Center(child: Text("No tasks for this date"));
+                return Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 18, offset: const Offset(0, 8))],
+                        ),
+                        child: const Icon(Icons.event_note_rounded, size: 34, color: buttonColor),
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        "No tasks for today",
+                        style: GoogleFonts.darkerGrotesque(fontSize: 22, fontWeight: FontWeight.bold, color: HeadingColor),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        "Tap + to add your first task",
+                        style: GoogleFonts.darkerGrotesque(fontSize: 17, fontWeight: FontWeight.w500, color: Colors.black54),
+                      ),
+                    ],
+                  ),
+                );
               }
 
               return ListView.separated(
+                padding: const EdgeInsets.fromLTRB(8, 6, 8, 110),
                 itemCount: taskList.length,
-                separatorBuilder: (_, __) => SizedBox(height: 10),
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
                 itemBuilder: (context, index) {
                   final task = taskList[index];
                   final originalIndex = controller.tasks.indexOf(task);
-                  final isDone = task["markAsComplete"];
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          controller.toggleTask(originalIndex, task["id"]);
-                        },
-                        child: Container(
-                          height: 58.h,
-                          width: 35.h,
-                          margin: const EdgeInsets.only(right: 10),
-                          alignment: Alignment.center,
-                          child: Icon(
-                            isDone ? Icons.check_circle : Icons.radio_button_unchecked,
-                            color: isDone ? const Color(0xFFF4BD2A) : Colors.black45,
-                            size: 28,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            if (!isDone) {
-                              showDialog(
-                                context: context,
-                                builder: (_) {
-                                  return Dialog(
-                                    backgroundColor: const Color(0xFFFDF3DD),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            task["taskName"] as String,
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                          ),
-                                          const SizedBox(height: 10),
-                                          if (task["taskDescription"] != null && (task["taskDescription"] as String).isNotEmpty)
-                                            Text(
-                                              task["taskDescription"] as String,
-                                              textAlign: TextAlign.center,
-                                              style: const TextStyle(fontSize: 13, color: Colors.black87),
-                                            ),
-                                          const SizedBox(height: 25),
-                                          ElevatedButton(
+                  final isDone = task["markAsComplete"] == true;
+                  final taskName = (task["taskName"] ?? "Untitled task").toString();
+                  final description = (task["taskDescription"] ?? "").toString();
+                  final timeText = (task["scheduledTime"] ?? task["time"] ?? "Any time").toString();
+
+                  return _TaskCard(
+                    title: taskName,
+                    description: description,
+                    timeText: timeText,
+                    isDone: isDone,
+                    onComplete: () => controller.toggleTask(originalIndex, task["id"]),
+                    onTap: () {
+                      if (!isDone) {
+                        showDialog(
+                          context: context,
+                          builder: (_) {
+                            return Dialog(
+                              backgroundColor: BGcolor,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(color: ksecondaryColor.withOpacity(0.18), shape: BoxShape.circle),
+                                      child: const Icon(Icons.check_circle_outline, color: buttonColor, size: 28),
+                                    ),
+                                    const SizedBox(height: 14),
+                                    Text(
+                                      taskName,
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold, fontSize: 22, color: HeadingColor),
+                                    ),
+                                    if (description.isNotEmpty) ...[
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        description,
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.darkerGrotesque(fontSize: 17, color: Colors.black87),
+                                      ),
+                                    ],
+                                    const SizedBox(height: 18),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: ElevatedButton(
                                             onPressed: () {
                                               controller.toggleTask(originalIndex, task["id"]);
                                               Navigator.pop(context);
                                             },
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color(0xFF3C3129),
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                                              minimumSize: const Size(double.infinity, 45),
+                                              backgroundColor: buttonColor,
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                              minimumSize: const Size(double.infinity, 46),
                                             ),
-                                            child: const Text("Mark as Completed", style: TextStyle(color: Colors.white)),
-                                          ),
-                                          const SizedBox(height: 10),
-                                          OutlinedButton(
-                                            onPressed: () => Navigator.pop(context),
-                                            style: OutlinedButton.styleFrom(
-                                              side: const BorderSide(color: Colors.black),
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                                              minimumSize: const Size(double.infinity, 45),
-                                              foregroundColor: Colors.black,
+                                            child: Text(
+                                              "Mark Done",
+                                              style: GoogleFonts.darkerGrotesque(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w700),
                                             ),
-                                            child: const Text("Cancel"),
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
-                                  );
-                                },
-                              );
-                            }
-                          },
-                          child: Container(
-                            height: 58.h,
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            decoration: BoxDecoration(
-                              color: isDone ? const Color(0xFFFFE38E) : white,
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(color: Colors.black12),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    task["taskName"],
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontWeight: FontWeight.w500),
-                                  ),
+                                  ],
                                 ),
-                                const SizedBox(width: 10),
-                                Text(task["scheduledTime"] ?? "9:00 PM", style: const TextStyle(fontWeight: FontWeight.w500)),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                              ),
+                            );
+                          },
+                        );
+                      }
+                    },
+                    onDelete: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) {
+                          return AlertDialog(
+                            backgroundColor: BGcolor,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            title: Text("Delete Task", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
+                            content: Text('Are you sure you want to delete "$taskName"?', style: GoogleFonts.darkerGrotesque(fontSize: 18)),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+                              TextButton(
+                                onPressed: () async {
+                                  Navigator.pop(context);
+                                  await controller.deleteTask(task["id"]);
+                                },
+                                child: const Text("Delete", style: TextStyle(color: Colors.red)),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   );
                 },
               );
@@ -250,6 +270,182 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
   }
 }
 
+class _TaskCard extends StatelessWidget {
+  final String title;
+  final String description;
+  final String timeText;
+  final bool isDone;
+  final VoidCallback onComplete;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+
+  const _TaskCard({
+    required this.title,
+    required this.description,
+    required this.timeText,
+    required this.isDone,
+    required this.onComplete,
+    required this.onTap,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = isDone ? const Color(0xFF2E9B65) : const Color(0xFF3C3129);
+    final surface = isDone ? const Color(0xFFF1FBF5) : const Color(0xFFFFF7E5);
+    final rail = isDone ? const Color(0xFF8ED3A7) : ksecondaryColor;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(28),
+        child: Ink(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: surface,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(28),
+              bottomLeft: Radius.circular(28),
+              topRight: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            ),
+            border: Border.all(color: isDone ? const Color(0xFFD7F0E0) : const Color(0xFFF0E1AD)),
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 18, offset: const Offset(0, 8))],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 10,
+                height: 96,
+                decoration: BoxDecoration(color: rail, borderRadius: BorderRadius.circular(999)),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: onComplete,
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.9),
+                              shape: BoxShape.circle,
+                              boxShadow: [BoxShadow(color: accent.withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 4))],
+                            ),
+                            child: Icon(isDone ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded, color: accent, size: 26),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                isDone ? "Completed task" : "Upcoming task",
+                                style: GoogleFonts.darkerGrotesque(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: accent.withOpacity(0.75),
+                                  letterSpacing: 0.4,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.darkerGrotesque(
+                                  fontSize: 24,
+                                  height: 0.95,
+                                  fontWeight: FontWeight.w800,
+                                  color: isDone ? Colors.black45 : HeadingColor,
+                                  decoration: isDone ? TextDecoration.lineThrough : TextDecoration.none,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(color: accent.withOpacity(0.12)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.schedule_rounded, size: 15, color: accent),
+                              const SizedBox(width: 5),
+                              Text(
+                                timeText,
+                                style: GoogleFonts.darkerGrotesque(fontSize: 15, fontWeight: FontWeight.w800, color: accent),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (description.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      Text(
+                        description,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.darkerGrotesque(fontSize: 18, height: 1.1, fontWeight: FontWeight.w500, color: Colors.black87),
+                      ),
+                    ],
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                          decoration: BoxDecoration(
+                            color: isDone ? const Color(0xFFD9F5E5) : const Color(0xFFFFE7BA),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            isDone ? "Done" : "Pending",
+                            style: GoogleFonts.darkerGrotesque(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: isDone ? const Color(0xFF1D7A4D) : const Color(0xFF9D6500),
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        TextButton.icon(
+                          onPressed: onDelete,
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            backgroundColor: Colors.white.withOpacity(0.75),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                          ),
+                          icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                          label: Text("Delete", style: GoogleFonts.darkerGrotesque(fontSize: 15, fontWeight: FontWeight.w800)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class CreateTaskSheet extends StatefulWidget {
   final local_controller.EasyDatePickerController controller;
   const CreateTaskSheet({Key? key, required this.controller}) : super(key: key);
@@ -268,23 +464,16 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
 
   void _submitTask() async {
     if (_taskController.text.trim().isNotEmpty && selectedDate != null && selectedTime != null) {
-      String formatTimeOfDay(TimeOfDay time) {
-        final now = DateTime.now();
-        final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
-        return DateFormat('HH:mm:ss').format(dt);
+      await widget.controller.userCreateTask(
+        taskName: _taskController.text.trim(),
+        taskDescription: _descController.text.trim(),
+        date: selectedDate!,
+        time: selectedTime!,
+      );
+
+      if (!mounted) {
+        return;
       }
-
-      final formattedTime = formatTimeOfDay(selectedTime!);
-      final formattedDate = DateFormat('yyyy-MM-dd').format(DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day));
-
-      var data = {
-        "taskName": _taskController.text.trim(),
-        "taskDescription": _descController.text.trim(),
-        "date": formattedDate.toString(),
-
-        "time": formattedTime,
-      };
-      await widget.controller.userCreateTask(data);
 
       if (widget.controller.createTaskStatus.value == RequestStatus.success) {
         Navigator.pop(context);
@@ -302,7 +491,7 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
         return Container(
           padding: const EdgeInsets.all(20),
           decoration: const BoxDecoration(
-            color: white,
+            color: BGcolor,
             borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
           ),
           child: ListView(
@@ -310,18 +499,20 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
             children: [
               const Center(child: Icon(Icons.drag_handle, color: Colors.black26)),
               20.verticalSpace,
-              Text("Create a Task", style: GoogleFonts.darkerGrotesque(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text("Create a Task", style: GoogleFonts.darkerGrotesque(fontSize: 24, fontWeight: FontWeight.bold)),
               20.verticalSpace,
-              Text("Task", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w600)),
+              Text("What do you want to do?", style: GoogleFonts.darkerGrotesque(fontSize: 19, fontWeight: FontWeight.w600)),
               TextField(
                 controller: _taskController,
-                decoration: const InputDecoration(hintText: "Enter the new task name"),
+                style: const TextStyle(fontSize: 18),
+                decoration: const InputDecoration(hintText: "Type your task here"),
               ),
               15.verticalSpace,
-              Text("Description", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w600)),
+              Text("Add a short note", style: GoogleFonts.darkerGrotesque(fontSize: 19, fontWeight: FontWeight.w600)),
               TextField(
                 controller: _descController,
-                decoration: const InputDecoration(hintText: "Enter task description"),
+                style: const TextStyle(fontSize: 18),
+                decoration: const InputDecoration(hintText: "Example: Take medicine after breakfast"),
               ),
               25.verticalSpace,
 
@@ -332,11 +523,11 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  decoration: BoxDecoration(color: const Color(0xFFF4BD2A), borderRadius: BorderRadius.circular(30)),
+                  decoration: BoxDecoration(color: ksecondaryColor, borderRadius: BorderRadius.circular(30)),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Date and Time", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w600)),
+                      Text("Choose day and time", style: GoogleFonts.darkerGrotesque(fontSize: 18, fontWeight: FontWeight.w600)),
                       Icon(showDateTimePicker ? Icons.expand_less : Icons.expand_more),
                     ],
                   ),
@@ -344,49 +535,108 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
               ),
               if (showDateTimePicker) ...[
                 15.verticalSpace,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("Date"),
-                    OutlinedButton(
-                      onPressed: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime(2030),
+                Text("Select a day", style: GoogleFonts.darkerGrotesque(fontSize: 18, fontWeight: FontWeight.w600)),
+                8.verticalSpace,
+                OutlinedButton(
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2030),
+                      builder: (context, child) {
+                        return MediaQuery(
+                          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.15),
+                          child: Theme(
+                            data: Theme.of(context).copyWith(
+                              textTheme: Theme.of(context).textTheme.apply(fontSizeFactor: 1.15),
+                              datePickerTheme: const DatePickerThemeData(
+                                headerHeadlineStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+                                weekdayStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                dayStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                            child: child!,
+                          ),
                         );
-                        if (picked != null) setState(() => selectedDate = picked);
                       },
-                      style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
-                      child: Text(selectedDate != null ? "${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}" : "Pick Date"),
+                    );
+                    if (picked != null) setState(() => selectedDate = picked);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    minimumSize: const Size(double.infinity, 48),
+                    side: const BorderSide(color: Colors.black12),
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      selectedDate != null ? "${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}" : "Choose a day",
+                      style: const TextStyle(fontSize: 16),
                     ),
-                    const Text("Time"),
-                    OutlinedButton(
-                      onPressed: () async {
-                        final picked = await showTimePicker(context: context, initialTime: TimeOfDay.now());
-                        if (picked != null) {
-                          final now = DateTime.now();
-                          final selected = DateTime(
-                            selectedDate?.year ?? now.year,
-                            selectedDate?.month ?? now.month,
-                            selectedDate?.day ?? now.day,
-                            picked.hour,
-                            picked.minute,
-                          );
-                          if (selectedDate != null && _isSameDay(selectedDate!, now) && selected.isBefore(now)) {
-                            appSnackbar("Error", "You can't select a past time.");
-
-                            return;
-                          }
-                          setState(() => selectedTime = picked);
-                        }
+                  ),
+                ),
+                15.verticalSpace,
+                Text("Select a time", style: GoogleFonts.darkerGrotesque(fontSize: 18, fontWeight: FontWeight.w600)),
+                8.verticalSpace,
+                InkWell(
+                  borderRadius: BorderRadius.circular(30),
+                  onTap: () async {
+                    final picked = await showTimePicker(
+                      context: context,
+                      initialTime: selectedTime ?? TimeOfDay.now(),
+                      initialEntryMode: TimePickerEntryMode.inputOnly,
+                      builder: (context, child) {
+                        return MediaQuery(
+                          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.15),
+                          child: Theme(
+                            data: Theme.of(context).copyWith(
+                              timePickerTheme: const TimePickerThemeData(
+                                hourMinuteTextStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                                dayPeriodTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                dialTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                            child: child!,
+                          ),
+                        );
                       },
-
-                      style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
-                      child: Text(selectedTime != null ? selectedTime!.format(context) : "Pick Time"),
+                    );
+                    if (picked != null) {
+                      final now = DateTime.now();
+                      final selected = DateTime(
+                        selectedDate?.year ?? now.year,
+                        selectedDate?.month ?? now.month,
+                        selectedDate?.day ?? now.day,
+                        picked.hour,
+                        picked.minute,
+                      );
+                      if (selectedDate != null && _isSameDay(selectedDate!, now) && selected.isBefore(now)) {
+                        appSnackbar("Error", "You can't select a past time.");
+                        return;
+                      }
+                      setState(() => selectedTime = picked);
+                    }
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: Colors.black12),
                     ),
-                  ],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          selectedTime != null ? selectedTime!.format(context) : "Choose a time",
+                          style: GoogleFonts.darkerGrotesque(fontSize: 18, fontWeight: FontWeight.w600, color: HeadingColor),
+                        ),
+                        const Icon(Icons.access_time, color: HeadingColor),
+                      ],
+                    ),
+                  ),
                 ),
               ],
               30.verticalSpace,
@@ -399,7 +649,7 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                             selectedDate != null &&
                             selectedTime != null &&
                             widget.controller.createTaskStatus.value != RequestStatus.loading
-                        ? const Color(0xFF3C3129)
+                        ? buttonColor
                         : Colors.grey.shade400,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     minimumSize: const Size(double.infinity, 50),
@@ -410,7 +660,7 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                           width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
                         )
-                      : Text("Create a Task", style: GoogleFonts.darkerGrotesque(color: Colors.white)),
+                      : Text("Save Task", style: GoogleFonts.darkerGrotesque(fontSize: 18, color: Colors.white)),
                 ),
               ),
             ],

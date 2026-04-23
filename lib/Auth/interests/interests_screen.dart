@@ -50,71 +50,218 @@ class Interests_screen extends StatelessWidget {
                     "Tell us about your interests",
                     style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 55.sp, fontWeight: FontWeight.w700),
                   ),
-
-                  Obx(() {
-                    if (controller.getInterestStatus.value == RequestStatus.loading) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (controller.interests.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 50),
-                        child: Center(
-                          child: Text(
-                            "No interests available.",
-                            style: GoogleFonts.darkerGrotesque(fontSize: 18.sp, color: Colors.grey, fontWeight: FontWeight.w600),
-                          ),
+                  18.verticalSpace,
+                  TextFormField(
+                    controller: controller.interestSearchController,
+                    textCapitalization: TextCapitalization.sentences,
+                    onChanged: controller.updateInterestSearch,
+                    onFieldSubmitted: controller.addCustomInterest,
+                    decoration: InputDecoration(
+                      hintText: "Search or add your own interest",
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      suffixIcon: Obx(
+                        () => IconButton(
+                          onPressed: controller.canAddCustomInterest ? () => controller.addCustomInterest() : null,
+                          icon: const Icon(Icons.add_circle_outline),
                         ),
-                      );
-                    }
-                    return GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: controller.interests.length,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                        childAspectRatio: 3,
                       ),
-                      itemBuilder: (context, index) {
-                        final item = controller.interests[index];
-                        final isSelected = item.isSelected;
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: ksecondaryColor, width: 1.4),
+                      ),
+                    ),
+                  ),
+                  12.verticalSpace,
+                  Obx(() {
+                    final suggestions = controller.suggestedInterests;
+                    if (suggestions.isEmpty) return const SizedBox.shrink();
 
-                        return GestureDetector(
-                          onTap: () {
-                            print(controller.interests[index].interestId);
-                            controller.toggleInterest(index);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: isSelected ? ksecondaryColor : Colors.white,
-                              borderRadius: BorderRadius.circular(50),
-                              border: Border.all(color: isSelected ? Colors.transparent : Colors.grey, width: 1),
-                            ),
-                            child: Center(
-                              child: Text(
-                                item.name,
-                                style: GoogleFonts.darkerGrotesque(
-                                  fontSize: 18.sp,
-                                  color: isSelected ? Colors.white : Colors.grey,
-                                  fontWeight: FontWeight.w600,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Trending now",
+                          style: GoogleFonts.darkerGrotesque(fontSize: 22.sp, fontWeight: FontWeight.w700, color: HeadingColor),
+                        ),
+                        10.verticalSpace,
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: suggestions
+                              .map(
+                                (interest) => ActionChip(
+                                  label: Text(
+                                    interest.name,
+                                    style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.white),
+                                  ),
+                                  backgroundColor: ksecondaryColor,
+                                  onPressed: () => controller.addMatchedInterest(interest),
                                 ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
+                              )
+                              .toList(),
+                        ),
+                      ],
                     );
                   }),
+                  16.verticalSpace,
+                  Obx(() {
+                    final matchedInterest = controller.matchedInterest;
+                    if (matchedInterest == null) return const SizedBox.shrink();
 
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "Match found: ${matchedInterest.name}",
+                              style: GoogleFonts.darkerGrotesque(fontSize: 18.sp, fontWeight: FontWeight.w600, color: HeadingColor),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => controller.addMatchedInterest(matchedInterest),
+                            child: Text(
+                              "Add",
+                              style: GoogleFonts.darkerGrotesque(fontSize: 18.sp, fontWeight: FontWeight.w700, color: ksecondaryColor),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                  10.verticalSpace,
+                  Obx(
+                    () => controller.customInterests.isEmpty
+                        ? const SizedBox.shrink()
+                        : Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: controller.customInterests
+                                .map(
+                                  (interest) => Chip(
+                                    label: Text(
+                                      interest,
+                                      style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.white),
+                                    ),
+                                    backgroundColor: ksecondaryColor,
+                                    deleteIconColor: Colors.white,
+                                    onDeleted: () => controller.removeCustomInterest(interest),
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                  ),
+                  12.verticalSpace,
+                  Obx(() {
+                    final selectedBuiltInInterests = controller.interests.where((item) => item.isSelected).toList();
+                    if (selectedBuiltInInterests.isEmpty) return const SizedBox.shrink();
+
+                    return Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: selectedBuiltInInterests
+                          .map(
+                            (interest) => Chip(
+                              label: Text(
+                                interest.name,
+                                style: GoogleFonts.darkerGrotesque(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.white),
+                              ),
+                              backgroundColor: ksecondaryColor,
+                              deleteIconColor: Colors.white,
+                              onDeleted: () {
+                                final index = controller.interests.indexWhere((item) => item.interestId == interest.interestId);
+                                if (index != -1) {
+                                  controller.toggleInterest(index);
+                                }
+                              },
+                            ),
+                          )
+                          .toList(),
+                    );
+                  }),
+                  16.verticalSpace,
+
+                  // Obx(() {
+                  //   if (controller.getInterestStatus.value == RequestStatus.loading) {
+                  //     return const Center(child: CircularProgressIndicator());
+                  //   }
+                  //   if (controller.interests.isEmpty) {
+                  //     return Padding(
+                  //       padding: const EdgeInsets.only(top: 50),
+                  //       child: Center(
+                  //         child: Text(
+                  //           "No interests available.",
+                  //           style: GoogleFonts.darkerGrotesque(fontSize: 18.sp, color: Colors.grey, fontWeight: FontWeight.w600),
+                  //         ),
+                  //       ),
+                  //     );
+                  //   }
+                  //   return GridView.builder(
+                  //     shrinkWrap: true,
+                  //     physics: const NeverScrollableScrollPhysics(),
+                  //     itemCount: controller.interests.length,
+                  //     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  //       crossAxisCount: 3,
+                  //       crossAxisSpacing: 10,
+                  //       mainAxisSpacing: 10,
+                  //       childAspectRatio: 3,
+                  //     ),
+                  //     itemBuilder: (context, index) {
+                  //       final item = controller.interests[index];
+                  //       final isSelected = item.isSelected;
+
+                  //       return GestureDetector(
+                  //         onTap: () {
+                  //           final realIndex = controller.interests.indexWhere((element) => element.interestId == item.interestId);
+                  //           if (realIndex != -1) {
+                  //             controller.toggleInterest(realIndex);
+                  //           }
+                  //         },
+                  //         child: Container(
+                  //           decoration: BoxDecoration(
+                  //             color: isSelected ? ksecondaryColor : Colors.white,
+                  //             borderRadius: BorderRadius.circular(50),
+                  //             border: Border.all(color: isSelected ? Colors.transparent : Colors.grey, width: 1),
+                  //           ),
+                  //           child: Center(
+                  //             child: Text(
+                  //               item.name,
+                  //               style: GoogleFonts.darkerGrotesque(
+                  //                 fontSize: 18.sp,
+                  //                 color: isSelected ? Colors.white : Colors.grey,
+                  //                 fontWeight: FontWeight.w600,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       );
+                  //     },
+                  //   );
+                  // }),
                   30.verticalSpace,
                   CustomButton(
                     text: "Continue",
                     onPressed: () {
-                      if (!controller.hasSelection) {
+                      if (!controller.hasAnyInterestSelection) {
                         appSnackbar(
                           "Select an Interest",
-                          "Please choose at least one interest to continue.",
+                          "Please choose or add at least one interest to continue.",
                           backgroundColor: Colors.white,
                           colorText: HeadingColor,
                         );

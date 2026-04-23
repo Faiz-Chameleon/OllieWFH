@@ -61,10 +61,15 @@
 <string>This app needs access to your camera to let you take a photo for your group.</string>
 <key>NSSpeechRecognitionUsageDescription</key>
 <string>We need your permission to use speech recognition for dictating descriptions.</string>
-<key>NSMicrophoneUsageDescription</key>
-<string>This app uses your microphone to convert speech to text.</string>
-<key>GMSApiKey</key>
-<string>AIzaSyBroy8bXJ02VhevyKbyDQjPd18xB2DMVy4</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app uses your microphone to convert speech to text.</string>
+	<key>GMSApiKey</key>
+	<string>AIzaSyBroy8bXJ02VhevyKbyDQjPd18xB2DMVy4</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 
 
 <!-- call 199 dailer -->

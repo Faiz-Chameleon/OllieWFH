@@ -130,48 +130,49 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Obx(
-                        () => Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(40),
-                            border: Border.all(
-                              color: controller.selectedPhoneNumber.value == null || controller.selectedPhoneNumber.value!.isEmpty
-                                  ? Colors.red
-                                  : Colors.grey.shade300,
-                              width: controller.selectedPhoneNumber.value == null || controller.selectedPhoneNumber.value!.isEmpty ? 2 : 1,
+                        () => InkWell(
+                          borderRadius: BorderRadius.circular(40),
+                          onTap: () async {
+                            await controller.pickContact();
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(40),
+                              border: Border.all(
+                                color: controller.selectedPhoneNumber.value == null || controller.selectedPhoneNumber.value!.isEmpty
+                                    ? Colors.red
+                                    : Colors.grey.shade300,
+                                width: controller.selectedPhoneNumber.value == null || controller.selectedPhoneNumber.value!.isEmpty ? 2 : 1,
+                              ),
                             ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  controller.selectedPhoneNumber.value == null || controller.selectedPhoneNumber.value!.isEmpty
-                                      ? "Select from contacts"
-                                      : controller.selectedPhoneNumber.value.toString(),
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 20.sp,
-                                    color: controller.selectedContact.value.isEmpty ? Colors.grey : Colors.black,
-                                    fontWeight: FontWeight.w600,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    controller.selectedPhoneNumber.value == null || controller.selectedPhoneNumber.value!.isEmpty
+                                        ? "Select from contacts"
+                                        : controller.selectedPhoneNumber.value.toString(),
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 20.sp,
+                                      color: controller.selectedContact.value.isEmpty ? Colors.grey : Colors.black,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              IconButton(
-                                onPressed: () async {
-                                  await controller.pickContact();
-                                },
-                                icon: Icon(
+                                Icon(
                                   Icons.contact_emergency,
                                   color: controller.selectedPhoneNumber.value == null || controller.selectedPhoneNumber.value!.isEmpty
                                       ? Colors.red
                                       : Colors.grey,
                                   size: 26.sp,
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),

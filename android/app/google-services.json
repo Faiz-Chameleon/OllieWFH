@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "297453770648",
+    "project_id": "ollie-f122b",
+    "storage_bucket": "ollie-f122b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:297453770648:android:03b5c464c86b68d9d0bded",
+        "android_client_info": {
+          "package_name": "com.example.ollie"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsXDqtparPqMSBn4s3RA1Y-gCg6W0wcic"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:intl/intl.dart';
 
+import 'package:ollie/home/Dailytask/device_time_zone_service.dart';
 import 'package:ollie/home/home_repository.dart';
 import 'package:ollie/request_status.dart';
 import 'package:ollie/common/common.dart';
@@ -41,15 +43,33 @@ class EasyDatePickerController extends GetxController {
   }
 
   // Helper method to format time for API (HH:MM:SS)
+  String formatTimeForAPI(TimeOfDay time) {
+    final now = DateTime.now();
+    final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    return DateFormat('HH:mm:ss').format(dt);
+  }
+
+  Future<String> _getTimeZone() async {
+    return DeviceTimeZoneService.getIanaTimeZone();
+  }
 
   var createTaskStatus = RequestStatus.idle.obs;
 
-  Future<void> userCreateTask(data) async {
+  Future<void> userCreateTask({required String taskName, required String taskDescription, required DateTime date, required TimeOfDay time}) async {
     createTaskStatus.value = RequestStatus.loading;
 
-    final result = await homeRepository.createTask(data);
+    final payload = {
+      "taskName": taskName,
+      "taskDescription": taskDescription,
+      "date": formatDateForAPI(date),
+      "time": formatTimeForAPI(time),
+      "timeZone": await _getTimeZone(),
+    };
+
+    final result = await homeRepository.createTask(payload);
     if (result['success'] == true) {
       await userTaskByDate();
+      await userTaskByDateOnHome();
       createTaskStatus.value = RequestStatus.success;
       appSnackbar("Success", result['message'] ?? "message required frontend");
     } else {
@@ -111,6 +131,24 @@ class EasyDatePickerController extends GetxController {
       appSnackbar("Success", result['message'] ?? "Task marked as completed");
     } else {
       completedTaskStatus.value = RequestStatus.error;
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
+    }
+  }
+
+  var deleteTaskStatus = RequestStatus.idle.obs;
+
+  Future<void> deleteTask(String taskId) async {
+    deleteTaskStatus.value = RequestStatus.loading;
+
+    final result = await homeRepository.deleteTask(taskId);
+
+    if (result['success'] == true) {
+      deleteTaskStatus.value = RequestStatus.success;
+      tasks.removeWhere((task) => task['id'] == taskId);
+      tasksOnHome.removeWhere((task) => task['id'] == taskId);
+      appSnackbar("Success", result['message'] ?? "Task deleted successfully");
+    } else {
+      deleteTaskStatus.value = RequestStatus.error;
       appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
   }

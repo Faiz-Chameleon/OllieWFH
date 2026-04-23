@@ -7,22 +7,8 @@ import 'package:ollie/home/Dailytask/create_task.dart';
 import 'package:ollie/home/Dailytask/daily_task_controller.dart';
 
 extension DateExtensions on DateTime {
-  String get weekdayName =>
-      ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][weekday - 1];
-  String get monthName => [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ][month - 1];
+  String get weekdayName => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][weekday - 1];
+  String get monthName => ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][month - 1];
 }
 
 class TodoListScreen extends StatefulWidget {
@@ -46,7 +32,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
         elevation: 0,
         leading: const BackButton(color: Black),
         centerTitle: false,
-        title: const Text("To-Do List", style: TextStyle(color: Black)),
+        title: const Text("To-Do ", style: TextStyle(color: Black)),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF3C3129),
@@ -71,16 +57,12 @@ class _TodoListScreenState extends State<TodoListScreen> {
               focusedDate: _focusedDate,
               itemExtent: 64.0,
 
-              itemBuilder:
-                  (context, date, isSelected, isDisabled, isToday, onTap) {
-                    return InkResponse(
-                      onTap: onTap,
-                      child: CircleAvatar(
-                        backgroundColor: isSelected ? Colors.blue : null,
-                        child: Text(date.day.toString()),
-                      ),
-                    );
-                  },
+              itemBuilder: (context, date, isSelected, isDisabled, isToday, onTap) {
+                return InkResponse(
+                  onTap: onTap,
+                  child: CircleAvatar(backgroundColor: isSelected ? Colors.blue : null, child: Text(date.day.toString())),
+                );
+              },
               onDateChange: (date) {
                 setState(() {
                   _focusedDate = date;

@@ -55,6 +55,7 @@ class FinalScreen extends StatelessWidget {
                             "userDateOfBirth": controller.formattedDateString.value.toString(),
                             "userGender": controller.selectedGender.value.toUpperCase(),
                             "interest": interestController.selectedInterestIds.toList(),
+                            "newInterests": interestController.customInterests.toList(),
                             "userDeviceToken": "test",
                             "userDeviceType": Platform.isAndroid ? "ANDROID" : "IOS",
                             "emergencyContactNumber": interestController.selectedPhoneNumber.value,

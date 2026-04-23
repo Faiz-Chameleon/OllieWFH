@@ -1,3 +1,5 @@
+import 'dart:io';
+
 // ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -9,9 +11,11 @@ import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/HomeMain/HomeMain.dart';
 import 'package:ollie/HomeMain/bottomController.dart';
 import 'package:ollie/Models/user_model.dart';
+import 'package:ollie/home/Dailytask/device_time_zone_service.dart';
 import 'package:ollie/request_status.dart';
 import 'package:ollie/Auth/login/login_screen.dart';
 import 'package:ollie/common/common.dart';
+import 'package:ollie/services/firebase_service.dart';
 
 class LoginController extends GetxController {
   final AuthRepository authRepository = AuthRepository();
@@ -313,10 +317,27 @@ class LoginController extends GetxController {
   var loginStatus = RequestStatus.idle.obs;
   RxString receivedOTPFromAPI = "".obs;
 
-  void userLogin(data) async {
+  Future<void> userLogin(Map<String, dynamic> data, {String? deviceToken}) async {
     loginStatus.value = RequestStatus.loading;
 
-    final result = await authRepository.login(data);
+    final storage = FlutterSecureStorage();
+    final resolvedToken = deviceToken ?? await FirebaseService.instance.getDeviceToken();
+    if (resolvedToken.isNotEmpty) {
+      await storage.write(key: 'fcmToken', value: resolvedToken);
+    }
+
+    final payload = {
+      ...data,
+      'userDeviceType': Platform.isAndroid ? 'ANDROID' : 'IOS',
+      'userDeviceToken': resolvedToken,
+      'userTimeZone': await DeviceTimeZoneService.getIanaTimeZone(),
+    };
+
+    if (resolvedToken.isEmpty) {
+      debugPrint('Device token is empty at login time');
+    }
+
+    final result = await authRepository.login(payload);
 
     if (result['success'] == true) {
       final userModel = UserModel.fromJson(result);
