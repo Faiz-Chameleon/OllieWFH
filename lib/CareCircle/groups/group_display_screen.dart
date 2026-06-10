@@ -13,11 +13,18 @@ import 'package:ollie/common/common.dart';
 class GroupDisplayPictureScreen extends StatelessWidget {
   GroupDisplayPictureScreen({super.key});
 
-  final CreateGroupController imageController = Get.put(CreateGroupController());
+  final CreateGroupController imageController = Get.put(
+    CreateGroupController(),
+  );
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 25);
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 60,
+      maxWidth: 800,
+      maxHeight: 800,
+    );
     if (picked != null) {
       imageController.selectedImage.value = File(picked.path);
     }
@@ -47,7 +54,10 @@ class GroupDisplayPictureScreen extends StatelessWidget {
                             SizedBox(width: 8),
                             Text(
                               "Create new group",
-                              style: GoogleFonts.darkerGrotesque(fontSize: 22.sp, fontWeight: FontWeight.w600),
+                              style: GoogleFonts.darkerGrotesque(
+                                fontSize: 22.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         ),
@@ -55,7 +65,11 @@ class GroupDisplayPictureScreen extends StatelessWidget {
                       30.verticalSpace,
                       Text(
                         "Add a display\npicture",
-                        style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 36.sp, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.darkerGrotesque(
+                          color: HeadingColor,
+                          fontSize: 36.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       30.verticalSpace,
 
@@ -64,7 +78,10 @@ class GroupDisplayPictureScreen extends StatelessWidget {
                         return GestureDetector(
                           onTap: _pickImage,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(30),
@@ -76,10 +93,20 @@ class GroupDisplayPictureScreen extends StatelessWidget {
                                   radius: 18,
                                   backgroundImage: file != null
                                       ? FileImage(file)
-                                      : const AssetImage("assets/images/Frame 1686560577.png") as ImageProvider,
+                                      : const AssetImage(
+                                              "assets/images/Frame 1686560577.png",
+                                            )
+                                            as ImageProvider,
                                 ),
                                 const SizedBox(width: 10),
-                                Expanded(child: Text(file != null ? "01 image selected" : "Add Photo", style: const TextStyle(fontSize: 14))),
+                                Expanded(
+                                  child: Text(
+                                    file != null
+                                        ? "01 image selected"
+                                        : "Add Photo",
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ),
                                 const Icon(Icons.image_outlined),
                               ],
                             ),
@@ -95,12 +122,19 @@ class GroupDisplayPictureScreen extends StatelessWidget {
                           onPressed: imageController.selectedImage.value != null
                               ? () {
                                   // Navigate to description screen
-                                  Get.to(() => GroupDescriptionScreen(), transition: Transition.fadeIn);
+                                  Get.to(
+                                    () => GroupDescriptionScreen(),
+                                    transition: Transition.fadeIn,
+                                  );
                                 }
                               : null,
                           // height: 50.h,
-                          color: imageController.selectedImage.value != null ? buttonColor : const Color(0xFFD6CCBC),
-                          textColor: imageController.selectedImage.value != null ? Colors.white : Colors.grey,
+                          color: imageController.selectedImage.value != null
+                              ? buttonColor
+                              : const Color(0xFFD6CCBC),
+                          textColor: imageController.selectedImage.value != null
+                              ? Colors.white
+                              : Colors.grey,
                           width: double.infinity,
                         ),
                       ),
@@ -113,7 +147,12 @@ class GroupDisplayPictureScreen extends StatelessWidget {
             ),
           ),
 
-          Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
+          Image.asset(
+            "assets/images/Group 1000000919.png",
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: 400.h,
+          ),
         ],
       ),
     );

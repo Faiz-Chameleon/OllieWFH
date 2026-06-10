@@ -1,3 +1,7 @@
+// ignore_for_file: avoid_print, unused_import
+
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -8,6 +12,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ollie/HomeMain/HomeMain.dart';
 import 'package:ollie/HomeMain/bottomController.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/services/firebase_service.dart';
 
 class ReviewPostScreen extends StatelessWidget {
   ReviewPostScreen({super.key});
@@ -29,10 +34,17 @@ class ReviewPostScreen extends StatelessWidget {
                 children: [
                   GestureDetector(
                     onTap: () => Get.back(),
-                    child: const Icon(Icons.arrow_back, size: 24, color: Colors.black),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      size: 24,
+                      color: Colors.black,
+                    ),
                   ),
                   const SizedBox(width: 10),
-                  const Text("Review Post", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                  const Text(
+                    "Review Post",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
                 ],
               ),
               const SizedBox(height: 30),
@@ -41,7 +53,10 @@ class ReviewPostScreen extends StatelessWidget {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -50,13 +65,29 @@ class ReviewPostScreen extends StatelessWidget {
                       children: [
                         CircleAvatar(
                           radius: 20,
-                          backgroundImage: userController.user.value?.image != null && userController.user.value?.image!.isNotEmpty == true
+                          backgroundImage:
+                              userController.user.value?.image != null &&
+                                  userController
+                                          .user
+                                          .value
+                                          ?.image!
+                                          .isNotEmpty ==
+                                      true
                               ? NetworkImage(userController.user.value!.image!)
-                              : const AssetImage("assets/icons/Frame 1686560584.png") as ImageProvider,
+                              : const AssetImage(
+                                      "assets/icons/Frame 1686560584.png",
+                                    )
+                                    as ImageProvider,
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: Text(userController.user.value?.firstName ?? "", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                          child: Text(
+                            userController.user.value?.firstName ?? "",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                         // Container(
                         //   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -70,7 +101,10 @@ class ReviewPostScreen extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // Description Text
-                    Text(controller.descriptionController.value.text, style: TextStyle(fontSize: 14)),
+                    Text(
+                      controller.descriptionController.value.text,
+                      style: TextStyle(fontSize: 14),
+                    ),
                     const SizedBox(height: 12),
 
                     // Static Map Preview
@@ -82,11 +116,21 @@ class ReviewPostScreen extends StatelessWidget {
                         child: Obx(() {
                           final latLng = controller.selectedLatLng.value;
                           if (latLng == null) {
-                            return const Center(child: Text("No location selected"));
+                            return const Center(
+                              child: Text("No location selected"),
+                            );
                           }
                           return GoogleMap(
-                            initialCameraPosition: CameraPosition(target: latLng, zoom: 14),
-                            markers: {Marker(markerId: const MarkerId("selected"), position: latLng)},
+                            initialCameraPosition: CameraPosition(
+                              target: latLng,
+                              zoom: 14,
+                            ),
+                            markers: {
+                              Marker(
+                                markerId: const MarkerId("selected"),
+                                position: latLng,
+                              ),
+                            },
                             zoomControlsEnabled: false,
                             myLocationEnabled: false,
                             myLocationButtonEnabled: false,
@@ -104,19 +148,30 @@ class ReviewPostScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: Obx(() {
-                  if (controller.createAssistanceStatus.value == RequestStatus.loading) {
+                  if (controller.createAssistanceStatus.value ==
+                      RequestStatus.loading) {
                     return Center(child: CircularProgressIndicator());
                   }
                   return ElevatedButton(
                     onPressed: () async {
+                      final deviceToken = await FirebaseService.instance
+                          .getRealDeviceToken();
                       var data = {
-                        "dateAndTime": controller.formattedDateAndTime.toString(),
-                        "postdescription": controller.descriptionController.value.text,
+                        "dateAndTime": controller.formattedDateAndTime
+                            .toString(),
+                        "postdescription":
+                            controller.descriptionController.value.text,
                         "longitude": controller.selectedLongitude.value,
                         "latitude": controller.selectedLatitude.value,
-                        "postRequestCategory": controller.selectedCategories.toList(),
+                        "postRequestCategory": controller.selectedCategories
+                            .toList(),
+                        if (deviceToken != null && deviceToken.isNotEmpty)
+                          "userDeviceToken": deviceToken,
+                        if (deviceToken != null && deviceToken.isNotEmpty)
+                          "userDeviceType": Platform.isAndroid
+                              ? "ANDROID"
+                              : "IOS",
                       };
-                      print(data);
                       controller.createAssistanceByUser(data);
                       // final bottomController = Get.find<Bottomcontroller>();
                       // bottomController.updateIndex(4);
@@ -127,10 +182,15 @@ class ReviewPostScreen extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF3F362E),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(40),
+                      ),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: const Text("Post", style: TextStyle(color: Colors.white)),
+                    child: const Text(
+                      "Post",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   );
                 }),
               ),

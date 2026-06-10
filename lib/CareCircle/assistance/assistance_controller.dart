@@ -1,5 +1,7 @@
 // ignore_for_file: camel_case_types
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -12,12 +14,16 @@ import 'package:ollie/HomeMain/bottomController.dart';
 import 'package:ollie/Models/assistance_reasons_model.dart';
 import 'package:ollie/request_status.dart';
 import 'package:ollie/common/common.dart';
+import 'package:ollie/services/google_places_service.dart';
 
 class Assistance_Controller extends GetxController {
-  final AssistanceRepository createAssistanceRepository = AssistanceRepository();
+  final AssistanceRepository createAssistanceRepository =
+      AssistanceRepository();
+  final GooglePlacesService _googlePlacesService = GooglePlacesService();
 
   final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController locationSearchController = TextEditingController();
+  final TextEditingController locationSearchController =
+      TextEditingController();
   final RxBool isExpanded = false.obs;
   final Rx<DateTime> selectedDate = DateTime.now().obs;
   final Rx<TimeOfDay> selectedTime = TimeOfDay.now().obs;
@@ -30,6 +36,9 @@ class Assistance_Controller extends GetxController {
   RxDouble selectedLongitude = 0.0.obs;
   final RxBool hasLocationPermission = false.obs;
   final RxBool isSearchingLocation = false.obs;
+  final RxList<GooglePlacePrediction> locationPredictions =
+      <GooglePlacePrediction>[].obs;
+  Timer? _locationSearchDebounce;
 
   ////////// voucher ////////////
   final RxString selectedVolunteer = ''.obs;
@@ -59,7 +68,10 @@ class Assistance_Controller extends GetxController {
   Future<bool> ensureLocationPermission() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      appSnackbar("Location Disabled", "Please enable location services to continue.");
+      appSnackbar(
+        "Location Disabled",
+        "Please enable location services to continue.",
+      );
       hasLocationPermission.value = false;
       return false;
     }
@@ -70,13 +82,19 @@ class Assistance_Controller extends GetxController {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      appSnackbar("Permission Required", "Location permission is permanently denied. Please enable it from settings to continue.");
+      appSnackbar(
+        "Permission Required",
+        "Location permission is permanently denied. Please enable it from settings to continue.",
+      );
       hasLocationPermission.value = false;
       return false;
     }
 
     if (permission == LocationPermission.denied) {
-      appSnackbar("Permission Required", "Please allow location access to pick your address.");
+      appSnackbar(
+        "Permission Required",
+        "Please allow location access to pick your address.",
+      );
       hasLocationPermission.value = false;
       return false;
     }
@@ -98,7 +116,10 @@ class Assistance_Controller extends GetxController {
       selectedTime.value.minute,
     );
 
-    formattedDateAndTime.value = combinedDateTime.toUtc().toIso8601String().toString();
+    formattedDateAndTime.value = combinedDateTime
+        .toUtc()
+        .toIso8601String()
+        .toString();
   }
 
   RxString formattedDateAndTime = "".obs;
@@ -111,7 +132,9 @@ class Assistance_Controller extends GetxController {
     }
   }
 
-  String get formattedDate => hasSelectedDate.value ? DateFormat('dd-MMM-yyyy').format(selectedDate.value) : '';
+  String get formattedDate => hasSelectedDate.value
+      ? DateFormat('dd-MMM-yyyy').format(selectedDate.value)
+      : '';
 
   String get formattedTime {
     if (!hasSelectedTime.value) return '';
@@ -128,11 +151,80 @@ class Assistance_Controller extends GetxController {
     selectedLatLng.value = latLng;
     selectedLatitude.value = latLng.latitude;
     selectedLongitude.value = latLng.longitude;
-    final placemarks = await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
+    final placemarks = await placemarkFromCoordinates(
+      latLng.latitude,
+      latLng.longitude,
+    );
     if (placemarks.isNotEmpty) {
       final p = placemarks.first;
-      selectedAddress.value = "${p.street}, ${p.locality}, ${p.administrativeArea} ${p.postalCode}";
+      selectedAddress.value =
+          "${p.street}, ${p.locality}, ${p.administrativeArea} ${p.postalCode}";
       locationSearchController.text = selectedAddress.value;
+    }
+  }
+
+  void onLocationSearchChanged(String query) {
+    final normalizedQuery = query.trim();
+    if (normalizedQuery != selectedAddress.value.trim()) {
+      _clearSelectedLocation();
+    }
+
+    _locationSearchDebounce?.cancel();
+    if (normalizedQuery.length < 2) {
+      locationPredictions.clear();
+      isSearchingLocation.value = false;
+      return;
+    }
+
+    _locationSearchDebounce = Timer(const Duration(milliseconds: 350), () {
+      fetchLocationPredictions(normalizedQuery);
+    });
+  }
+
+  Future<void> fetchLocationPredictions(String query) async {
+    final normalizedQuery = query.trim();
+    if (normalizedQuery.length < 2) {
+      locationPredictions.clear();
+      return;
+    }
+
+    try {
+      isSearchingLocation.value = true;
+      final predictions = await _googlePlacesService.autocomplete(
+        normalizedQuery,
+      );
+      if (locationSearchController.text.trim() == normalizedQuery) {
+        locationPredictions.assignAll(predictions);
+      }
+    } catch (_) {
+      if (locationSearchController.text.trim() == normalizedQuery) {
+        locationPredictions.clear();
+      }
+    } finally {
+      if (locationSearchController.text.trim() == normalizedQuery) {
+        isSearchingLocation.value = false;
+      }
+    }
+  }
+
+  Future<void> selectGooglePlace(GooglePlacePrediction prediction) async {
+    try {
+      isSearchingLocation.value = true;
+      final details = await _googlePlacesService.details(prediction.placeId);
+      if (details == null) {
+        appSnackbar("Not found", "No location details found.");
+        return;
+      }
+
+      _setSelectedLocation(
+        details.latLng,
+        details.address.isNotEmpty ? details.address : prediction.description,
+      );
+      locationPredictions.clear();
+    } catch (_) {
+      appSnackbar("Error", "Unable to select this location.");
+    } finally {
+      isSearchingLocation.value = false;
     }
   }
 
@@ -145,6 +237,32 @@ class Assistance_Controller extends GetxController {
 
     try {
       isSearchingLocation.value = true;
+      GooglePlaceDetails? placeDetails;
+      GooglePlacePrediction? firstPrediction;
+
+      try {
+        final predictions = await _googlePlacesService.autocomplete(
+          normalizedQuery,
+        );
+        if (predictions.isNotEmpty) {
+          firstPrediction = predictions.first;
+          placeDetails = await _googlePlacesService.details(
+            firstPrediction.placeId,
+          );
+        }
+      } catch (_) {}
+
+      if (placeDetails != null) {
+        _setSelectedLocation(
+          placeDetails.latLng,
+          placeDetails.address.isNotEmpty
+              ? placeDetails.address
+              : firstPrediction?.description ?? normalizedQuery,
+        );
+        locationPredictions.clear();
+        return;
+      }
+
       final results = await locationFromAddress(normalizedQuery);
       if (results.isEmpty) {
         appSnackbar("Not found", "No location matched your search.");
@@ -154,6 +272,7 @@ class Assistance_Controller extends GetxController {
       final match = results.first;
       final latLng = LatLng(match.latitude, match.longitude);
       await setLocationFromLatLng(latLng);
+      locationPredictions.clear();
 
       if (selectedAddress.value.isEmpty) {
         selectedAddress.value = normalizedQuery;
@@ -166,8 +285,24 @@ class Assistance_Controller extends GetxController {
     }
   }
 
+  void _setSelectedLocation(LatLng latLng, String address) {
+    selectedLatLng.value = latLng;
+    selectedLatitude.value = latLng.latitude;
+    selectedLongitude.value = latLng.longitude;
+    selectedAddress.value = address;
+    locationSearchController.text = address;
+  }
+
+  void _clearSelectedLocation() {
+    selectedAddress.value = '';
+    selectedLatLng.value = null;
+    selectedLatitude.value = 0.0;
+    selectedLongitude.value = 0.0;
+  }
+
   @override
   void onClose() {
+    _locationSearchDebounce?.cancel();
     descriptionController.dispose();
     locationSearchController.dispose();
     super.onClose();
@@ -184,6 +319,8 @@ class Assistance_Controller extends GetxController {
     selectedLatLng.value = null;
     selectedLatitude.value = 0.0;
     selectedLongitude.value = 0.0;
+    locationPredictions.clear();
+    _locationSearchDebounce?.cancel();
     selectedCategories.clear();
     selectedVolunteer.value = '';
     formattedDateAndTime.value = '';
@@ -206,7 +343,16 @@ class Assistance_Controller extends GetxController {
     } else {
       createAssistanceStatus.value = RequestStatus.error;
 
-      appSnackbar("Error", result['message'] ?? "Registration failed");
+      final message = (result['message'] ?? "Registration failed").toString();
+      if (message.toLowerCase().contains('not a valid fcm')) {
+        appSnackbar(
+          "Push Token Error",
+          "The saved notification token is invalid. Log out and log in again on a real device so the backend receives a valid FCM token.",
+        );
+        return;
+      }
+
+      appSnackbar("Error", message);
     }
   }
 
@@ -234,7 +380,9 @@ class Assistance_Controller extends GetxController {
     final result = await createAssistanceRepository.getEachAssistanceReasons();
 
     if (result['success'] == true) {
-      categories = (result['data'] as List).map((data) => AssistanceReasonsData.fromJson(data)).toList();
+      categories = (result['data'] as List)
+          .map((data) => AssistanceReasonsData.fromJson(data))
+          .toList();
       getReasonsForAssistanceStatus.value = RequestStatus.success;
     } else {
       getReasonsForAssistanceStatus.value = RequestStatus.error;

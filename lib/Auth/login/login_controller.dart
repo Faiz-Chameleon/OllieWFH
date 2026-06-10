@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 
 // ignore: file_names
@@ -6,7 +8,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:ollie/Auth/CreateProfile/createProfile.dart';
 import 'package:ollie/Auth/auth_repository.dart';
-import 'package:ollie/Auth/interests/wellcome_sreen.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/HomeMain/HomeMain.dart';
 import 'package:ollie/HomeMain/bottomController.dart';
@@ -58,8 +59,12 @@ class LoginController extends GetxController {
   // Test method to verify GetX is working
   void testGetX() {
     print('🧪 Testing GetX functionality...');
-    print('  - Get.isRegistered<LoginController>: ${Get.isRegistered<LoginController>()}');
-    print('  - Get.isRegistered<Login_Screen>: ${Get.isRegistered<Login_Screen>()}');
+    print(
+      '  - Get.isRegistered<LoginController>: ${Get.isRegistered<LoginController>()}',
+    );
+    print(
+      '  - Get.isRegistered<Login_Screen>: ${Get.isRegistered<Login_Screen>()}',
+    );
     print('  - Current route: ${Get.currentRoute}');
 
     // Check user state
@@ -151,7 +156,9 @@ class LoginController extends GetxController {
 
           if (userModel.data != null) {
             userController.setUser(userModel.data!);
-            print('👤 User data set: ${userModel.data!.firstName} ${userModel.data!.lastName}');
+            print(
+              '👤 User data set: ${userModel.data!.firstName} ${userModel.data!.lastName}',
+            );
 
             // Set navigation flags instead of navigating immediately
             autoLoginUserData.value = result["data"];
@@ -317,13 +324,22 @@ class LoginController extends GetxController {
   var loginStatus = RequestStatus.idle.obs;
   RxString receivedOTPFromAPI = "".obs;
 
-  Future<void> userLogin(Map<String, dynamic> data, {String? deviceToken}) async {
+  Future<void> userLogin(
+    Map<String, dynamic> data, {
+    String? deviceToken,
+  }) async {
     loginStatus.value = RequestStatus.loading;
 
-    final storage = FlutterSecureStorage();
-    final resolvedToken = deviceToken ?? await FirebaseService.instance.getDeviceToken();
-    if (resolvedToken.isNotEmpty) {
-      await storage.write(key: 'fcmToken', value: resolvedToken);
+    final resolvedToken =
+        deviceToken ?? await FirebaseService.instance.getRealDeviceToken();
+
+    if (resolvedToken == null || resolvedToken.isEmpty) {
+      loginStatus.value = RequestStatus.error;
+      appSnackbar(
+        "Push Token Required",
+        FirebaseService.tokenUnavailableMessage,
+      );
+      return;
     }
 
     final payload = {
@@ -332,10 +348,6 @@ class LoginController extends GetxController {
       'userDeviceToken': resolvedToken,
       'userTimeZone': await DeviceTimeZoneService.getIanaTimeZone(),
     };
-
-    if (resolvedToken.isEmpty) {
-      debugPrint('Device token is empty at login time');
-    }
 
     final result = await authRepository.login(payload);
 

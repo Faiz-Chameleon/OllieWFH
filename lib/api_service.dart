@@ -1,7 +1,8 @@
+// ignore_for_file: unnecessary_string_interpolations, depend_on_referenced_packages
+
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:ollie/app_urls.dart';
@@ -30,7 +31,6 @@ class ApiService {
         return {'success': false, 'message': parsed['message'] ?? 'Something went wrong'};
       }
     } catch (e) {
-      
       return {'success': false, 'message': e.toString()};
     }
   }
@@ -98,7 +98,7 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> postMultipart(String endpoint, Map<String, dynamic> data, File? file, {String? token}) async {
-    var headers = {'Content-Type': 'multipart/form-data', if (token != null) 'Authorization': 'Bearer $token'};
+    var headers = {if (token != null) 'x-access-token': token};
 
     var request = http.MultipartRequest('POST', Uri.parse('${ApiUrls.baseUrl}$endpoint'));
 
@@ -111,7 +111,8 @@ class ApiService {
 
     // Add file to the request if available
     if (file != null) {
-      request.files.add(await http.MultipartFile.fromPath('image', file.path, contentType: MediaType('image', 'jpeg')));
+      final mime = lookupMimeType(file.path) ?? 'image/jpeg';
+      request.files.add(await http.MultipartFile.fromPath('image', file.path, contentType: MediaType.parse(mime)));
     }
 
     request.headers.addAll(headers);
@@ -120,7 +121,10 @@ class ApiService {
       http.StreamedResponse response = await request.send();
       final responseString = await response.stream.bytesToString();
 
-      final parsed = json.decode(responseString);
+      final parsed = _decodeJsonObject(responseString);
+      if (parsed == null) {
+        return {'success': false, 'message': _nonJsonResponseMessage(response.statusCode, responseString)};
+      }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return {'success': true, 'data': parsed['data'], 'message': parsed['message'] ?? ''};
@@ -140,7 +144,7 @@ class ApiService {
     XFile? documentFile, {
     String? token,
   }) async {
-    var headers = {'Content-Type': 'multipart/form-data', if (token != null) 'x-access-token': '$token'};
+    var headers = {if (token != null) 'x-access-token': '$token'};
 
     var request = http.MultipartRequest('POST', Uri.parse('${ApiUrls.baseUrl}$endpoint'));
 
@@ -164,8 +168,7 @@ class ApiService {
         await http.MultipartFile.fromPath(
           'image', // <- your backend field
           videoFile.path,
-          contentType: MediaType('MOV', 'mp4'),
-          // contentType: MediaType.parse(mime),
+          contentType: MediaType.parse(mime),
         ),
       );
     }
@@ -261,5 +264,32 @@ class ApiService {
     } catch (e) {
       return {'success': false, 'message': e.toString()};
     }
+  }
+
+  static Map<String, dynamic>? _decodeJsonObject(String responseBody) {
+    try {
+      final decoded = json.decode(responseBody);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
+      if (decoded is Map) {
+        return Map<String, dynamic>.from(decoded);
+      }
+    } catch (_) {
+      return null;
+    }
+
+    return null;
+  }
+
+  static String _nonJsonResponseMessage(int statusCode, String responseBody) {
+    final plainText = responseBody.replaceAll(RegExp(r'<[^>]*>'), ' ').replaceAll(RegExp(r'\s+'), ' ').trim();
+
+    if (plainText.isEmpty) {
+      return 'Server returned status $statusCode with an empty response';
+    }
+
+    final preview = plainText.length > 180 ? '${plainText.substring(0, 180)}...' : plainText;
+    return 'Server returned status $statusCode: $preview';
   }
 }

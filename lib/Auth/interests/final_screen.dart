@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -10,6 +12,7 @@ import 'package:ollie/Auth/interests/Interests_controller.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/common/common.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/services/firebase_service.dart';
 
 class FinalScreen extends StatelessWidget {
   final CreateProfileController controller = Get.put(CreateProfileController());
@@ -23,7 +26,10 @@ class FinalScreen extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          image: DecorationImage(image: AssetImage("assets/images/2094.png"), fit: BoxFit.cover),
+          image: DecorationImage(
+            image: AssetImage("assets/images/2094.png"),
+            fit: BoxFit.cover,
+          ),
         ),
         child: SafeArea(
           child: Column(
@@ -38,29 +44,56 @@ class FinalScreen extends StatelessWidget {
                     Text(
                       "That’s it! Ollie’s\ngot your back.\nLet’s begin!",
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.darkerGrotesque(fontSize: 55.sp, fontWeight: FontWeight.w700, color: Colors.black),
+                      style: GoogleFonts.darkerGrotesque(
+                        fontSize: 55.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                      ),
                     ),
                     30.verticalSpace,
                     Obx(() {
-                      if (controller.createProfileStatus.value == RequestStatus.loading) {
+                      if (controller.createProfileStatus.value ==
+                          RequestStatus.loading) {
                         return CircularProgressIndicator();
                       }
                       return CustomButton(
                         text: "Next",
-                        onPressed: () {
+                        onPressed: () async {
+                          final deviceToken = await FirebaseService.instance
+                              .getRealDeviceToken();
+                          if (deviceToken == null || deviceToken.isEmpty) {
+                            appSnackbar(
+                              "Push Token Required",
+                              FirebaseService.tokenUnavailableMessage,
+                            );
+                            return;
+                          }
                           var data = {
                             "userPhoneNumber": controller.fullPhoneNumber.value,
-                            "userFirstName": controller.firstNameController.value.text,
-                            "userLastName": controller.lastNameController.value.text,
-                            "userDateOfBirth": controller.formattedDateString.value.toString(),
-                            "userGender": controller.selectedGender.value.toUpperCase(),
-                            "interest": interestController.selectedInterestIds.toList(),
-                            "newInterests": interestController.customInterests.toList(),
-                            "userDeviceToken": "test",
-                            "userDeviceType": Platform.isAndroid ? "ANDROID" : "IOS",
-                            "emergencyContactNumber": interestController.selectedPhoneNumber.value,
-                            "wantDailyActivities": interestController.selectedAnswer.value,
-                            "wantDailySupplement": interestController.dailyActivityAnswer.value,
+                            "userFirstName":
+                                controller.firstNameController.value.text,
+                            "userLastName":
+                                controller.lastNameController.value.text,
+                            "userDateOfBirth": controller
+                                .formattedDateString
+                                .value
+                                .toString(),
+                            "userGender": controller.selectedGender.value
+                                .toUpperCase(),
+                            "interest": interestController.selectedInterestIds
+                                .toList(),
+                            "newInterests": interestController.customInterests
+                                .toList(),
+                            "userDeviceToken": deviceToken,
+                            "userDeviceType": Platform.isAndroid
+                                ? "ANDROID"
+                                : "IOS",
+                            "emergencyContactNumber":
+                                interestController.selectedPhoneNumber.value,
+                            "wantDailyActivities":
+                                interestController.selectedAnswer.value,
+                            "wantDailySupplement":
+                                interestController.dailyActivityAnswer.value,
                             "userCity": controller.cityValue.value,
                             "userStates": controller.stateValue.value,
                             "userCountry": controller.countryValue.value,
@@ -87,9 +120,6 @@ class FinalScreen extends StatelessWidget {
     );
   }
 }
-
-
-
 
 //  width: double.infinity,
 //         height: double.infinity,

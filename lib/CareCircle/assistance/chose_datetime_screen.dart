@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: deprecated_member_use, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -72,7 +72,9 @@ class _ChooseDateTimeScreenState extends State<ChooseDateTimeScreen> {
                   ),
 
                   Obx(() {
-                    if (!controller.isExpanded.value) return const SizedBox.shrink();
+                    if (!controller.isExpanded.value) {
+                      return const SizedBox.shrink();
+                    }
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -99,10 +101,16 @@ class _ChooseDateTimeScreenState extends State<ChooseDateTimeScreen> {
                             const Text("Time"),
                             OutlinedButton(
                               onPressed: () async {
+                                FocusManager.instance.primaryFocus?.unfocus();
                                 final now = DateTime.now();
                                 final picked = await showTimePicker(
                                   context: context,
                                   initialTime: controller.hasSelectedTime.value ? controller.selectedTime.value : TimeOfDay.now(),
+                                  initialEntryMode: TimePickerEntryMode.input,
+                                  orientation: Orientation.portrait,
+                                  builder: (context, child) {
+                                    return MediaQuery.removeViewInsets(context: context, removeBottom: true, child: child ?? const SizedBox.shrink());
+                                  },
                                 );
                                 if (picked != null) {
                                   final selectedDate = controller.hasSelectedDate.value ? controller.selectedDate.value : DateTime.now();
