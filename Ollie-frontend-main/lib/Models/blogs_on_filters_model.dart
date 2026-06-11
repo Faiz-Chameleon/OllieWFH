@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_new, prefer_collection_literals, unnecessary_this, unnecessary_question_mark
+
 class BlogsOnFilters {
   bool? success;
   int? message;

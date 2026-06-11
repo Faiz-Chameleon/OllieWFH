@@ -1,4 +1,4 @@
-// ignore_for_file: camel_case_types, use_full_hex_values_for_flutter_colors
+// ignore_for_file: unused_import, camel_case_types, use_full_hex_values_for_flutter_colors
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -82,7 +82,7 @@ class Group_Screen extends StatelessWidget {
                           Get.to(() => GrouoChatScreen(userName: othersGroup.name ?? "", groupDetails: othersGroup));
                         });
                       },
-                        child: Padding(
+                      child: Padding(
                         padding: EdgeInsets.all(6.w),
                         child: GroupCardWidget(
                           title: othersGroup.name ?? "",
@@ -154,7 +154,7 @@ class Group_Screen extends StatelessWidget {
                           Get.to(() => GrouoChatScreen(userName: group.name ?? "", groupDetails: group));
                         });
                       },
-                        child: Padding(
+                      child: Padding(
                         padding: EdgeInsets.all(6.w),
                         child: GroupCardWidget(
                           title: group.name ?? "",
@@ -206,7 +206,10 @@ class Group_Screen extends StatelessWidget {
         ),
         GestureDetector(
           onTap: onSeeAllTap,
-          child: Text("See All", style: TextStyle(color: Colors.grey, fontSize: responsiveFontSize(16, min: 14, max: 18))),
+          child: Text(
+            "See All",
+            style: TextStyle(color: Colors.grey, fontSize: responsiveFontSize(16, min: 14, max: 18)),
+          ),
         ),
       ],
     );

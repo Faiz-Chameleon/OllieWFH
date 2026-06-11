@@ -53,7 +53,7 @@ class Login_Screen extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       // ignore: avoid_print
-                      print("Terms & Conditions tapped");
+                      debugPrint("Terms & Conditions tapped");
                     },
                     child: Text(
                       "Terms & Conditions",

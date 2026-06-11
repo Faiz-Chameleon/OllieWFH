@@ -1,4 +1,4 @@
-// ignore_for_file: camel_case_types
+// ignore_for_file: prefer_const_constructors_in_immutables, unused_import, camel_case_types
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

@@ -130,8 +130,9 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                           firstDate: DateTime(2023),
                           lastDate: DateTime(2030),
                         );
-                        if (picked != null)
+                        if (picked != null) {
                           setState(() => selectedDate = picked);
+                        }
                       },
                       style: OutlinedButton.styleFrom(
                         shape: RoundedRectangleBorder(
@@ -151,8 +152,9 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                           context: context,
                           initialTime: TimeOfDay.now(),
                         );
-                        if (picked != null)
+                        if (picked != null) {
                           setState(() => selectedTime = picked);
+                        }
                       },
                       style: OutlinedButton.styleFrom(
                         shape: RoundedRectangleBorder(

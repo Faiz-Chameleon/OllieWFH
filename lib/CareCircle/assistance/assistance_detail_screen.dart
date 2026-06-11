@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
+import 'package:ollie/CareCircle/assistance/assistance_media_widgets.dart';
 import 'package:ollie/CareCircle/care_circle_controller.dart';
 import 'package:ollie/Constants/Constants.dart';
 import 'package:ollie/Models/others_created_assistance_model.dart';
@@ -213,6 +214,11 @@ class _AssistanceDetailScreenState extends State<AssistanceDetailScreen> {
                   height: 1.2,
                 ),
               ),
+              if (data.attachments?.isNotEmpty == true) ...[
+                const SizedBox(height: 16),
+                const _SectionLabel(title: "Attachments"),
+                AssistanceMediaGallery(attachments: data.attachments!),
+              ],
               const SizedBox(height: 16),
               const _SectionLabel(title: "Address"),
               FutureBuilder<String>(

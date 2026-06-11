@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -116,7 +118,7 @@ class ReviewPostScreen extends StatelessWidget {
                         "latitude": controller.selectedLatitude.value,
                         "postRequestCategory": controller.selectedCategories.toList(),
                       };
-                      print(data);
+                      debugPrint(data.toString());
                       controller.createAssistanceByUser(data);
                       // final bottomController = Get.find<Bottomcontroller>();
                       // bottomController.updateIndex(4);

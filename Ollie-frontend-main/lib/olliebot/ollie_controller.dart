@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ollie/services/elevenlabs_service.dart';
 
@@ -21,9 +22,9 @@ class OllieController extends GetxController {
   void _initializeElevenLabs() async {
     try {
       // Initialize ElevenLabs service
-      print('ElevenLabs TTS initialized');
+      debugPrint('ElevenLabs TTS initialized');
     } catch (e) {
-      print('Error initializing ElevenLabs: $e');
+      debugPrint('Error initializing ElevenLabs: $e');
     }
   }
 
@@ -56,11 +57,11 @@ class OllieController extends GetxController {
         });
       } else {
         // TTS not available, just show text
-        print('TTS not available, showing text only');
+        debugPrint('TTS not available, showing text only');
         isPlayingTTS.value = false;
       }
     } catch (e) {
-      print('Error playing welcome message: $e');
+      debugPrint('Error playing welcome message: $e');
       isPlayingTTS.value = false;
     }
   }

@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_fields, unused_field, unused_import
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;

@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:ollie/api_service.dart';

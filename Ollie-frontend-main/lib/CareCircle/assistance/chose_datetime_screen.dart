@@ -95,8 +95,9 @@ class _ChooseDateTimeScreenState extends State<ChooseDateTimeScreen> {
                   ),
 
                   Obx(() {
-                    if (!controller.isExpanded.value)
+                    if (!controller.isExpanded.value) {
                       return const SizedBox.shrink();
+                    }
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -182,8 +183,8 @@ class _ChooseDateTimeScreenState extends State<ChooseDateTimeScreen> {
                           );
                           return;
                         }
-                        print("Selected Date: ${controller.formattedDate}");
-                        print("Selected Time: ${controller.formattedTime}");
+                        debugPrint("Selected Date: ${controller.formattedDate}");
+                        debugPrint("Selected Time: ${controller.formattedTime}");
                         Get.to(
                           () => AddTaskDescriptionScreen(),
                           transition: Transition.fadeIn,

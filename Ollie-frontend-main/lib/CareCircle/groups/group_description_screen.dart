@@ -69,7 +69,7 @@ class GroupDescriptionScreen extends StatelessWidget {
                             text: "Next",
                             onPressed: isActive
                                 ? () {
-                                    print("Description: ${controller.description.value}");
+                                    debugPrint("Description: ${controller.description.value}");
                                     Get.to(() => GroupReviewScreen(), transition: Transition.fadeIn);
                                   }
                                 : null,

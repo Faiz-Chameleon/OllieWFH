@@ -30,12 +30,7 @@ class Interests_screen extends StatelessWidget {
             bottom: 0,
             left: 0,
             right: 0,
-            child: Image.asset(
-              "assets/images/Group 1000000919.png",
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: 400.h,
-            ),
+            child: Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
           ),
 
           SingleChildScrollView(
@@ -47,25 +42,16 @@ class Interests_screen extends StatelessWidget {
                   140.verticalSpace,
                   Text(
                     "I’ll suggest things you’ll love!",
-                    style: TextStyle(
-                      color: HeadingColor,
-                      fontSize: 26.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: TextStyle(color: HeadingColor, fontSize: 26.sp, fontWeight: FontWeight.w700),
                   ),
                   10.verticalSpace,
                   Text(
                     "Tell us about your interests",
-                    style: TextStyle(
-                      color: HeadingColor,
-                      fontSize: 59.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: TextStyle(color: HeadingColor, fontSize: 59.sp, fontWeight: FontWeight.w700),
                   ),
 
                   Obx(() {
-                    if (controller.getInterestStatus.value ==
-                        RequestStatus.loading) {
+                    if (controller.getInterestStatus.value == RequestStatus.loading) {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (controller.interests.isEmpty) {
@@ -74,11 +60,7 @@ class Interests_screen extends StatelessWidget {
                         child: Center(
                           child: Text(
                             "No interests available.",
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: TextStyle(fontSize: 18.sp, color: Colors.grey, fontWeight: FontWeight.w600),
                           ),
                         ),
                       );
@@ -87,44 +69,31 @@ class Interests_screen extends StatelessWidget {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: controller.interests.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
-                            childAspectRatio: 3,
-                          ),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 3,
+                      ),
                       itemBuilder: (context, index) {
                         final item = controller.interests[index];
                         final isSelected = item.isSelected;
 
                         return GestureDetector(
                           onTap: () {
-                            print(controller.interests[index].interestId);
+                            debugPrint(controller.interests[index].interestId);
                             controller.toggleInterest(index);
                           },
                           child: Container(
                             decoration: BoxDecoration(
-                              color: isSelected
-                                  ? ksecondaryColor
-                                  : Colors.white,
+                              color: isSelected ? ksecondaryColor : Colors.white,
                               borderRadius: BorderRadius.circular(50),
-                              border: Border.all(
-                                color: isSelected
-                                    ? Colors.transparent
-                                    : Colors.grey,
-                                width: 1,
-                              ),
+                              border: Border.all(color: isSelected ? Colors.transparent : Colors.grey, width: 1),
                             ),
                             child: Center(
                               child: Text(
                                 item.name,
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : Colors.grey,
-                                ),
+                                style: TextStyle(fontSize: 16.sp, color: isSelected ? Colors.white : Colors.grey),
                               ),
                             ),
                           ),
@@ -137,11 +106,8 @@ class Interests_screen extends StatelessWidget {
                   CustomButton(
                     text: "Continue",
                     onPressed: () {
-                      print(controller.selectedInterestIds);
-                      Get.to(
-                        () => EmergencyContactScreen(),
-                        transition: Transition.fadeIn,
-                      );
+                      debugPrint(controller.selectedInterestIds.toString());
+                      Get.to(() => EmergencyContactScreen(), transition: Transition.fadeIn);
                     },
                     width: 390.w,
                     height: 50,

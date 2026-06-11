@@ -84,7 +84,7 @@ class CommentService {
 
     // In a real app, this would be an API call
     return Comment(
-      id: '${commentId}-${DateTime.now().millisecondsSinceEpoch}',
+      id: '$commentId-${DateTime.now().millisecondsSinceEpoch}',
       user: 'currentUser',
       userName: 'You',
       avatar: 'https://i.pravatar.cc/150?img=6',

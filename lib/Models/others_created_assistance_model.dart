@@ -1,3 +1,7 @@
+// ignore_for_file: prefer_collection_literals, unnecessary_this, unnecessary_new
+
+import 'package:ollie/Models/assistance_attachment.dart';
+
 class OthersCreatedAssistanceModel {
   bool? success;
   String? message;
@@ -39,6 +43,7 @@ class OthersCreatedAssistance {
   User? user;
   List<Categories>? categories;
   List<VolunteerRequests>? volunteerRequests;
+  List<AssistanceAttachment>? attachments;
 
   OthersCreatedAssistance({
     this.id,
@@ -52,6 +57,7 @@ class OthersCreatedAssistance {
     this.user,
     this.categories,
     this.volunteerRequests,
+    this.attachments,
   });
 
   OthersCreatedAssistance.fromJson(Map<String, dynamic> json) {
@@ -76,6 +82,12 @@ class OthersCreatedAssistance {
         volunteerRequests!.add(new VolunteerRequests.fromJson(v));
       });
     }
+    if (json['attachments'] != null) {
+      attachments = <AssistanceAttachment>[];
+      json['attachments'].forEach((v) {
+        attachments!.add(AssistanceAttachment.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -95,7 +107,12 @@ class OthersCreatedAssistance {
       data['categories'] = this.categories!.map((v) => v.toJson()).toList();
     }
     if (this.volunteerRequests != null) {
-      data['volunteerRequests'] = this.volunteerRequests!.map((v) => v.toJson()).toList();
+      data['volunteerRequests'] = this.volunteerRequests!
+          .map((v) => v.toJson())
+          .toList();
+    }
+    if (this.attachments != null) {
+      data['attachments'] = this.attachments!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -236,7 +253,13 @@ class VolunteerRequests {
   String? status;
   String? createdAt;
 
-  VolunteerRequests({this.id, this.postId, this.volunteerId, this.status, this.createdAt});
+  VolunteerRequests({
+    this.id,
+    this.postId,
+    this.volunteerId,
+    this.status,
+    this.createdAt,
+  });
 
   VolunteerRequests.fromJson(Map<String, dynamic> json) {
     id = json['id'];

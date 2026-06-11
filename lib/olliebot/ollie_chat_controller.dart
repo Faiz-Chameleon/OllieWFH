@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, unused_local_variable
+
 import 'package:get/get.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:ollie/services/elevenlabs_service.dart';

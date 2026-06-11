@@ -9,14 +9,14 @@ class LatesEventModel {
     success = json['success'];
     message = json['message'];
     data = json['data'] != null
-        ? new LatestEventsData.fromJson(json['data'])
+        ? LatestEventsData.fromJson(json['data'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -75,21 +75,21 @@ class LatestEventsData {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['eventName'] = this.eventName;
-    data['eventDescription'] = this.eventDescription;
-    data['eventDateAndTime'] = this.eventDateAndTime;
-    data['eventAddress'] = this.eventAddress;
-    data['eventStates'] = this.eventStates;
-    data['eventCity'] = this.eventCity;
-    data['eventCountry'] = this.eventCountry;
-    data['eventParticipant'] = this.eventParticipant;
-    data['image'] = this.image;
-    data['createdById'] = this.createdById;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    data['isMark'] = this.isMark;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['eventName'] = eventName;
+    data['eventDescription'] = eventDescription;
+    data['eventDateAndTime'] = eventDateAndTime;
+    data['eventAddress'] = eventAddress;
+    data['eventStates'] = eventStates;
+    data['eventCity'] = eventCity;
+    data['eventCountry'] = eventCountry;
+    data['eventParticipant'] = eventParticipant;
+    data['image'] = image;
+    data['createdById'] = createdById;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['isMark'] = isMark;
     return data;
   }
 }

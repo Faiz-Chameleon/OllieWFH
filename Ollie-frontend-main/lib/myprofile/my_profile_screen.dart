@@ -152,16 +152,16 @@ class MyProfileScreen extends StatelessWidget {
               Get.to(() => PrivacySecurityScreen());
             }),
 
-            // _buildTile("Account", "Manage your profile and preferences.", () => print("Account")),
+            // _buildTile("Account", "Manage your profile and preferences.", () => debugPrint("Account")),
             const SizedBox(height: 24),
             const Text("Help", style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
-            _buildTile("FAQs", "Find answers to your most common questions.", () => print("FAQs")),
+            _buildTile("FAQs", "Find answers to your most common questions.", () => debugPrint("FAQs")),
             _buildTile("Support", "Reach out for assistance anytime.", () {
               Get.to(() => SupportScreen(), transition: Transition.fadeIn);
             }),
-            _buildTile("Privacy Policy", "Learn how we protect your information.", () => print("Privacy Policy")),
-            _buildTile("Terms and Conditions", "Understand the terms of using Ollie.", () => print("Terms")),
+            _buildTile("Privacy Policy", "Learn how we protect your information.", () => debugPrint("Privacy Policy")),
+            _buildTile("Terms and Conditions", "Understand the terms of using Ollie.", () => debugPrint("Terms")),
 
             const SizedBox(height: 24),
             const Text("Delete Account", style: TextStyle(fontWeight: FontWeight.bold)),

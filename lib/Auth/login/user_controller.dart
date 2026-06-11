@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:get/get.dart';
 import 'package:ollie/Auth/login/login_screen.dart';
 import 'package:ollie/Auth/login/user_repository.dart';

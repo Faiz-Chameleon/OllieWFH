@@ -11,15 +11,15 @@ class OthersCreatedAssistanceModel {
     if (json['data'] != null) {
       data = <OthersCreatedAssistance>[];
       json['data'].forEach((v) {
-        data!.add(new OthersCreatedAssistance.fromJson(v));
+        data!.add(OthersCreatedAssistance.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -60,38 +60,38 @@ class OthersCreatedAssistance {
     longitude = json['longitude'];
     status = json['status'];
     userId = json['userId'];
-    user = json['user'] != null ? new User.fromJson(json['user']) : null;
+    user = json['user'] != null ? User.fromJson(json['user']) : null;
     if (json['categories'] != null) {
       categories = <Categories>[];
       json['categories'].forEach((v) {
-        categories!.add(new Categories.fromJson(v));
+        categories!.add(Categories.fromJson(v));
       });
     }
     if (json['volunteerRequests'] != null) {
       volunteerRequests = <VolunteerRequests>[];
       json['volunteerRequests'].forEach((v) {
-        volunteerRequests!.add(new VolunteerRequests.fromJson(v));
+        volunteerRequests!.add(VolunteerRequests.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['scheduledAt'] = this.scheduledAt;
-    data['description'] = this.description;
-    data['latitude'] = this.latitude;
-    data['longitude'] = this.longitude;
-    data['status'] = this.status;
-    data['userId'] = this.userId;
-    if (this.user != null) {
-      data['user'] = this.user!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['scheduledAt'] = scheduledAt;
+    data['description'] = description;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
+    data['status'] = status;
+    data['userId'] = userId;
+    if (user != null) {
+      data['user'] = user!.toJson();
     }
-    if (this.categories != null) {
-      data['categories'] = this.categories!.map((v) => v.toJson()).toList();
+    if (categories != null) {
+      data['categories'] = categories!.map((v) => v.toJson()).toList();
     }
-    if (this.volunteerRequests != null) {
-      data['volunteerRequests'] = this.volunteerRequests!.map((v) => v.toJson()).toList();
+    if (volunteerRequests != null) {
+      data['volunteerRequests'] = volunteerRequests!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -175,30 +175,30 @@ class User {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['email'] = this.email;
-    data['password'] = this.password;
-    data['phoneNumber'] = this.phoneNumber;
-    data['firstName'] = this.firstName;
-    data['lastName'] = this.lastName;
-    data['dateOfBirth'] = this.dateOfBirth;
-    data['gender'] = this.gender;
-    data['deviceType'] = this.deviceType;
-    data['deviceToken'] = this.deviceToken;
-    data['isCreatedProfile'] = this.isCreatedProfile;
-    data['image'] = this.image;
-    data['city'] = this.city;
-    data['country'] = this.country;
-    data['states'] = this.states;
-    data['userType'] = this.userType;
-    data['notificationOnAndOff'] = this.notificationOnAndOff;
-    data['emergencyContactNumber'] = this.emergencyContactNumber;
-    data['wantDailySupplement'] = this.wantDailySupplement;
-    data['wantDailyActivities'] = this.wantDailyActivities;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    data['showAds'] = this.showAds;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['email'] = email;
+    data['password'] = password;
+    data['phoneNumber'] = phoneNumber;
+    data['firstName'] = firstName;
+    data['lastName'] = lastName;
+    data['dateOfBirth'] = dateOfBirth;
+    data['gender'] = gender;
+    data['deviceType'] = deviceType;
+    data['deviceToken'] = deviceToken;
+    data['isCreatedProfile'] = isCreatedProfile;
+    data['image'] = image;
+    data['city'] = city;
+    data['country'] = country;
+    data['states'] = states;
+    data['userType'] = userType;
+    data['notificationOnAndOff'] = notificationOnAndOff;
+    data['emergencyContactNumber'] = emergencyContactNumber;
+    data['wantDailySupplement'] = wantDailySupplement;
+    data['wantDailyActivities'] = wantDailyActivities;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['showAds'] = showAds;
     return data;
   }
 }
@@ -217,10 +217,10 @@ class Categories {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['adminId'] = this.adminId;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['adminId'] = adminId;
     return data;
   }
 }
@@ -243,12 +243,12 @@ class VolunteerRequests {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['postId'] = this.postId;
-    data['volunteerId'] = this.volunteerId;
-    data['status'] = this.status;
-    data['createdAt'] = this.createdAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['postId'] = postId;
+    data['volunteerId'] = volunteerId;
+    data['status'] = status;
+    data['createdAt'] = createdAt;
     return data;
   }
 }

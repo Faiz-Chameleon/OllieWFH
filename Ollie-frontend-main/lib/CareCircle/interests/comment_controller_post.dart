@@ -239,8 +239,8 @@ class CommentsOnPost extends GetxController {
 // http.StreamedResponse response = await request.send();
 
 // if (response.statusCode == 200) {
-//   print(await response.stream.bytesToString());
+//   debugPrint(await response.stream.bytesToString());
 // }
 // else {
-//   print(response.reasonPhrase);
+//   debugPrint(response.reasonPhrase);
 // }

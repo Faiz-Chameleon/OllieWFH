@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, library_prefixes
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_full_hex_values_for_flutter_colors, unused_import
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';

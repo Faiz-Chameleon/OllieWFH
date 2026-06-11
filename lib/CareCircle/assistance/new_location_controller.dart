@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, deprecated_member_use, prefer_collection_literals
+
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -23,9 +25,7 @@ class MapController extends GetxController {
         throw Exception('Location permission denied');
       }
 
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       currentPosition.value = LatLng(position.latitude, position.longitude);
     } catch (e) {
       // Catch any errors that occur during location fetching

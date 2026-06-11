@@ -9,7 +9,7 @@ import 'package:ollie/request_status.dart';
 
 class BrowseTopicsScreen extends StatefulWidget {
   final BlogsController controller;
-  BrowseTopicsScreen({super.key, required this.controller});
+  const BrowseTopicsScreen({super.key, required this.controller});
 
   @override
   State<BrowseTopicsScreen> createState() => _BrowseTopicsScreenState();

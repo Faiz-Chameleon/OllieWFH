@@ -3,7 +3,6 @@ import UIKit
 import GoogleMaps
 import UserNotifications
 import FirebaseCore
-import Flutter
 import os
 
 
@@ -17,8 +16,8 @@ import os
   ) -> Bool {
     GMSServices.provideAPIKey("AIzaSyCsgi7wgsqtBYQCBErgKJpn6AtCmtGdFxE") 
     UNUserNotificationCenter.current().delegate = self
-    application.registerForRemoteNotifications()
     GeneratedPluginRegistrant.register(with: self)
+    application.registerForRemoteNotifications()
 
     if let controller = window?.rootViewController as? FlutterViewController {
       let channel = FlutterMethodChannel(name: timeZoneChannelName, binaryMessenger: controller.binaryMessenger)

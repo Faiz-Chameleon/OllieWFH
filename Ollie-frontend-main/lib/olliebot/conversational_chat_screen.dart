@@ -59,7 +59,7 @@ class ConversationalChatScreen extends StatelessWidget {
             () => Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              color: controller.isConnected.value ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+              color: controller.isConnected.value ? Colors.green.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
               child: Row(
                 children: [
                   Icon(
@@ -85,7 +85,7 @@ class ConversationalChatScreen extends StatelessWidget {
                 ? Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    color: Colors.blue.withOpacity(0.1),
+                    color: Colors.blue.withValues(alpha: 0.1),
                     child: Row(
                       children: [
                         Icon(Icons.mic, color: Colors.blue, size: 16),
@@ -108,7 +108,7 @@ class ConversationalChatScreen extends StatelessWidget {
                 ? Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withValues(alpha: 0.1),
                     child: Row(
                       children: [
                         SizedBox(
@@ -216,7 +216,7 @@ class ConversationalChatScreen extends StatelessWidget {
                           child: TextField(
                             onChanged: (val) {
                               controller.currentMessage.value = val;
-                              print('Text input changed: $val');
+                              debugPrint('Text input changed: $val');
                             },
                             onSubmitted: (val) {
                               if (val.trim().isNotEmpty) {

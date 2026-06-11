@@ -21,23 +21,3 @@ class CommentsOnPostRepository {
     return ApiService.postMethod(ApiUrls.likeAndReplyOnPostComment, data, token: requiredToken);
   }
 }
-
-// var headers = {
-//   'x-access-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE2OWZlMjJlLTU5YTktNDg3OS1iMjhiLTQzZTBlOGYyNDU1NSIsInVzZXJUeXBlIjoiVVNFUiIsImlhdCI6MTc1NjQxNzU1MiwiZXhwIjoxNzU2NTAzOTUyfQ.Qm8JMBLlBBFfQnayZYX1bePqoDToFsIQcCMzcYJydeQ',
-//   'Content-Type': 'application/json'
-// };
-// var request = http.Request('POST', Uri.parse('http://3.96.202.108/api/v1/user/post/likeAndReplyOnComment'));
-// request.body = json.encode({
-//   "reply": "second reply on post comment",
-//   "commentId": "b83ed8e6-4b7b-4eea-9a00-6b488ad0c597"
-// });
-// request.headers.addAll(headers);
-
-// http.StreamedResponse response = await request.send();
-
-// if (response.statusCode == 200) {
-//   print(await response.stream.bytesToString());
-// }
-// else {
-//   print(response.reasonPhrase);
-// }

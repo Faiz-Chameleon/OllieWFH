@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, avoid_function_literals_in_foreach_calls, unnecessary_null_comparison
+
 import 'dart:io';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';

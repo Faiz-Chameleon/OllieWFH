@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors_in_immutables, avoid_print, unnecessary_null_comparison, unnecessary_non_null_assertion, unused_import
+
 import 'package:flutter/material.dart';
 import 'package:flutter_native_contact_picker/model/contact.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

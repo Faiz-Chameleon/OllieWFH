@@ -20,7 +20,7 @@ import 'package:ollie/myprofile/my_profile_screen.dart';
 import 'package:ollie/request_status.dart';
 
 class Home_Screen extends StatefulWidget {
-  Home_Screen({super.key});
+  const Home_Screen({super.key});
 
   @override
   State<Home_Screen> createState() => _Home_ScreenState();
@@ -158,7 +158,7 @@ class _Home_ScreenState extends State<Home_Screen> {
                                       },
                                     ),
                                   );
-                                }).toList(),
+                                }),
                             ],
                           );
                         }

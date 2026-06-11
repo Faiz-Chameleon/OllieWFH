@@ -11,15 +11,15 @@ class GetVolunteersRequestModel {
     if (json['data'] != null) {
       data = <VolunterRequestsData>[];
       json['data'].forEach((v) {
-        data!.add(new VolunterRequestsData.fromJson(v));
+        data!.add(VolunterRequestsData.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -44,22 +44,22 @@ class VolunterRequestsData {
     volunteerId = json['volunteerId'];
     status = json['status'];
     createdAt = json['createdAt'];
-    post = json['post'] != null ? new Post.fromJson(json['post']) : null;
-    volunteer = json['volunteer'] != null ? new Volunteer.fromJson(json['volunteer']) : null;
+    post = json['post'] != null ? Post.fromJson(json['post']) : null;
+    volunteer = json['volunteer'] != null ? Volunteer.fromJson(json['volunteer']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['postId'] = this.postId;
-    data['volunteerId'] = this.volunteerId;
-    data['status'] = this.status;
-    data['createdAt'] = this.createdAt;
-    if (this.post != null) {
-      data['post'] = this.post!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['postId'] = postId;
+    data['volunteerId'] = volunteerId;
+    data['status'] = status;
+    data['createdAt'] = createdAt;
+    if (post != null) {
+      data['post'] = post!.toJson();
     }
-    if (this.volunteer != null) {
-      data['volunteer'] = this.volunteer!.toJson();
+    if (volunteer != null) {
+      data['volunteer'] = volunteer!.toJson();
     }
     return data;
   }
@@ -87,14 +87,14 @@ class Post {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['scheduledAt'] = this.scheduledAt;
-    data['description'] = this.description;
-    data['latitude'] = this.latitude;
-    data['longitude'] = this.longitude;
-    data['status'] = this.status;
-    data['userId'] = this.userId;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['scheduledAt'] = scheduledAt;
+    data['description'] = description;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
+    data['status'] = status;
+    data['userId'] = userId;
     return data;
   }
 }
@@ -177,30 +177,30 @@ class Volunteer {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['email'] = this.email;
-    data['password'] = this.password;
-    data['phoneNumber'] = this.phoneNumber;
-    data['firstName'] = this.firstName;
-    data['lastName'] = this.lastName;
-    data['dateOfBirth'] = this.dateOfBirth;
-    data['gender'] = this.gender;
-    data['deviceType'] = this.deviceType;
-    data['deviceToken'] = this.deviceToken;
-    data['isCreatedProfile'] = this.isCreatedProfile;
-    data['image'] = this.image;
-    data['city'] = this.city;
-    data['country'] = this.country;
-    data['states'] = this.states;
-    data['userType'] = this.userType;
-    data['notificationOnAndOff'] = this.notificationOnAndOff;
-    data['emergencyContactNumber'] = this.emergencyContactNumber;
-    data['wantDailySupplement'] = this.wantDailySupplement;
-    data['wantDailyActivities'] = this.wantDailyActivities;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    data['showAds'] = this.showAds;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['email'] = email;
+    data['password'] = password;
+    data['phoneNumber'] = phoneNumber;
+    data['firstName'] = firstName;
+    data['lastName'] = lastName;
+    data['dateOfBirth'] = dateOfBirth;
+    data['gender'] = gender;
+    data['deviceType'] = deviceType;
+    data['deviceToken'] = deviceToken;
+    data['isCreatedProfile'] = isCreatedProfile;
+    data['image'] = image;
+    data['city'] = city;
+    data['country'] = country;
+    data['states'] = states;
+    data['userType'] = userType;
+    data['notificationOnAndOff'] = notificationOnAndOff;
+    data['emergencyContactNumber'] = emergencyContactNumber;
+    data['wantDailySupplement'] = wantDailySupplement;
+    data['wantDailyActivities'] = wantDailyActivities;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['showAds'] = showAds;
     return data;
   }
 }

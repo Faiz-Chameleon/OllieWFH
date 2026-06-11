@@ -1,3 +1,4 @@
+// ignore_for_file: library_private_types_in_public_api
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
@@ -8,7 +9,7 @@ class VideoPlayerWidget extends StatefulWidget {
   final bool autoPlay;
   final bool looping;
 
-  const VideoPlayerWidget({Key? key, required this.videoUrl, this.autoPlay = false, this.looping = false}) : super(key: key);
+  const VideoPlayerWidget({super.key, required this.videoUrl, this.autoPlay = false, this.looping = false});
 
   @override
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
@@ -28,7 +29,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   Future<void> _initializeVideo() async {
     try {
-      _videoPlayerController = VideoPlayerController.network(widget.videoUrl);
+      _videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
 
       await _videoPlayerController.initialize();
 
@@ -71,7 +72,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error initializing video: $e');
+      debugPrint('Error initializing video: $e');
       setState(() {
         _isLoading = false;
       });

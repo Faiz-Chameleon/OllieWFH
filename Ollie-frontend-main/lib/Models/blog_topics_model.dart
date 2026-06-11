@@ -11,15 +11,15 @@ class BlogTopics {
     if (json['data'] != null) {
       data = <BlogData>[];
       json['data'].forEach((v) {
-        data!.add(new BlogData.fromJson(v));
+        data!.add(BlogData.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -41,10 +41,10 @@ class BlogData {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['adminId'] = this.adminId;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['adminId'] = adminId;
     return data;
   }
 }

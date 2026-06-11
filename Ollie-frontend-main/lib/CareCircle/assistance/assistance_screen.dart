@@ -334,7 +334,7 @@
 //   }
 // }
 
-// ignore_for_file: camel_case_types, use_full_hex_values_for_flutter_colors
+// ignore_for_file: unused_local_variable, camel_case_types, use_full_hex_values_for_flutter_colors
 
 // import 'package:flutter/material.dart';
 // import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -806,7 +806,7 @@ class _Assistance_screenState extends State<Assistance_screen> {
                             Obx(() {
                               return ElevatedButton(
                                 onPressed: () async {
-                                  var volunterId;
+                                  String? volunterId;
                                   final userController = Get.put(UserController());
                                   final String loggedInUserId = userController.user.value?.id ?? '';
                                   String targetUserId = loggedInUserId;
@@ -821,12 +821,12 @@ class _Assistance_screenState extends State<Assistance_screen> {
                                     var foundId = otherAssistanceData.volunteerRequests![foundIndex].id;
                                     volunterId = otherAssistanceData.volunteerRequests![foundIndex].id;
 
-                                    print('Found at index: $foundIndex with ID: $foundId');
+                                    debugPrint('Found at index: $foundIndex with ID: $foundId');
 
                                     // Store the ID wherever you need
                                     // yourStorageVariable = foundId;
                                   } else {
-                                    print('No item found with userID $targetUserId and status $targetStatus');
+                                    debugPrint('No item found with userID $targetUserId and status $targetStatus');
                                   }
                                   widget.controller.postLoadingStatus[index].value = true;
                                   if (otherAssistanceData.status == "NoRequest") {
@@ -987,7 +987,7 @@ class _Assistance_screenState extends State<Assistance_screen> {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                var volunterId;
+                                String? volunterId;
                                 final userController = Get.put(UserController());
 
                                 String targetStatus = 'MarkAsCompleted';
@@ -999,14 +999,14 @@ class _Assistance_screenState extends State<Assistance_screen> {
                                   var foundId = createdAssistanceRequest.volunteerRequests![foundIndex].id;
                                   volunterId = createdAssistanceRequest.volunteerRequests![foundIndex].id;
 
-                                  print('Found at index: $foundIndex with ID: $foundId');
+                                  debugPrint('Found at index: $foundIndex with ID: $foundId');
 
                                   // Store the ID wherever you need
                                   // yourStorageVariable = foundId;
                                 } else {
-                                  print('No item found with and status $targetStatus');
+                                  debugPrint('No item found with and status $targetStatus');
                                 }
-                                widget.controller.completeTaskByOwner(volunterId);
+                                widget.controller.completeTaskByOwner(volunterId ?? "");
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -1082,10 +1082,10 @@ class GoogleMapPreview extends StatelessWidget {
   final double? longitude;
 
   const GoogleMapPreview({
-    Key? key,
+    super.key,
     this.latitude, // Optional latitude, if passed by the user
     this.longitude, // Optional longitude, if passed by the user
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1137,8 +1137,8 @@ class GoogleMapPreview extends StatelessWidget {
 // http.StreamedResponse response = await request.send();
 
 // if (response.statusCode == 200) {
-//   print(await response.stream.bytesToString());
+//   debugPrint(await response.stream.bytesToString());
 // }
 // else {
-//   print(response.reasonPhrase);
+//   debugPrint(response.reasonPhrase);
 // }

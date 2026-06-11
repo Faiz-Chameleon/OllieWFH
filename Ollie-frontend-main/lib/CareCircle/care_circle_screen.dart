@@ -13,7 +13,7 @@ import 'package:ollie/Subscription/credits/credits_sreen.dart';
 import 'package:ollie/home/notifications/notificatins_screen.dart';
 
 class Care_Circle_screen extends StatefulWidget {
-  Care_Circle_screen({super.key});
+  const Care_Circle_screen({super.key});
 
   @override
   State<Care_Circle_screen> createState() => _Care_Circle_screenState();

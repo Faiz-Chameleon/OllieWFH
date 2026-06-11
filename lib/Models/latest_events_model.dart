@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_collection_literals, unnecessary_this, unnecessary_new
+
 class LatesEventModel {
   bool? success;
   String? message;
@@ -8,9 +10,7 @@ class LatesEventModel {
   LatesEventModel.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     message = json['message'];
-    data = json['data'] != null
-        ? new LatestEventsData.fromJson(json['data'])
-        : null;
+    data = json['data'] != null ? new LatestEventsData.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {

@@ -1,4 +1,4 @@
-// ignore_for_file: camel_case_types, use_full_hex_values_for_flutter_colors
+// ignore_for_file: unused_local_variable, unused_import, camel_case_types, use_full_hex_values_for_flutter_colors
 
 import 'dart:io';
 import 'package:flutter/material.dart';

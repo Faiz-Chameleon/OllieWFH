@@ -1,13 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions are not configured for web.',
-      );
+      throw UnsupportedError('DefaultFirebaseOptions are not configured for web.');
     }
 
     switch (defaultTargetPlatform) {
@@ -19,9 +16,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.windows:
       case TargetPlatform.linux:
       case TargetPlatform.fuchsia:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions are not configured for this platform.',
-        );
+        throw UnsupportedError('DefaultFirebaseOptions are not configured for this platform.');
     }
   }
 

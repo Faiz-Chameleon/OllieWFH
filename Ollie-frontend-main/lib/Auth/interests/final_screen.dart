@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -63,7 +65,7 @@ class FinalScreen extends StatelessWidget {
                             "userStates": controller.stateValue.value,
                             "userCountry": controller.countryValue.value,
                           };
-                          print(data);
+                          debugPrint(data.toString());
                           controller.userProfile(data);
                           // Get.to(() => Login_Screen(), transition: Transition.fadeIn);
                         },

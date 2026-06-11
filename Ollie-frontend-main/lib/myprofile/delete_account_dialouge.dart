@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/request_status.dart';
@@ -68,7 +67,7 @@ Future<void> deleteAccount() async {
   final requiredToken = await storage.read(key: 'userToken');
 
   if (requiredToken == null || requiredToken.isEmpty) {
-    print('No token found, cannot delete account');
+    debugPrint('No token found, cannot delete account');
     return; // exit early if token is missing
   }
 
@@ -83,11 +82,11 @@ Future<void> deleteAccount() async {
 
     if (response.statusCode == 200) {
       final respStr = await response.stream.bytesToString();
-      print('Deleted successfully: $respStr');
+      debugPrint('Deleted successfully: $respStr');
     } else {
-      print('Failed: ${response.reasonPhrase}');
+      debugPrint('Failed: ${response.reasonPhrase}');
     }
   } catch (e) {
-    print('Error: $e');
+    debugPrint('Error: $e');
   }
 }

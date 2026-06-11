@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_brace_in_string_interps, avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ollie/services/elevenlabs_conversational_service.dart';
@@ -11,22 +13,12 @@ class ChatMessage {
   final String text;
   final bool isUser;
   final bool isStreaming;
-  ChatMessage({
-    required this.text,
-    required this.isUser,
-    this.isStreaming = false,
-  });
+  ChatMessage({required this.text, required this.isUser, this.isStreaming = false});
 }
 
 // Conversational AI chat controller
 class ConversationalChatController extends GetxController {
-  var messages = <ChatMessage>[
-    ChatMessage(
-      text:
-          "Hi! I'm Ollie, your helpful companion. How can I assist you today?",
-      isUser: false,
-    ),
-  ].obs;
+  var messages = <ChatMessage>[ChatMessage(text: "Hi! I'm Ollie, your helpful companion. How can I assist you today?", isUser: false)].obs;
 
   var currentMessage = ''.obs;
   var isConnected = false.obs;
@@ -37,8 +29,7 @@ class ConversationalChatController extends GetxController {
   var pendingToolCall = Rx<Map<String, dynamic>?>(null);
   var isProcessingTool = false.obs;
 
-  final ElevenLabsConversationalService _conversationalService =
-      ElevenLabsConversationalService();
+  final ElevenLabsConversationalService _conversationalService = ElevenLabsConversationalService();
   final stt.SpeechToText speech = stt.SpeechToText();
   final TextEditingController messageController = TextEditingController();
   final List<StreamSubscription<dynamic>> _subscriptions = [];
@@ -66,10 +57,8 @@ class ConversationalChatController extends GetxController {
       await _conversationalService.initialize(
         agentId: agentId.value,
         voiceId: voiceId.value,
-        customPrompt:
-            "You are Ollie, a friendly and helpful AI assistant. Keep responses conversational and helpful.",
-        firstMessage:
-            "Hi! I'm Ollie, your AI assistant. How can I help you today?",
+        customPrompt: "You are Ollie, a friendly and helpful AI assistant. Keep responses conversational and helpful.",
+        firstMessage: "Hi! I'm Ollie, your AI assistant. How can I help you today?",
         language: 'en',
       );
 
@@ -87,8 +76,7 @@ class ConversationalChatController extends GetxController {
       _conversationalService.connectionStream.listen((connected) {
         isConnected.value = connected;
         if (connected) {
-          connectionStatus.value =
-              'Connected to ElevenLabs Conversational AI ✅';
+          connectionStatus.value = 'Connected to ElevenLabs Conversational AI ✅';
           print('✅ Conversational AI is ready!');
         } else {
           connectionStatus.value = 'Disconnected from Conversational AI';
@@ -137,15 +125,11 @@ class ConversationalChatController extends GetxController {
     } catch (_) {}
 
     try {
-      await _conversationalService
-          .endConversation(notifyText: 'User has left the chat.')
-          .timeout(const Duration(seconds: 2));
+      await _conversationalService.endConversation(notifyText: 'User has left the chat.').timeout(const Duration(seconds: 2));
     } catch (_) {}
 
     try {
-      await _conversationalService.dispose().timeout(
-        const Duration(seconds: 2),
-      );
+      await _conversationalService.dispose().timeout(const Duration(seconds: 2));
     } catch (_) {}
 
     _isClosed = true;
@@ -167,9 +151,7 @@ class ConversationalChatController extends GetxController {
     if (messages.isNotEmpty && messages.last.isStreaming) {
       messages.removeLast();
     }
-    messages.add(
-      ChatMessage(text: "I encountered an error: $error", isUser: false),
-    );
+    messages.add(ChatMessage(text: "I encountered an error: $error", isUser: false));
     isStreaming.value = false;
   }
 
@@ -225,12 +207,7 @@ class ConversationalChatController extends GetxController {
     if (messages.isNotEmpty && messages.last.isStreaming) {
       messages.removeLast();
     }
-    messages.add(
-      ChatMessage(
-        text: "I'm taking longer than usual to respond. Please try again.",
-        isUser: false,
-      ),
-    );
+    messages.add(ChatMessage(text: "I'm taking longer than usual to respond. Please try again.", isUser: false));
     isStreaming.value = false;
   }
 
@@ -238,13 +215,7 @@ class ConversationalChatController extends GetxController {
     if (messages.isNotEmpty && messages.last.isStreaming) {
       messages.removeLast();
     }
-    messages.add(
-      ChatMessage(
-        text:
-            "I'm not connected to the AI service right now. Please wait a moment and try again.",
-        isUser: false,
-      ),
-    );
+    messages.add(ChatMessage(text: "I'm not connected to the AI service right now. Please wait a moment and try again.", isUser: false));
     isStreaming.value = false;
   }
 
@@ -257,12 +228,7 @@ class ConversationalChatController extends GetxController {
 
     _conversationalService.sendToolResponse(
       toolCallId: toolCallId,
-      result: {
-        'status': 'acknowledged',
-        'message': 'Tool call received but not implemented yet',
-        'tool': toolName,
-        'parameters': parameters,
-      },
+      result: {'status': 'acknowledged', 'message': 'Tool call received but not implemented yet', 'tool': toolName, 'parameters': parameters},
       success: true,
     );
   }
@@ -285,17 +251,11 @@ class ConversationalChatController extends GetxController {
             }
           },
           localeId: 'en_US',
-          listenOptions: stt.SpeechListenOptions(
-            listenMode: stt.ListenMode.confirmation,
-          ),
+          listenOptions: stt.SpeechListenOptions(listenMode: stt.ListenMode.confirmation),
         );
       } else if (!isConnected.value) {
         print('❌ Voice requires Conversational AI connection');
-        appSnackbar(
-          'Voice Not Available',
-          'Please wait for AI to connect',
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        appSnackbar('Voice Not Available', 'Please wait for AI to connect', snackPosition: SnackPosition.BOTTOM);
       } else {
         print('❌ Speech recognition not available');
         isListening.value = false;
@@ -401,12 +361,9 @@ class ConversationalChatController extends GetxController {
     // Test if the agent exists by making a simple HTTP request
     try {
       final response = await http.get(
-        Uri.parse(
-          'https://api.elevenlabs.io/v1/convai/agents/${agentId.value}',
-        ),
+        Uri.parse('https://api.elevenlabs.io/v1/convai/agents/${agentId.value}'),
         headers: {
-          'Authorization':
-              'Bearer sk_9397cfffae1c9e05795c482352f9b1d546ab90a3f2308fcd', // Fixed: Uncommented and added Bearer
+          'Authorization': 'Bearer sk_9397cfffae1c9e05795c482352f9b1d546ab90a3f2308fcd', // Fixed: Uncommented and added Bearer
           'Content-Type': 'application/json',
         },
       );

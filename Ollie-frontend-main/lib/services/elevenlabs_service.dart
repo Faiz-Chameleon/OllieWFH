@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
@@ -37,7 +38,7 @@ class ElevenLabsService {
     try {
       // Check if API key is configured
       if (_apiKey == 'sk_9397cfffae1c9e05795c482352f9b1d546ab90a3f2308fcd') {
-        print('Warning: ElevenLabs API key not configured. Using mock response.');
+        debugPrint('Warning: ElevenLabs API key not configured. Using mock response.');
         return null;
       }
 
@@ -58,11 +59,11 @@ class ElevenLabsService {
         await tempFile.writeAsBytes(response.bodyBytes);
         return tempFile.path;
       } else {
-        print('TTS Error: ${response.statusCode} - ${response.body}');
+        debugPrint('TTS Error: ${response.statusCode} - ${response.body}');
         return null;
       }
     } catch (e) {
-      print('TTS Error: $e');
+      debugPrint('TTS Error: $e');
       return null;
     }
   }
@@ -75,7 +76,7 @@ class ElevenLabsService {
 
       await _audioPlayer!.play(DeviceFileSource(audioPath));
     } catch (e) {
-      print('Error playing audio: $e');
+      debugPrint('Error playing audio: $e');
     }
   }
 
@@ -86,7 +87,7 @@ class ElevenLabsService {
         await _audioPlayer!.stop();
       }
     } catch (e) {
-      print('Error stopping audio: $e');
+      debugPrint('Error stopping audio: $e');
     }
   }
 
@@ -112,7 +113,7 @@ class ElevenLabsService {
       _audioPlayer?.dispose();
       _audioPlayer = null;
     } catch (e) {
-      print('Error disposing AudioPlayer: $e');
+      debugPrint('Error disposing AudioPlayer: $e');
     }
   }
 }

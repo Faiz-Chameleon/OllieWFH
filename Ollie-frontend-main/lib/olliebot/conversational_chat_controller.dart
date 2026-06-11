@@ -1,3 +1,6 @@
+// ignore_for_file: unused_field, unused_import
+
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/services/chatbot_service.dart';
@@ -47,8 +50,8 @@ class ConversationalChatController extends GetxController {
   Future<void> _initializeConversationalAI() async {
     try {
       connectionStatus.value = 'Connecting to ElevenLabs Conversational AI...';
-      print('🔌 Initializing ElevenLabs Conversational AI...');
-      print('🔑 Agent ID: ${agentId.value}');
+      debugPrint('🔌 Initializing ElevenLabs Conversational AI...');
+      debugPrint('🔑 Agent ID: ${agentId.value}');
 
       await _conversationalService.initialize(
         agentId: agentId.value,
@@ -59,9 +62,9 @@ class ConversationalChatController extends GetxController {
       );
 
       _setupServiceListeners();
-      print('🚀 Conversational AI initialization started...');
+      debugPrint('🚀 Conversational AI initialization started...');
     } catch (e) {
-      print('❌ Error initializing Conversational AI: $e');
+      debugPrint('❌ Error initializing Conversational AI: $e');
       isConnected.value = false;
       connectionStatus.value = 'Failed to connect to Conversational AI';
     }
@@ -72,29 +75,29 @@ class ConversationalChatController extends GetxController {
       isConnected.value = connected;
       if (connected) {
         connectionStatus.value = 'Connected to ElevenLabs Conversational AI ✅';
-        print('✅ Conversational AI is ready!');
+        debugPrint('✅ Conversational AI is ready!');
       } else {
         connectionStatus.value = 'Disconnected from Conversational AI';
-        print('❌ Conversational AI disconnected');
+        debugPrint('❌ Conversational AI disconnected');
       }
     });
 
     _conversationalService.responseStream.listen((response) {
-      print('🤖 AI Response: $response');
+      debugPrint('🤖 AI Response: $response');
       _handleAgentMessage(response);
     });
 
     _conversationalService.toolCallStream.listen((toolCall) {
-      print('🔧 Tool call: ${toolCall}');
+      debugPrint('🔧 Tool call: $toolCall');
       handleToolCall(toolCall);
     });
 
     _conversationalService.transcriptStream.listen((transcript) {
       if (!transcript.toLowerCase().contains('error')) {
-        print('🎤 User said: $transcript');
+        debugPrint('🎤 User said: $transcript');
         currentTranscript.value = transcript;
       } else {
-        print('❌ Transcript error: $transcript');
+        debugPrint('❌ Transcript error: $transcript');
       }
     });
   }
@@ -111,7 +114,7 @@ class ConversationalChatController extends GetxController {
   }
 
   void _handleError(String error) {
-    print('❌ Error: $error');
+    debugPrint('❌ Error: $error');
     if (messages.isNotEmpty && messages.last.isStreaming) {
       messages.removeLast();
     }
@@ -130,22 +133,22 @@ class ConversationalChatController extends GetxController {
 
     try {
       if (isConnected.value) {
-        print('📤 Sending to Conversational AI: "$message"');
+        debugPrint('📤 Sending to Conversational AI: "$message"');
         await _conversationalService.sendTextMessage(message);
 
         // Extend timeout to 30 seconds for ElevenLabs
         Timer(Duration(seconds: 30), () {
           if (isStreaming.value) {
-            print('⚠️ AI response timeout after 30 seconds');
+            debugPrint('⚠️ AI response timeout after 30 seconds');
             _handleTimeout();
           }
         });
       } else {
-        print('❌ Not connected to Conversational AI');
+        debugPrint('❌ Not connected to Conversational AI');
         _handleNotConnected();
       }
     } catch (e) {
-      print('❌ Error sending to Conversational AI: $e');
+      debugPrint('❌ Error sending to Conversational AI: $e');
       _handleError('Failed to send message: $e');
     }
   }
@@ -171,7 +174,7 @@ class ConversationalChatController extends GetxController {
     final parameters = toolCall['parameters'] ?? {};
     final toolCallId = toolCall['id'];
 
-    print('🔧 AI wants to use tool: $toolName');
+    debugPrint('🔧 AI wants to use tool: $toolName');
 
     _conversationalService.sendToolResponse(
       toolCallId: toolCallId,
@@ -198,20 +201,20 @@ class ConversationalChatController extends GetxController {
             }
           },
           localeId: 'en_US',
-          listenMode: stt.ListenMode.confirmation,
+          listenOptions: stt.SpeechListenOptions(listenMode: stt.ListenMode.confirmation),
         );
       } else if (!isConnected.value) {
-        print('❌ Voice requires Conversational AI connection');
+        debugPrint('❌ Voice requires Conversational AI connection');
         Get.snackbar('Voice Not Available', 'Please wait for AI to connect', snackPosition: SnackPosition.BOTTOM);
       } else {
-        print('❌ Speech recognition not available');
+        debugPrint('❌ Speech recognition not available');
         isListening.value = false;
       }
     }
   }
 
   void testConnection() async {
-    print('🧪 Testing Conversational AI connection...');
+    debugPrint('🧪 Testing Conversational AI connection...');
     connectionStatus.value = 'Testing connection...';
 
     try {
@@ -222,9 +225,9 @@ class ConversationalChatController extends GetxController {
       await Future.delayed(Duration(milliseconds: 500));
 
       await _initializeConversationalAI();
-      print('✅ Connection test completed');
+      debugPrint('✅ Connection test completed');
     } catch (e) {
-      print('❌ Connection test failed: $e');
+      debugPrint('❌ Connection test failed: $e');
       connectionStatus.value = 'Connection test failed';
     }
   }
@@ -247,11 +250,11 @@ class ConversationalChatController extends GetxController {
 
   void sendTestMessage() async {
     if (!isConnected.value) {
-      print('❌ Not connected for test');
+      debugPrint('❌ Not connected for test');
       return;
     }
 
-    print('🧪 Sending test message...');
+    debugPrint('🧪 Sending test message...');
 
     try {
       await _conversationalService.sendTextMessage("Hello");
@@ -260,10 +263,10 @@ class ConversationalChatController extends GetxController {
       await Future.delayed(Duration(seconds: 10));
 
       if (isStreaming.value) {
-        print('⚠️ Test message timeout');
+        debugPrint('⚠️ Test message timeout');
       }
     } catch (e) {
-      print('❌ Test message error: $e');
+      debugPrint('❌ Test message error: $e');
     }
   }
 
@@ -271,11 +274,11 @@ class ConversationalChatController extends GetxController {
 
   void sendSimpleTest() async {
     if (!isConnected.value) {
-      print('❌ Not connected for simple test');
+      debugPrint('❌ Not connected for simple test');
       return;
     }
 
-    print('🧪 Sending simple test message...');
+    debugPrint('🧪 Sending simple test message...');
 
     // Add test message to UI
     messages.add(ChatMessage(text: "Hello", isUser: true));
@@ -288,22 +291,22 @@ class ConversationalChatController extends GetxController {
       // Wait for response
       Timer(Duration(seconds: 10), () {
         if (isStreaming.value) {
-          print('⚠️ Simple test timeout');
+          debugPrint('⚠️ Simple test timeout');
           _handleTimeout();
         }
       });
     } catch (e) {
-      print('❌ Simple test error: $e');
+      debugPrint('❌ Simple test error: $e');
       _handleError('Simple test failed: $e');
     }
   }
 
   void debugAgent() async {
-    print('🔍 Debug Agent Info:');
-    print('Agent ID: ${agentId.value}');
-    print('Voice ID: ${voiceId.value}');
-    print('Connected: ${isConnected.value}');
-    print('Conversation ID: ${_conversationalService.conversationId}');
+    debugPrint('🔍 Debug Agent Info:');
+    debugPrint('Agent ID: ${agentId.value}');
+    debugPrint('Voice ID: ${voiceId.value}');
+    debugPrint('Connected: ${isConnected.value}');
+    debugPrint('Conversation ID: ${_conversationalService.conversationId}');
 
     // Test if the agent exists by making a simple HTTP request
     try {
@@ -315,20 +318,20 @@ class ConversationalChatController extends GetxController {
         },
       );
 
-      print('🔍 Agent API Response: ${response.statusCode}');
-      print('🔍 Agent Details: ${response.body}');
+      debugPrint('🔍 Agent API Response: ${response.statusCode}');
+      debugPrint('🔍 Agent Details: ${response.body}');
 
       if (response.statusCode == 200) {
-        print('✅ Agent exists and is configured correctly!');
+        debugPrint('✅ Agent exists and is configured correctly!');
       } else if (response.statusCode == 404) {
-        print('❌ Agent not found - check your agent ID');
+        debugPrint('❌ Agent not found - check your agent ID');
       } else if (response.statusCode == 401) {
-        print('❌ API key is invalid or expired');
+        debugPrint('❌ API key is invalid or expired');
       } else {
-        print('❌ Unexpected response: ${response.statusCode}');
+        debugPrint('❌ Unexpected response: ${response.statusCode}');
       }
     } catch (e) {
-      print('❌ Error checking agent: $e');
+      debugPrint('❌ Error checking agent: $e');
     }
   }
 

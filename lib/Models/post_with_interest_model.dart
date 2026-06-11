@@ -283,6 +283,8 @@
 //   }
 // }
 
+// ignore_for_file: prefer_collection_literals, unnecessary_this, unnecessary_new, unnecessary_question_mark
+
 class PostWithInterest {
   bool? success;
   String? message;

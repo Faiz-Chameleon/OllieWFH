@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_new, unnecessary_this, prefer_collection_literals, unnecessary_question_mark
+
 class AllBlogTopics {
   bool? success;
   String? message;
@@ -8,9 +10,7 @@ class AllBlogTopics {
   AllBlogTopics.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     message = json['message'];
-    data = json['data'] != null
-        ? new AllBlogTopicsData.fromJson(json['data'])
-        : null;
+    data = json['data'] != null ? new AllBlogTopicsData.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -90,9 +90,7 @@ class BlogsByItsTopics {
     views = json['views'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
-    category = json['category'] != null
-        ? new Category.fromJson(json['category'])
-        : null;
+    category = json['category'] != null ? new Category.fromJson(json['category']) : null;
     cCount = json['_count'] != null ? new Count.fromJson(json['_count']) : null;
   }
 

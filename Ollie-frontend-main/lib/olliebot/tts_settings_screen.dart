@@ -1,3 +1,4 @@
+// ignore_for_file: library_private_types_in_public_api
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ollie/Constants/constants.dart';
@@ -5,6 +6,8 @@ import 'package:ollie/services/elevenlabs_service.dart';
 import 'ollie_controller.dart';
 
 class TTSSettingsScreen extends StatefulWidget {
+  const TTSSettingsScreen({super.key});
+
   @override
   _TTSSettingsScreenState createState() => _TTSSettingsScreenState();
 }
@@ -68,7 +71,7 @@ class _TTSSettingsScreenState extends State<TTSSettingsScreen> {
               decoration: BoxDecoration(
                 color: white,
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)],
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4)],
               ),
               child: Row(
                 children: [
@@ -86,7 +89,7 @@ class _TTSSettingsScreenState extends State<TTSSettingsScreen> {
                       ],
                     ),
                   ),
-                  Obx(() => Switch(value: controller.enableTTS.value, onChanged: (value) => controller.toggleTTS(), activeColor: buttonColor)),
+                  Obx(() => Switch(value: controller.enableTTS.value, onChanged: (value) => controller.toggleTTS(), activeThumbColor: buttonColor)),
                 ],
               ),
             ),
@@ -99,7 +102,7 @@ class _TTSSettingsScreenState extends State<TTSSettingsScreen> {
               decoration: BoxDecoration(
                 color: white,
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)],
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4)],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,7 +126,7 @@ class _TTSSettingsScreenState extends State<TTSSettingsScreen> {
                   else
                     Obx(
                       () => DropdownButtonFormField<String>(
-                        value: controller.selectedVoiceId.value,
+                        initialValue: controller.selectedVoiceId.value,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -145,7 +148,7 @@ class _TTSSettingsScreenState extends State<TTSSettingsScreen> {
             const SizedBox(height: 20),
 
             // Test Voice Button
-            Container(
+            SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
@@ -171,9 +174,9 @@ class _TTSSettingsScreenState extends State<TTSSettingsScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
+                color: Colors.orange.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

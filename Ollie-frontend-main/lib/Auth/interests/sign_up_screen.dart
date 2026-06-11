@@ -119,7 +119,7 @@ class Sign_Up_Screen extends StatelessWidget {
                             if (_formKey.currentState!.validate()) {
                               controller.registerUser(controller.emailController.text.trim());
                             } else {
-                              print("Validation failed");
+                              debugPrint("Validation failed");
                             }
                           },
                           width: 390.w,

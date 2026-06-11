@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element, unused_import
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,7 +12,7 @@ import 'blogs_controller.dart';
 
 class LatestBlogsScreen extends StatefulWidget {
   final BlogsController controller;
-  LatestBlogsScreen({super.key, required this.controller});
+  const LatestBlogsScreen({super.key, required this.controller});
 
   @override
   State<LatestBlogsScreen> createState() => _LatestBlogsScreenState();
@@ -207,7 +209,9 @@ class _LatestBlogsScreenState extends State<LatestBlogsScreen> {
             title: Text(label),
             trailing: Radio<String>(
               value: label,
+              // ignore: deprecated_member_use
               groupValue: controller.selectedSort.value,
+              // ignore: deprecated_member_use
               onChanged: (val) {
                 if (val != null) {
                   controller.selectedSort.value = val;

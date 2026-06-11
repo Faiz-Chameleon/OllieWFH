@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class ChatbotService {
@@ -88,11 +89,11 @@ class ChatbotService {
         final data = jsonDecode(response.body);
         return data['choices'][0]['message']['content'];
       } else {
-        print('AI API Error: ${response.statusCode} - ${response.body}');
+        debugPrint('AI API Error: ${response.statusCode} - ${response.body}');
         return null;
       }
     } catch (e) {
-      print('Error calling AI service: $e');
+      debugPrint('Error calling AI service: $e');
       return null;
     }
   }
@@ -105,7 +106,7 @@ class ChatbotService {
         return aiResponse;
       }
     } catch (e) {
-      print('AI service failed, using fallback: $e');
+      debugPrint('AI service failed, using fallback: $e');
     }
 
     return getResponse(userMessage);

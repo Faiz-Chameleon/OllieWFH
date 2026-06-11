@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_brace_in_string_interps
+
 import '../Models/comment_model.dart';
 
 class CommentService {
@@ -18,8 +20,7 @@ class CommentService {
         user: 'user1',
         userName: 'Julia Michael',
         avatar: 'https://i.pravatar.cc/150?img=1',
-        message:
-            'I left my shoes outside, and my pup decided they were the perfect snack. Guess who went to work in slippers?',
+        message: 'I left my shoes outside, and my pup decided they were the perfect snack. Guess who went to work in slippers?',
         likes: 634,
         isLiked: false,
         createdAt: DateTime.now().subtract(const Duration(hours: 2)),
@@ -51,8 +52,7 @@ class CommentService {
         user: 'user1',
         userName: 'Julia Michael',
         avatar: 'https://i.pravatar.cc/150?img=1',
-        message:
-            'I love hearing these stories! Pets are the best little troublemakers. Keep \'em coming!',
+        message: 'I love hearing these stories! Pets are the best little troublemakers. Keep \'em coming!',
         likes: 634,
         isLiked: false,
         createdAt: DateTime.now().subtract(const Duration(hours: 1)),

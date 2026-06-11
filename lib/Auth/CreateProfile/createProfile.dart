@@ -1,3 +1,5 @@
+// ignore_for_file: use_full_hex_values_for_flutter_colors, library_prefixes, file_names, unused_import
+
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

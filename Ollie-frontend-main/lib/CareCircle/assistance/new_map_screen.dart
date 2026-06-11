@@ -42,7 +42,7 @@
 //                     darkMapStyle,
 //                   ); // Apply the dark map style
 //                 } catch (e) {
-//                   print(
+//                   debugPrint(
 //                     "Error setting map style: $e",
 //                   ); // Catch any error if map style is invalid
 //                 }
@@ -63,7 +63,7 @@
 //               child: ElevatedButton(
 //                 onPressed: () {
 //                   // Example button on top of the map
-//                   print("Button pressed!");
+//                   debugPrint("Button pressed!");
 //                 },
 //                 child: const Text("Top Button"),
 //               ),

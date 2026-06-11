@@ -1,3 +1,5 @@
+// ignore_for_file: curly_braces_in_flow_control_structures, unused_local_variable
+
 import 'dart:async';
 import 'dart:math';
 

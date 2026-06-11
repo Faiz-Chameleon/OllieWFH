@@ -1,5 +1,5 @@
 // ignore: file_names
-// ignore_for_file: avoid_print
+// ignore_for_file: unused_import, avoid_print
 
 import 'dart:async';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -62,8 +62,7 @@ class OtpController extends GetxController {
       registerStatus.value = RequestStatus.loading;
       final result = await authRepository.verifyOtp(data);
       registerStatus.value = RequestStatus.success;
-      final token =
-          result['data']['userToken']; // adjust based on your API structure
+      final token = result['data']['userToken']; // adjust based on your API structure
       final storage = FlutterSecureStorage();
       await storage.write(key: 'userToken', value: token);
       if (route == "fromSignUp") {

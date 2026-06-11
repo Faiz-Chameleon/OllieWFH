@@ -1,3 +1,5 @@
+// ignore_for_file: no_leading_underscores_for_local_identifiers, unused_local_variable
+
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,22 +9,8 @@ import 'package:ollie/home/Dailytask/create_task.dart';
 import 'package:ollie/home/Dailytask/daily_task_controller.dart';
 
 extension DateExtensions on DateTime {
-  String get weekdayName =>
-      ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][weekday - 1];
-  String get monthName => [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ][month - 1];
+  String get weekdayName => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][weekday - 1];
+  String get monthName => ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][month - 1];
 }
 
 class TodoListScreen extends StatefulWidget {
@@ -71,16 +59,12 @@ class _TodoListScreenState extends State<TodoListScreen> {
               focusedDate: _focusedDate,
               itemExtent: 64.0,
 
-              itemBuilder:
-                  (context, date, isSelected, isDisabled, isToday, onTap) {
-                    return InkResponse(
-                      onTap: onTap,
-                      child: CircleAvatar(
-                        backgroundColor: isSelected ? Colors.blue : null,
-                        child: Text(date.day.toString()),
-                      ),
-                    );
-                  },
+              itemBuilder: (context, date, isSelected, isDisabled, isToday, onTap) {
+                return InkResponse(
+                  onTap: onTap,
+                  child: CircleAvatar(backgroundColor: isSelected ? Colors.blue : null, child: Text(date.day.toString())),
+                );
+              },
               onDateChange: (date) {
                 setState(() {
                   _focusedDate = date;

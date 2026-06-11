@@ -295,10 +295,7 @@ class CareCircleController extends GetxController {
         result['message'] == "User has no selected interests") {
       getYourPostAsInteresStatus.value = RequestStatus.success;
 
-      appSnackbar(
-        "No Interests",
-        "Please select your interests to see posts.",
-      );
+      appSnackbar("No Interests", "Please select your interests to see posts.");
     } else if (result['success'] == false &&
         result['message'] == "No posts found") {
       /// Special case: no selected interests
@@ -378,6 +375,14 @@ class CareCircleController extends GetxController {
 
   var postLoadingStatus = <RxBool>[].obs;
   var postReachOutOnAssistanceStatus = RequestStatus.idle.obs;
+
+  void _markOtherAssistanceRequestSent(int index) {
+    if (index < 0 || index >= othersCreatedAssistance.length) return;
+
+    othersCreatedAssistance[index].status = "VolunteerRequestSent";
+    othersCreatedAssistance.refresh();
+  }
+
   Future<void> reachOutOnAssistance(String assistancId, int index) async {
     postReachOutOnAssistanceStatus.value = RequestStatus.loading;
 
@@ -385,12 +390,21 @@ class CareCircleController extends GetxController {
       assistancId,
     );
     if (result['success'] == true) {
+      _markOtherAssistanceRequestSent(index);
       await userFetchOthersCreatedAssitance();
       postReachOutOnAssistanceStatus.value = RequestStatus.success;
       appSnackbar("Success", result['message'] ?? "");
     } else {
+      final message = (result['message'] ?? "Something went wrong").toString();
+      if (message.toLowerCase().contains("already sent a request")) {
+        _markOtherAssistanceRequestSent(index);
+        postReachOutOnAssistanceStatus.value = RequestStatus.success;
+        appSnackbar("Info", "Request already sent");
+        return;
+      }
+
       postReachOutOnAssistanceStatus.value = RequestStatus.error;
-      appSnackbar("Error", result['message'] ?? "Something went wrong");
+      appSnackbar("Error", message);
     }
   }
 

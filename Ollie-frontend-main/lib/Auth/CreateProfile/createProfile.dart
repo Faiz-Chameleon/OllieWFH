@@ -1,3 +1,5 @@
+// ignore_for_file: use_full_hex_values_for_flutter_colors, library_prefixes, file_names
+
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
@@ -142,12 +144,12 @@ class CreateProfileScreen extends StatelessWidget {
                         contentPadding: const EdgeInsets.only(left: 30, bottom: 15, top: 15),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(50),
-                          borderSide: const BorderSide(color: Color(0xff463C3380)),
+                          borderSide: const BorderSide(color: Color(0x463C3380)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(50),
 
-                          borderSide: const BorderSide(color: Color(0xff463C3380)),
+                          borderSide: const BorderSide(color: Color(0x463C3380)),
                         ),
                       ),
                       initialCountryCode: 'CA',
@@ -166,13 +168,13 @@ class CreateProfileScreen extends StatelessWidget {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(50),
 
-                              borderSide: const BorderSide(color: Color(0xff463C3380)),
+                              borderSide: const BorderSide(color: Color(0x463C3380)),
                             ),
 
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(50),
 
-                              borderSide: const BorderSide(color: Color(0xff463C3380)),
+                              borderSide: const BorderSide(color: Color(0x463C3380)),
                             ),
                             contentPadding: EdgeInsets.all(5.0),
                           ),
@@ -194,9 +196,9 @@ class CreateProfileScreen extends StatelessWidget {
 
                         // InkWell(
                         //     onTap: () {
-                        //       print('country selected is $countryValue');
-                        //       print('country selected is $stateValue');
-                        //       print('country selected is $cityValue');
+                        //       debugPrint('country selected is $countryValue');
+                        //       debugPrint('country selected is $stateValue');
+                        //       debugPrint('country selected is $cityValue');
                         //     },
                         //     child: Text(' Check'))
                       ],

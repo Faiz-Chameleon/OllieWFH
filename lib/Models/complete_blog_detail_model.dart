@@ -1,3 +1,5 @@
+// ignore_for_file: duplicate_ignore, prefer_collection_literals, unnecessary_new, unnecessary_this, unnecessary_question_mark
+
 class CompleteBlog {
   bool? success;
   String? message;
@@ -8,12 +10,11 @@ class CompleteBlog {
   CompleteBlog.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     message = json['message'];
-    data = json['data'] != null
-        ? new CompleteBlogDetails.fromJson(json['data'])
-        : null;
+    data = json['data'] != null ? new CompleteBlogDetails.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
+    // ignore: prefer_collection_literals
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['success'] = this.success;
     data['message'] = this.message;
@@ -66,9 +67,7 @@ class CompleteBlogDetails {
     views = json['views'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
-    category = json['category'] != null
-        ? new Category.fromJson(json['category'])
-        : null;
+    category = json['category'] != null ? new Category.fromJson(json['category']) : null;
     cCount = json['_count'] != null ? new Count.fromJson(json['_count']) : null;
     isLiked = json['isLiked'];
   }

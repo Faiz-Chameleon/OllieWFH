@@ -1,3 +1,5 @@
+// ignore_for_file: duplicate_ignore, prefer_collection_literals, unnecessary_this, unnecessary_new, unnecessary_question_mark
+
 class BlogsModel {
   bool? success;
   String? message;
@@ -140,6 +142,7 @@ class Category {
   }
 
   Map<String, dynamic> toJson() {
+    // ignore: prefer_collection_literals
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
     data['name'] = this.name;

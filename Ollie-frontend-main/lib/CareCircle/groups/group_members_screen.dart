@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -62,7 +64,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Color(0xff1E18180D),
+                    color: Color(0x1E18180D),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.grey[200]!),
                   ),
@@ -85,7 +87,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
             // Members Section
             Container(
               width: 1.sw,
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(20.r), color: const Color(0xff1E18180D)),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(20.r), color: const Color(0x1E18180D)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -154,7 +156,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Color(0xff1E18180D),
+            color: Color(0x1E18180D),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: Colors.grey[200]!),
           ),
@@ -174,7 +176,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     return Container(
       width: 1.sw,
 
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20.r), color: Color(0xff1E18180D)),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20.r), color: Color(0x1E18180D)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -187,7 +189,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   }
 
   Widget _buildSettingTile({required IconData icon, required String title, required bool isEnabled}) {
-    return Container(
+    return SizedBox(
       height: 50.h,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -208,7 +210,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   Widget _buildMembersSection() {
     return Container(
       width: 1.sw,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20.r), color: Color(0xff1E18180D)),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20.r), color: Color(0x1E18180D)),
 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

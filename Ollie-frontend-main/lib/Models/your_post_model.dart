@@ -11,15 +11,15 @@ class YourPostModel {
     if (json['data'] != null) {
       data = <YourPostModelData>[];
       json['data'].forEach((v) {
-        data!.add(new YourPostModelData.fromJson(v));
+        data!.add(YourPostModelData.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -64,26 +64,26 @@ class YourPostModelData {
     views = json['views'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
-    user = json['user'] != null ? new User.fromJson(json['user']) : null;
-    cCount = json['_count'] != null ? new Count.fromJson(json['_count']) : null;
+    user = json['user'] != null ? User.fromJson(json['user']) : null;
+    cCount = json['_count'] != null ? Count.fromJson(json['_count']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['title'] = this.title;
-    data['content'] = this.content;
-    data['categoryId'] = this.categoryId;
-    data['image'] = this.image;
-    data['userId'] = this.userId;
-    data['views'] = this.views;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    if (this.user != null) {
-      data['user'] = this.user!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['title'] = title;
+    data['content'] = content;
+    data['categoryId'] = categoryId;
+    data['image'] = image;
+    data['userId'] = userId;
+    data['views'] = views;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    if (user != null) {
+      data['user'] = user!.toJson();
     }
-    if (this.cCount != null) {
-      data['_count'] = this.cCount!.toJson();
+    if (cCount != null) {
+      data['_count'] = cCount!.toJson();
     }
     return data;
   }
@@ -167,30 +167,30 @@ class User {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['email'] = this.email;
-    data['password'] = this.password;
-    data['phoneNumber'] = this.phoneNumber;
-    data['firstName'] = this.firstName;
-    data['lastName'] = this.lastName;
-    data['dateOfBirth'] = this.dateOfBirth;
-    data['gender'] = this.gender;
-    data['deviceType'] = this.deviceType;
-    data['deviceToken'] = this.deviceToken;
-    data['isCreatedProfile'] = this.isCreatedProfile;
-    data['image'] = this.image;
-    data['city'] = this.city;
-    data['country'] = this.country;
-    data['states'] = this.states;
-    data['userType'] = this.userType;
-    data['notificationOnAndOff'] = this.notificationOnAndOff;
-    data['emergencyContactNumber'] = this.emergencyContactNumber;
-    data['wantDailySupplement'] = this.wantDailySupplement;
-    data['wantDailyActivities'] = this.wantDailyActivities;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    data['showAds'] = this.showAds;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['email'] = email;
+    data['password'] = password;
+    data['phoneNumber'] = phoneNumber;
+    data['firstName'] = firstName;
+    data['lastName'] = lastName;
+    data['dateOfBirth'] = dateOfBirth;
+    data['gender'] = gender;
+    data['deviceType'] = deviceType;
+    data['deviceToken'] = deviceToken;
+    data['isCreatedProfile'] = isCreatedProfile;
+    data['image'] = image;
+    data['city'] = city;
+    data['country'] = country;
+    data['states'] = states;
+    data['userType'] = userType;
+    data['notificationOnAndOff'] = notificationOnAndOff;
+    data['emergencyContactNumber'] = emergencyContactNumber;
+    data['wantDailySupplement'] = wantDailySupplement;
+    data['wantDailyActivities'] = wantDailyActivities;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['showAds'] = showAds;
     return data;
   }
 }
@@ -207,9 +207,9 @@ class Count {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['userpostlikes'] = this.userpostlikes;
-    data['userpostcomments'] = this.userpostcomments;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['userpostlikes'] = userpostlikes;
+    data['userpostcomments'] = userpostcomments;
     return data;
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_brace_in_string_interps, avoid_print, unnecessary_import
+
 import 'dart:io';
 import 'dart:math';
 

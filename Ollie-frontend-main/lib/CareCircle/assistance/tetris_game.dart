@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -375,27 +377,29 @@ class _TetrisGameState extends State<TetrisGame> with TickerProviderStateMixin {
       ),
 
       body: SafeArea(
-        child: RawKeyboardListener(
+        child: KeyboardListener(
           autofocus: true,
           focusNode: FocusNode(),
-          onKey: (e) {
+          onKeyEvent: (e) {
             if (!running || paused) return;
-            if (e.isKeyPressed(LogicalKeyboardKey.arrowLeft)) setState(() => _move(-1, 0));
-            if (e.isKeyPressed(LogicalKeyboardKey.arrowRight)) setState(() => _move(1, 0));
-            if (e.isKeyPressed(LogicalKeyboardKey.arrowDown)) setState(() => _move(0, 1));
-            if (e.isKeyPressed(LogicalKeyboardKey.space)) _hardDrop();
-            if (e.isKeyPressed(LogicalKeyboardKey.keyZ)) _rotate(-1);
-            if (e.isKeyPressed(LogicalKeyboardKey.keyX)) _rotate(1);
-            if (e.isKeyPressed(LogicalKeyboardKey.shiftLeft)) _hold();
+            final hw = HardwareKeyboard.instance;
+            if (hw.isLogicalKeyPressed(LogicalKeyboardKey.arrowLeft)) setState(() => _move(-1, 0));
+            if (hw.isLogicalKeyPressed(LogicalKeyboardKey.arrowRight)) setState(() => _move(1, 0));
+            if (hw.isLogicalKeyPressed(LogicalKeyboardKey.arrowDown)) setState(() => _move(0, 1));
+            if (hw.isLogicalKeyPressed(LogicalKeyboardKey.space)) _hardDrop();
+            if (hw.isLogicalKeyPressed(LogicalKeyboardKey.keyZ)) _rotate(-1);
+            if (hw.isLogicalKeyPressed(LogicalKeyboardKey.keyX)) _rotate(1);
+            if (hw.isLogicalKeyPressed(LogicalKeyboardKey.shiftLeft)) _hold();
           },
           child: GestureDetector(
             onPanUpdate: (d) {
               if (paused || !running) return;
               if (d.delta.dx.abs() > d.delta.dy.abs()) {
-                if (d.delta.dx > 0)
+                if (d.delta.dx > 0) {
                   setState(() => _move(1, 0));
-                else
+                } else {
                   setState(() => _move(-1, 0));
+                }
               } else {
                 if (d.delta.dy > 0) setState(() => _move(0, 1));
               }
@@ -609,8 +613,8 @@ class _BoardPainter extends CustomPainter {
 
   void _drawCell(Canvas canvas, Rect r, Color c) {
     final paint = Paint()..color = c;
-    final shade = Paint()..color = Colors.black.withOpacity(.15);
-    final shine = Paint()..color = Colors.white.withOpacity(.2);
+    final shade = Paint()..color = Colors.black.withValues(alpha: .15);
+    final shine = Paint()..color = Colors.white.withValues(alpha: .2);
     final rr = RRect.fromRectAndRadius(r.deflate(1.5), const Radius.circular(4));
     canvas.drawRRect(rr, paint);
     canvas.drawRRect(rr, shade);
@@ -638,7 +642,7 @@ class _ActivePiecePainter extends CustomPainter {
 
     // ghost (outline)
     final ghostPaint = Paint()
-      ..color = col.withOpacity(.25)
+      ..color = col.withValues(alpha: .25)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
 
@@ -654,8 +658,8 @@ class _ActivePiecePainter extends CustomPainter {
       final rect = Rect.fromLTWH(x * cellW, y * cellH, cellW, cellH);
       final rr = RRect.fromRectAndRadius(rect.deflate(1.5), const Radius.circular(4));
       final paint = Paint()..color = col;
-      final shade = Paint()..color = Colors.black.withOpacity(.15);
-      final shine = Paint()..color = Colors.white.withOpacity(.2);
+      final shade = Paint()..color = Colors.black.withValues(alpha: .15);
+      final shine = Paint()..color = Colors.white.withValues(alpha: .2);
       canvas.drawRRect(rr, paint);
       canvas.drawRRect(rr, shade);
       canvas.drawRRect(rr.deflate(4), shine);
@@ -697,7 +701,7 @@ class _MiniPiecePainter extends CustomPainter {
       final rect = Rect.fromLTWH(x, y, cell, cell).deflate(1);
       final rr = RRect.fromRectAndRadius(rect, const Radius.circular(3));
       canvas.drawRRect(rr, Paint()..color = col);
-      canvas.drawRRect(rr.deflate(3), Paint()..color = Colors.white.withOpacity(.2));
+      canvas.drawRRect(rr.deflate(3), Paint()..color = Colors.white.withValues(alpha: .2));
     }
   }
 

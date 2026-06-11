@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, prefer_const_constructors_in_immutables, unnecessary_null_comparison, unused_import
+
 import 'package:flutter/material.dart';
 import 'package:flutter_native_contact_picker/model/contact.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -105,11 +107,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
             left: 0,
             right: 0,
             child: IgnorePointer(
-              child: Image.asset(
-                "assets/images/Group 1000000919.png",
-                fit: BoxFit.cover,
-                height: 400.h,
-              ),
+              child: Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, height: 400.h),
             ),
           ),
           SingleChildScrollView(
@@ -121,30 +119,19 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                 children: [
                   Text(
                     "Save an emergency contact.",
-                    style: TextStyle(
-                      color: HeadingColor,
-                      fontSize: 26.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(color: HeadingColor, fontSize: 26.sp, fontWeight: FontWeight.bold),
                   ),
                   10.verticalSpace,
                   Text(
                     "Who should I\ncall if you need\nhelp?",
-                    style: TextStyle(
-                      color: HeadingColor,
-                      fontSize: 58.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(color: HeadingColor, fontSize: 58.sp, fontWeight: FontWeight.bold),
                   ),
                   40.verticalSpace,
                   Obx(
                     () => Container(
                       height: 60.h,
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24.w,
-                        vertical: 12.h,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(40),
@@ -155,16 +142,9 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              controller.selectedPhoneNumber == null
-                                  ? "Select from contacts"
-                                  : controller.selectedPhoneNumber.toString(),
+                              controller.selectedPhoneNumber == null ? "Select from contacts" : controller.selectedPhoneNumber.toString(),
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                color: controller.selectedContact.value.isEmpty
-                                    ? Colors.grey
-                                    : Colors.black,
-                              ),
+                              style: TextStyle(fontSize: 16.sp, color: controller.selectedContact.value.isEmpty ? Colors.grey : Colors.black),
                             ),
                           ),
                           IconButton(
@@ -172,11 +152,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                               controller.pickContact();
                             },
                             // _pickContact,
-                            icon: Icon(
-                              Icons.contact_emergency,
-                              color: Colors.grey,
-                              size: 26.sp,
-                            ),
+                            icon: Icon(Icons.contact_emergency, color: Colors.grey, size: 26.sp),
                           ),
                         ],
                       ),
@@ -203,10 +179,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                     text: "Next",
                     onPressed: () {
                       print(controller.selectedPhoneNumber.toString());
-                      Get.to(
-                        () => Reminder_Screen(),
-                        transition: Transition.fadeIn,
-                      );
+                      Get.to(() => Reminder_Screen(), transition: Transition.fadeIn);
                     },
                     width: 390.w,
                     height: 50,

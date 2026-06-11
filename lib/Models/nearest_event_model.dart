@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_this, prefer_collection_literals, unnecessary_new
+
 class NearestEventModel {
   bool? success;
   String? message;
@@ -101,9 +103,7 @@ class NearestEventsData {
     data['createdAt'] = this.createdAt;
     data['updatedAt'] = this.updatedAt;
     if (this.eventParticipants != null) {
-      data['eventParticipants'] = this.eventParticipants!
-          .map((v) => v.toJson())
-          .toList();
+      data['eventParticipants'] = this.eventParticipants!.map((v) => v.toJson()).toList();
     }
     data['isMark'] = this.isMark;
     return data;

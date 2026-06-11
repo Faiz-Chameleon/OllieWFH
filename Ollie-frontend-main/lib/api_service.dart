@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_string_interpolations, unused_local_variable, depend_on_referenced_packages, unused_import
+
 import 'dart:convert';
 import 'dart:io';
 

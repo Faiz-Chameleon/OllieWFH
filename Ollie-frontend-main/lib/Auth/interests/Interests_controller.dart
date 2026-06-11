@@ -1,6 +1,6 @@
 // ignore: duplicate_ignore
 // ignore: file_names
-// ignore_for_file: file_names
+// ignore_for_file: avoid_print, file_names
 
 import 'package:flutter_native_contact_picker/flutter_native_contact_picker.dart';
 import 'package:flutter_native_contact_picker/model/contact.dart';
@@ -13,18 +13,13 @@ class InterestModel {
   final String interestId;
   bool isSelected;
 
-  InterestModel({
-    required this.name,
-    required this.interestId,
-    this.isSelected = false,
-  });
+  InterestModel({required this.name, required this.interestId, this.isSelected = false});
 }
 
 class InterestController extends GetxController {
   final AuthRepository authRepository = AuthRepository();
   var interests = <InterestModel>[].obs;
-  final FlutterNativeContactPicker _contactPicker =
-      FlutterNativeContactPicker();
+  final FlutterNativeContactPicker _contactPicker = FlutterNativeContactPicker();
 
   var contacts = <Contact>[].obs;
   var selectedPhoneNumber = ''.obs;
@@ -52,9 +47,7 @@ class InterestController extends GetxController {
     }
   }
 
-  bool get isContactSelected =>
-      selectedContact.value.isNotEmpty &&
-      selectedContactNumber.value.isNotEmpty;
+  bool get isContactSelected => selectedContact.value.isNotEmpty && selectedContactNumber.value.isNotEmpty;
 
   bool get hasSelection => interests.any((e) => e.isSelected);
 
@@ -89,14 +82,7 @@ class InterestController extends GetxController {
         getInterestStatus.value = RequestStatus.success;
 
         final rawList = result['data']["data"] as List;
-        interests.value = rawList
-            .map(
-              (e) => InterestModel(
-                name: e['name'] ?? 'Unnamed',
-                interestId: e["id"],
-              ),
-            )
-            .toList();
+        interests.value = rawList.map((e) => InterestModel(name: e['name'] ?? 'Unnamed', interestId: e["id"])).toList();
       } else {
         Get.snackbar("Failed to Load Interests", result['message']);
       }

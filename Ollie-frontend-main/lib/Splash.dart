@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: unused_import, file_names
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,6 +17,7 @@ class Splash_Screen extends StatefulWidget {
   State<Splash_Screen> createState() => _Splash_ScreenState();
 }
 
+// ignore: camel_case_types
 class _Splash_ScreenState extends State<Splash_Screen> {
   bool _hasNavigated = false;
 
@@ -27,43 +28,43 @@ class _Splash_ScreenState extends State<Splash_Screen> {
   }
 
   void _handleNavigation() async {
-    print('🚀 Splash screen started, waiting 3 seconds...');
+    debugPrint('🚀 Splash screen started, waiting 3 seconds...');
     // Wait for auto-login to complete
     await Future.delayed(const Duration(seconds: 3));
 
     if (!mounted) return;
 
-    print('⏰ 3 seconds passed, checking auto-login status...');
+    debugPrint('⏰ 3 seconds passed, checking auto-login status...');
     final loginController = Get.find<LoginController>();
 
     // Wait for auto-login to complete
     while (loginController.isAutoLoggingIn.value) {
-      print('⏳ Auto-login still in progress, waiting...');
+      debugPrint('⏳ Auto-login still in progress, waiting...');
       await Future.delayed(const Duration(milliseconds: 500));
       if (!mounted) return;
     }
 
-    print('🔍 Auto-login completed, checking if user is logged in...');
+    debugPrint('🔍 Auto-login completed, checking if user is logged in...');
 
     // Check if user is already logged in (auto-login succeeded)
     try {
       final userController = Get.find<UserController>();
       if (userController.user.value != null) {
-        print('✅ User is already logged in, checking navigation flags...');
+        debugPrint('✅ User is already logged in, checking navigation flags...');
 
         // Check if auto-login set navigation flags
         if (loginController.shouldNavigateToProfile.value) {
-          print('📱 Auto-login wants to navigate to CreateProfileScreen...');
+          debugPrint('📱 Auto-login wants to navigate to CreateProfileScreen...');
           _hasNavigated = true;
           try {
             Get.offAll(() => CreateProfileScreen());
             return;
           } catch (e) {
-            print('❌ Navigation to CreateProfileScreen failed: $e');
+            debugPrint('❌ Navigation to CreateProfileScreen failed: $e');
             // Fallback to login
           }
         } else if (loginController.shouldNavigateToHome.value) {
-          print('🏠 Auto-login wants to navigate to HomeScreen...');
+          debugPrint('🏠 Auto-login wants to navigate to HomeScreen...');
           _hasNavigated = true;
           try {
             final bottomController = Get.put(Bottomcontroller());
@@ -71,28 +72,26 @@ class _Splash_ScreenState extends State<Splash_Screen> {
             Get.offAll(() => ConvexStyledBarScreen());
             return;
           } catch (e) {
-            print('❌ Navigation to HomeScreen failed: $e');
+            debugPrint('❌ Navigation to HomeScreen failed: $e');
             // Fallback to login
           }
         } else {
-          print(
-            '✅ User logged in but no navigation needed, staying on current screen',
-          );
+          debugPrint('✅ User logged in but no navigation needed, staying on current screen');
           return; // Don't navigate, user is already logged in
         }
       }
     } catch (e) {
-      print('⚠️ UserController not found: $e');
+      debugPrint('⚠️ UserController not found: $e');
       // Continue to login screen if UserController is not available
     }
 
     // If we haven't navigated yet and user is not logged in, go to login
     if (!_hasNavigated) {
-      print('📱 User not logged in, navigating to Login Screen...');
+      debugPrint('📱 User not logged in, navigating to Login Screen...');
       _hasNavigated = true;
       loginController.navigateToLogin();
     } else {
-      print('🚫 Navigation skipped - Already navigated: $_hasNavigated');
+      debugPrint('🚫 Navigation skipped - Already navigated: $_hasNavigated');
     }
   }
 
@@ -100,10 +99,7 @@ class _Splash_ScreenState extends State<Splash_Screen> {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage("assets/images/962.png"),
-          fit: BoxFit.fill,
-        ),
+        image: DecorationImage(image: AssetImage("assets/images/962.png"), fit: BoxFit.fill),
       ),
     );
   }

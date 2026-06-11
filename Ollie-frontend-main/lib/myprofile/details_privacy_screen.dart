@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_fields, unused_element, unused_field
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ollie/myprofile/delete_account_dialouge.dart';

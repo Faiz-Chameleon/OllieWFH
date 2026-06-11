@@ -19,6 +19,24 @@ class ReviewPostScreen extends StatelessWidget {
   final Assistance_Controller controller = Get.put(Assistance_Controller());
   final UserController userController = Get.find<UserController>();
 
+  bool _isImage(String path) {
+    final lower = path.toLowerCase();
+    return lower.endsWith('.jpg') ||
+        lower.endsWith('.jpeg') ||
+        lower.endsWith('.png') ||
+        lower.endsWith('.gif') ||
+        lower.endsWith('.webp');
+  }
+
+  bool _isVideo(String path) {
+    final lower = path.toLowerCase();
+    return lower.endsWith('.mp4') ||
+        lower.endsWith('.mov') ||
+        lower.endsWith('.m4v') ||
+        lower.endsWith('.avi') ||
+        lower.endsWith('.webm');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,6 +157,46 @@ class ReviewPostScreen extends StatelessWidget {
                         }),
                       ),
                     ),
+                    Obx(
+                      () => controller.attachments.isEmpty
+                          ? const SizedBox.shrink()
+                          : Padding(
+                              padding: const EdgeInsets.only(top: 12),
+                              child: SizedBox(
+                                height: 74,
+                                child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: controller.attachments.length,
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(width: 8),
+                                  itemBuilder: (context, index) {
+                                    final file = controller.attachments[index];
+                                    final path = file.path;
+                                    return ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: SizedBox(
+                                        width: 74,
+                                        height: 74,
+                                        child: _isImage(path)
+                                            ? Image.file(
+                                                File(path),
+                                                fit: BoxFit.cover,
+                                              )
+                                            : Container(
+                                                color: const Color(0xFFF6EEDC),
+                                                child: Icon(
+                                                  _isVideo(path)
+                                                      ? Icons.videocam
+                                                      : Icons.insert_drive_file,
+                                                ),
+                                              ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                    ),
                   ],
                 ),
               ),
@@ -155,7 +213,7 @@ class ReviewPostScreen extends StatelessWidget {
                   return ElevatedButton(
                     onPressed: () async {
                       final deviceToken = await FirebaseService.instance
-                          .getRealDeviceToken();
+                          .getDeviceToken();
                       var data = {
                         "dateAndTime": controller.formattedDateAndTime
                             .toString(),
@@ -165,9 +223,9 @@ class ReviewPostScreen extends StatelessWidget {
                         "latitude": controller.selectedLatitude.value,
                         "postRequestCategory": controller.selectedCategories
                             .toList(),
-                        if (deviceToken != null && deviceToken.isNotEmpty)
+                        if (deviceToken.isNotEmpty)
                           "userDeviceToken": deviceToken,
-                        if (deviceToken != null && deviceToken.isNotEmpty)
+                        if (deviceToken.isNotEmpty)
                           "userDeviceType": Platform.isAndroid
                               ? "ANDROID"
                               : "IOS",

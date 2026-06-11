@@ -62,7 +62,7 @@ class OllieChatScreen extends StatelessWidget {
                 ? Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    color: buttonColor.withOpacity(0.1),
+                    color: buttonColor.withValues(alpha: 0.1),
                     child: Row(
                       children: [
                         const SizedBox(

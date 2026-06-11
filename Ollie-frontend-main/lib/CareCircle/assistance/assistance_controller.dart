@@ -51,7 +51,7 @@ class Assistance_Controller extends GetxController {
 
     formattedDateAndTime.value = combinedDateTime.toUtc().toIso8601String().toString();
 
-    print("dateAndTime: $formattedDateAndTime");
+    debugPrint("dateAndTime: $formattedDateAndTime");
   }
 
   RxString formattedDateAndTime = "".obs;

@@ -1,4 +1,4 @@
-// ignore_for_file: use_full_hex_values_for_flutter_colors, avoid_unnecessary_containers, avoid_print
+// ignore_for_file: library_private_types_in_public_api, use_key_in_widget_constructors, unnecessary_import, unused_element, use_full_hex_values_for_flutter_colors, avoid_unnecessary_containers, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

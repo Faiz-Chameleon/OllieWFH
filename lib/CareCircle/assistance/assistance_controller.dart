@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
@@ -36,6 +37,7 @@ class Assistance_Controller extends GetxController {
   RxDouble selectedLongitude = 0.0.obs;
   final RxBool hasLocationPermission = false.obs;
   final RxBool isSearchingLocation = false.obs;
+  final RxList<XFile> attachments = <XFile>[].obs;
   final RxList<GooglePlacePrediction> locationPredictions =
       <GooglePlacePrediction>[].obs;
   Timer? _locationSearchDebounce;
@@ -322,6 +324,7 @@ class Assistance_Controller extends GetxController {
     locationPredictions.clear();
     _locationSearchDebounce?.cancel();
     selectedCategories.clear();
+    attachments.clear();
     selectedVolunteer.value = '';
     formattedDateAndTime.value = '';
     hasLocationPermission.value = false;
@@ -329,10 +332,38 @@ class Assistance_Controller extends GetxController {
 
   var createAssistanceStatus = RequestStatus.idle.obs;
 
+  bool get canAddMoreAttachments => attachments.length < 10;
+
+  void addAttachments(List<XFile> files) {
+    if (files.isEmpty) return;
+
+    final availableSlots = 10 - attachments.length;
+    if (availableSlots <= 0) {
+      appSnackbar("Limit Reached", "You can attach up to 10 files.");
+      return;
+    }
+
+    attachments.addAll(files.take(availableSlots));
+    if (files.length > availableSlots) {
+      appSnackbar("Limit Reached", "Only 10 files can be attached.");
+    }
+  }
+
+  void removeAttachmentAt(int index) {
+    if (index < 0 || index >= attachments.length) return;
+    attachments.removeAt(index);
+  }
+
   void createAssistanceByUser(data) async {
     createAssistanceStatus.value = RequestStatus.loading;
+    debugPrint(
+      '[Assistance] Creating request with ${attachments.length} attachment(s). Fields: ${data.keys.join(', ')}',
+    );
 
-    final result = await createAssistanceRepository.userCreateAssistance(data);
+    final result = await createAssistanceRepository.userCreateAssistance(
+      data,
+      attachments.toList(),
+    );
 
     if (result['success'] == true) {
       clearAssistanceData();

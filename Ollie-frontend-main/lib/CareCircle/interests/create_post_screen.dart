@@ -1,3 +1,5 @@
+// ignore_for_file: no_leading_underscores_for_local_identifiers, unused_import
+
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';

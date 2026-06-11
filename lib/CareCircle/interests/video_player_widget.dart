@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, deprecated_member_use, library_private_types_in_public_api, use_super_parameters
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';

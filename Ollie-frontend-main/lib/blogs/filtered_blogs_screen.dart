@@ -1,3 +1,5 @@
+// ignore_for_file: use_full_hex_values_for_flutter_colors, unused_import, unnecessary_import
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';

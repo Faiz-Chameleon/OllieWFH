@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, dead_null_aware_expression, unused_import
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

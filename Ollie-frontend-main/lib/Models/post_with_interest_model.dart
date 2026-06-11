@@ -20,12 +20,12 @@ class PostWithInterest {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{}; // Removed 'new'
-    data['success'] = this.success;
-    data['message'] = this.message;
+    data['success'] = success;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
-    data['totalCount'] = this.totalCount;
+    data['totalCount'] = totalCount;
     return data;
   }
 }
@@ -78,7 +78,7 @@ class PostWithInterestData {
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
     user = json['user'] != null ? User.fromJson(json['user']) : null; // Removed 'new'
-    category = json['category'] != null ? new Category.fromJson(json['category']) : null;
+    category = json['category'] != null ? Category.fromJson(json['category']) : null;
     cCount = json['_count'] != null ? Count.fromJson(json['_count']) : null; // Removed 'new'
     if (json['savedByUsers'] != null) {
       savedByUsers = <dynamic>[]; // Changed from <Null> to <dynamic>
@@ -98,32 +98,32 @@ class PostWithInterestData {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{}; // Removed 'new'
-    data['id'] = this.id;
-    data['title'] = this.title;
-    data['content'] = this.content;
-    data['categoryId'] = this.categoryId;
-    data['image'] = this.image;
-    data['userId'] = this.userId;
-    data['views'] = this.views;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    if (this.user != null) {
-      data['user'] = this.user!.toJson();
+    data['id'] = id;
+    data['title'] = title;
+    data['content'] = content;
+    data['categoryId'] = categoryId;
+    data['image'] = image;
+    data['userId'] = userId;
+    data['views'] = views;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    if (user != null) {
+      data['user'] = user!.toJson();
     }
-    if (this.category != null) {
-      data['category'] = this.category!.toJson();
+    if (category != null) {
+      data['category'] = category!.toJson();
     }
-    if (this.cCount != null) {
-      data['_count'] = this.cCount!.toJson();
+    if (cCount != null) {
+      data['_count'] = cCount!.toJson();
     }
-    if (this.savedByUsers != null) {
-      data['savedByUsers'] = this.savedByUsers!; // Just assign the list directly
+    if (savedByUsers != null) {
+      data['savedByUsers'] = savedByUsers!; // Just assign the list directly
     }
-    if (this.userpostlikes != null) {
-      data['userpostlikes'] = this.userpostlikes!; // Just assign the list directly
+    if (userpostlikes != null) {
+      data['userpostlikes'] = userpostlikes!; // Just assign the list directly
     }
-    data['isSavePost'] = this.isSavePost;
-    data['isLikePost'] = this.isLikePost;
+    data['isSavePost'] = isSavePost;
+    data['isLikePost'] = isLikePost;
     return data;
   }
 }
@@ -207,29 +207,29 @@ class User {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{}; // Removed 'new'
-    data['id'] = this.id;
-    data['email'] = this.email;
-    data['password'] = this.password;
-    data['phoneNumber'] = this.phoneNumber;
-    data['firstName'] = this.firstName;
-    data['lastName'] = this.lastName;
-    data['dateOfBirth'] = this.dateOfBirth;
-    data['gender'] = this.gender;
-    data['deviceType'] = this.deviceType;
-    data['deviceToken'] = this.deviceToken;
-    data['isCreatedProfile'] = this.isCreatedProfile;
-    data['image'] = this.image;
-    data['city'] = this.city;
-    data['country'] = this.country;
-    data['states'] = this.states;
-    data['userType'] = this.userType;
-    data['notificationOnAndOff'] = this.notificationOnAndOff;
-    data['emergencyContactNumber'] = this.emergencyContactNumber;
-    data['wantDailySupplement'] = this.wantDailySupplement;
-    data['wantDailyActivities'] = this.wantDailyActivities;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    data['showAds'] = this.showAds;
+    data['id'] = id;
+    data['email'] = email;
+    data['password'] = password;
+    data['phoneNumber'] = phoneNumber;
+    data['firstName'] = firstName;
+    data['lastName'] = lastName;
+    data['dateOfBirth'] = dateOfBirth;
+    data['gender'] = gender;
+    data['deviceType'] = deviceType;
+    data['deviceToken'] = deviceToken;
+    data['isCreatedProfile'] = isCreatedProfile;
+    data['image'] = image;
+    data['city'] = city;
+    data['country'] = country;
+    data['states'] = states;
+    data['userType'] = userType;
+    data['notificationOnAndOff'] = notificationOnAndOff;
+    data['emergencyContactNumber'] = emergencyContactNumber;
+    data['wantDailySupplement'] = wantDailySupplement;
+    data['wantDailyActivities'] = wantDailyActivities;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['showAds'] = showAds;
     return data;
   }
 }
@@ -247,8 +247,8 @@ class Count {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{}; // Removed 'new'
-    data['userpostlikes'] = this.userpostlikes;
-    data['userpostcomments'] = this.userpostcomments;
+    data['userpostlikes'] = userpostlikes;
+    data['userpostcomments'] = userpostcomments;
     return data;
   }
 }
@@ -267,10 +267,10 @@ class Category {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['adminId'] = this.adminId;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['adminId'] = adminId;
     return data;
   }
 }

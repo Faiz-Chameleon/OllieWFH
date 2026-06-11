@@ -139,7 +139,7 @@ class _SelectCategoryScreenState extends State<SelectCategoryScreen> {
                           () => ChooseDateTimeScreen(),
                           transition: Transition.fadeIn,
                         );
-                        print(
+                        debugPrint(
                           "Selected category: ${controller.selectedCategory.value?.name}",
                         );
                       } else {
@@ -148,7 +148,7 @@ class _SelectCategoryScreenState extends State<SelectCategoryScreen> {
                           "Please selct category to proceed",
                         );
                       }
-                      print(
+                      debugPrint(
                         "Selected category: ${controller.selectedCategories.toList()}",
                       );
                     },

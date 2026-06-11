@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: unnecessary_null_comparison, unused_element, deprecated_member_use
 
 import 'dart:io';
 import 'package:flutter/material.dart';

@@ -1,4 +1,4 @@
-// ignore_for_file: use_full_hex_values_for_flutter_colors
+// ignore_for_file: dead_null_aware_expression, unused_local_variable, use_full_hex_values_for_flutter_colors
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

@@ -62,7 +62,7 @@ class Group_Creation_Screen extends StatelessWidget {
                           text: "Next",
                           onPressed: controller.groupName.value.isNotEmpty
                               ? () {
-                                  print("Group name: ${controller.groupName.value}");
+                                  debugPrint("Group name: ${controller.groupName.value}");
                                   Get.to(() => GroupDisplayPictureScreen());
                                 }
                               : null,

@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element, unused_import
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -32,8 +34,7 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF7E9),
       body: Obx(() {
-        if (widget.controller.getIndividuaBlogDetailsStatus.value ==
-            RequestStatus.loading) {
+        if (widget.controller.getIndividuaBlogDetailsStatus.value == RequestStatus.loading) {
           return const Center(child: CircularProgressIndicator());
         }
 
@@ -47,13 +48,9 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
               children: [
                 // Blog Image
                 ClipRRect(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(24.r),
-                    bottomRight: Radius.circular(24.r),
-                  ),
+                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24.r), bottomRight: Radius.circular(24.r)),
                   child: Image.network(
-                    blog.image ??
-                        "https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg", // Replace with your image URL
+                    blog.image ?? "https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg", // Replace with your image URL
                     width: double.infinity,
                     height: 280.h,
                     fit: BoxFit.cover,
@@ -93,11 +90,7 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
                         children: [
                           _tag(blog.category?.name ?? "N/A"),
                           // _tag("6 min read"),
-                          _tag(
-                            widget.controller.timeAgo(
-                              blog.createdAt.toString(),
-                            ),
-                          ),
+                          _tag(widget.controller.timeAgo(blog.createdAt.toString())),
                           _tag("Sponsored", bgColor: Color(0xFFFFE08A)),
                         ],
                       ),
@@ -105,10 +98,7 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
                       // Title
                       Text(
                         blog.title ?? '',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20.sp,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
                       ),
                       20.verticalSpace,
                       // Author + Likes + Comments
@@ -120,20 +110,11 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
                             child: Icon(Icons.person, color: Colors.white),
                           ),
                           8.horizontalSpace,
-                          const Text(
-                            "Jean Prangley",
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
+                          const Text("Jean Prangley", style: TextStyle(fontWeight: FontWeight.w600)),
                           const Spacer(),
                           Obx(() {
-                            final blog =
-                                widget.controller.completeBlogData.value.data;
-                            final isLoading =
-                                widget
-                                    .controller
-                                    .likeOrUnlikeBlogStatus
-                                    .value ==
-                                RequestStatus.loading;
+                            final blog = widget.controller.completeBlogData.value.data;
+                            final isLoading = widget.controller.likeOrUnlikeBlogStatus.value == RequestStatus.loading;
 
                             if (blog == null) {
                               return const SizedBox.shrink(); // Or handle null safely
@@ -143,37 +124,20 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
                               onTap: isLoading
                                   ? null
                                   : () async {
-                                      await widget.controller.likeOrUnlikeBlog(
-                                        blog.id!,
-                                      );
+                                      await widget.controller.likeOrUnlikeBlog(blog.id!);
                                     },
                               child: Row(
                                 children: [
                                   if (isLoading)
-                                    SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    )
+                                    SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                                   else
                                     Icon(
-                                      blog.isLiked == true
-                                          ? Icons.thumb_up
-                                          : Icons.thumb_up_alt_outlined,
+                                      blog.isLiked == true ? Icons.thumb_up : Icons.thumb_up_alt_outlined,
                                       size: 18,
-                                      color: blog.isLiked == true
-                                          ? Colors.red
-                                          : Colors.grey.shade700,
+                                      color: blog.isLiked == true ? Colors.red : Colors.grey.shade700,
                                     ),
                                   4.horizontalSpace,
-                                  Text(
-                                    "${blog.cCount?.likes ?? 0}",
-                                    style: TextStyle(
-                                      color: Colors.grey.shade700,
-                                    ),
-                                  ),
+                                  Text("${blog.cCount?.likes ?? 0}", style: TextStyle(color: Colors.grey.shade700)),
                                 ],
                               ),
                             );
@@ -181,27 +145,13 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
                           16.horizontalSpace,
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => CommentTreeScreen(
-                                    blogId: blog.id.toString(),
-                                  ),
-                                ),
-                              );
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => CommentTreeScreen(blogId: blog.id.toString())));
                             },
                             child: Row(
                               children: [
-                                Icon(
-                                  Icons.comment,
-                                  size: 18,
-                                  color: Colors.grey.shade700,
-                                ),
+                                Icon(Icons.comment, size: 18, color: Colors.grey.shade700),
                                 4.horizontalSpace,
-                                Text(
-                                  "${blog.cCount?.comments ?? 0}",
-                                  style: TextStyle(color: Colors.grey.shade700),
-                                ),
+                                Text("${blog.cCount?.comments ?? 0}", style: TextStyle(color: Colors.grey.shade700)),
                               ],
                             ),
                           ),
@@ -213,11 +163,7 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
                       // Content
                       Text(
                         blog.content ?? '',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          height: 1.5,
-                          color: Colors.grey.shade800,
-                        ),
+                        style: TextStyle(fontSize: 14.sp, height: 1.5, color: Colors.grey.shade800),
                       ),
                       40.verticalSpace,
                     ],
@@ -234,10 +180,7 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
   Widget _tag(String label, {Color bgColor = const Color(0xffF5F5F5)}) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(20.r),
-      ),
+      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(20.r)),
       child: Text(label, style: TextStyle(fontSize: 12.sp)),
     );
   }
@@ -268,9 +211,7 @@ void showCommentsBottomSheet(BuildContext context) {
     context: context,
     isScrollControlled: true,
     backgroundColor: const Color(0xFFFFF7E9),
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
     builder: (_) => DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.75,
@@ -278,10 +219,7 @@ void showCommentsBottomSheet(BuildContext context) {
         controller: controller,
         padding: const EdgeInsets.all(16),
         children: const [
-          Text(
-            "Comments",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
+          Text("Comments", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           SizedBox(height: 16),
           _CommentWidget(user: "Julia Michael", comment: "Love this!"),
           _CommentWidget(user: "Shelley", comment: "Haha!"),
@@ -304,10 +242,7 @@ class _CommentWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const CircleAvatar(
-            radius: 16,
-            backgroundImage: AssetImage("assets/icons/Frame 1686560584.png"),
-          ),
+          const CircleAvatar(radius: 16, backgroundImage: AssetImage("assets/icons/Frame 1686560584.png")),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -331,15 +266,7 @@ class TooltipShapeBorder extends ShapeBorder {
   @override
   Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
     const arrowSize = 6.0;
-    final r = RRect.fromRectAndRadius(
-      Rect.fromLTWH(
-        rect.left,
-        rect.top + arrowSize,
-        rect.width,
-        rect.height - arrowSize,
-      ),
-      const Radius.circular(8),
-    );
+    final r = RRect.fromRectAndRadius(Rect.fromLTWH(rect.left, rect.top + arrowSize, rect.width, rect.height - arrowSize), const Radius.circular(8));
     final path = Path()..addRRect(r);
     final centerX = rect.left + rect.width - 20;
     path.moveTo(centerX, rect.top + arrowSize);
@@ -350,8 +277,7 @@ class TooltipShapeBorder extends ShapeBorder {
   }
 
   @override
-  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
-      getOuterPath(rect);
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) => getOuterPath(rect);
 
   @override
   void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}

@@ -14,7 +14,7 @@ class BlogCategoryScreen extends StatefulWidget {
   final BlogsController controller;
   final String category;
   final String topicId;
-  BlogCategoryScreen({super.key, required this.category, required this.controller, required this.topicId});
+  const BlogCategoryScreen({super.key, required this.category, required this.controller, required this.topicId});
 
   @override
   State<BlogCategoryScreen> createState() => _BlogCategoryScreenState();
@@ -270,12 +270,14 @@ class _BlogCategoryScreenState extends State<BlogCategoryScreen> {
             title: Text(label),
             trailing: Radio<String>(
               value: label,
+              // ignore: deprecated_member_use
               groupValue: controller.selectedSort.value,
+              // ignore: deprecated_member_use
               onChanged: (val) {
                 if (val != null) {
                   controller.selectedSort.value = val;
                   applyFilter(val.toLowerCase());
-                  Get.back(); // Close the bottom sheet
+                  Get.back();
                 }
               },
             ),

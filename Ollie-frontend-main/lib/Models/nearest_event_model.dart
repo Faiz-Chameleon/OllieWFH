@@ -11,15 +11,15 @@ class NearestEventModel {
     if (json['data'] != null) {
       data = <NearestEventsData>[];
       json['data'].forEach((v) {
-        data!.add(new NearestEventsData.fromJson(v));
+        data!.add(NearestEventsData.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['success'] = success;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -79,33 +79,33 @@ class NearestEventsData {
     if (json['eventParticipants'] != null) {
       eventParticipants = <EventParticipants>[];
       json['eventParticipants'].forEach((v) {
-        eventParticipants!.add(new EventParticipants.fromJson(v));
+        eventParticipants!.add(EventParticipants.fromJson(v));
       });
     }
     isMark = json['isMark'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['eventName'] = this.eventName;
-    data['eventDescription'] = this.eventDescription;
-    data['eventDateAndTime'] = this.eventDateAndTime;
-    data['eventAddress'] = this.eventAddress;
-    data['eventStates'] = this.eventStates;
-    data['eventCity'] = this.eventCity;
-    data['eventCountry'] = this.eventCountry;
-    data['eventParticipant'] = this.eventParticipant;
-    data['image'] = this.image;
-    data['createdById'] = this.createdById;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    if (this.eventParticipants != null) {
-      data['eventParticipants'] = this.eventParticipants!
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['eventName'] = eventName;
+    data['eventDescription'] = eventDescription;
+    data['eventDateAndTime'] = eventDateAndTime;
+    data['eventAddress'] = eventAddress;
+    data['eventStates'] = eventStates;
+    data['eventCity'] = eventCity;
+    data['eventCountry'] = eventCountry;
+    data['eventParticipant'] = eventParticipant;
+    data['image'] = image;
+    data['createdById'] = createdById;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    if (eventParticipants != null) {
+      data['eventParticipants'] = eventParticipants!
           .map((v) => v.toJson())
           .toList();
     }
-    data['isMark'] = this.isMark;
+    data['isMark'] = isMark;
     return data;
   }
 }
@@ -120,8 +120,8 @@ class EventParticipants {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['isMark'] = this.isMark;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['isMark'] = isMark;
     return data;
   }
 }

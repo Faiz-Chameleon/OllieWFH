@@ -1,3 +1,5 @@
+// ignore_for_file: dead_null_aware_expression
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

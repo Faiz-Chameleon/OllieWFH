@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, prefer_const_constructors_in_immutables, unused_element, unused_import
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -36,11 +38,7 @@ class _LatestBlogsScreenState extends State<LatestBlogsScreen> {
         elevation: 0,
         title: Text(
           "Latest Blogs",
-          style: GoogleFonts.darkerGrotesque(
-            color: Colors.black87,
-            fontSize: 24.sp,
-            fontWeight: FontWeight.w700,
-          ),
+          style: GoogleFonts.darkerGrotesque(color: Colors.black87, fontSize: 24.sp, fontWeight: FontWeight.w700),
         ),
         leading: const BackButton(color: Colors.black),
         actions: [
@@ -62,11 +60,7 @@ class _LatestBlogsScreenState extends State<LatestBlogsScreen> {
           return Center(
             child: Text(
               "No topics found.",
-              style: GoogleFonts.darkerGrotesque(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
+              style: GoogleFonts.darkerGrotesque(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Colors.black87),
             ),
           );
         }
@@ -105,11 +99,7 @@ class _LatestBlogsScreenState extends State<LatestBlogsScreen> {
                                   children: [
                                     Text(
                                       blog.category?.name ?? "",
-                                      style: GoogleFonts.darkerGrotesque(
-                                        color: Colors.brown,
-                                        fontSize: 15.sp,
-                                        fontWeight: FontWeight.w700,
-                                      ),
+                                      style: GoogleFonts.darkerGrotesque(color: Colors.brown, fontSize: 15.sp, fontWeight: FontWeight.w700),
                                     ),
                                     6.verticalSpace,
                                     Text(
@@ -126,20 +116,12 @@ class _LatestBlogsScreenState extends State<LatestBlogsScreen> {
                                       children: [
                                         Text(
                                           widget.controller.timeAgo(blog.createdAt.toString()),
-                                          style: GoogleFonts.darkerGrotesque(
-                                            color: Colors.black54,
-                                            fontSize: 16.sp,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                          style: GoogleFonts.darkerGrotesque(color: Colors.black54, fontSize: 16.sp, fontWeight: FontWeight.w600),
                                         ),
                                         SizedBox(width: 8.w),
                                         Text(
                                           "6 min read",
-                                          style: GoogleFonts.darkerGrotesque(
-                                            color: Colors.black54,
-                                            fontSize: 16.sp,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                          style: GoogleFonts.darkerGrotesque(color: Colors.black54, fontSize: 16.sp, fontWeight: FontWeight.w600),
                                         ),
 
                                         // if (blog["title"]!.contains(

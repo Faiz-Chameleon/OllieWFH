@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_super_parameters, prefer_const_constructors_in_immutables
+
 import 'package:flutter/material.dart';
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:get/get.dart';
