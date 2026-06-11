@@ -7,10 +7,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 
 import 'package:ollie/Constants/Constants.dart';
+import 'package:ollie/common/app_typography.dart';
 
-double responsiveFontSize(double base, {double min = 16, double max = 24}) {
-  return base.sp.clamp(min, max).toDouble();
-}
+export 'package:ollie/common/app_typography.dart';
 
 void appSnackbar(
   String title,

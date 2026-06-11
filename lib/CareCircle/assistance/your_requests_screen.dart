@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:ollie/CareCircle/assistance/assistance_media_widgets.dart';
 import 'package:ollie/CareCircle/care_circle_controller.dart';
 import 'package:ollie/Volunteers/volunteers_scnreen.dart';
 import 'package:ollie/request_status.dart';
@@ -10,6 +11,18 @@ import 'package:ollie/request_status.dart';
 class YourRequestsFullScreen extends StatelessWidget {
   final CareCircleController controller;
   const YourRequestsFullScreen({super.key, required this.controller});
+
+  String _categoryLabel(dynamic categories) {
+    if (categories is List && categories.isNotEmpty) {
+      final names = categories
+          .map((category) => category?.name?.toString().trim())
+          .whereType<String>()
+          .where((name) => name.isNotEmpty)
+          .toList();
+      if (names.isNotEmpty) return names.join(", ");
+    }
+    return "Errands";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,16 +129,18 @@ class YourRequestsFullScreen extends StatelessWidget {
                               ],
                             ),
                             Row(
-                              children: const [
-                                Icon(
+                              children: [
+                                const Icon(
                                   Icons.local_offer_outlined,
                                   size: 16,
                                   color: Colors.black54,
                                 ),
-                                SizedBox(width: 4),
+                                const SizedBox(width: 4),
                                 Text(
-                                  "Errands",
-                                  style: TextStyle(
+                                  _categoryLabel(
+                                    createdAssistanceRequest.categories,
+                                  ),
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -170,6 +185,13 @@ class YourRequestsFullScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 10),
+                        if (createdAssistanceRequest.attachments?.isNotEmpty ==
+                            true) ...[
+                          AssistanceMediaStrip(
+                            attachments: createdAssistanceRequest.attachments!,
+                          ),
+                          const SizedBox(height: 10),
+                        ],
 
                         /// Bottom Buttons
                         Row(

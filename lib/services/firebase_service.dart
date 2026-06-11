@@ -13,12 +13,12 @@ class FirebaseService {
       'Unable to get a valid FCM token. On iOS, APNs must be available first; use a real device with Push Notifications/APNs configured.';
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  final FlutterLocalNotificationsPlugin _localNotifications =
-      FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
   bool _initialized = false;
   bool _listenersAttached = false;
   bool _tokenRefreshListenerAttached = false;
   DateTime? _lastApnsUnavailableAt;
+  final List<Future<void> Function(RemoteMessage message)> _messageHandlers = [];
 
   static const Duration _apnsRetryCooldown = Duration(seconds: 30);
 
@@ -47,35 +47,22 @@ class FirebaseService {
 
   Future<void> _initLocalNotifications() async {
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosInit = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
-    const initSettings = InitializationSettings(
-      android: androidInit,
-      iOS: iosInit,
-    );
+    const iosInit = DarwinInitializationSettings(requestAlertPermission: true, requestBadgePermission: true, requestSoundPermission: true);
+    const initSettings = InitializationSettings(android: androidInit, iOS: iosInit);
 
     await _localNotifications.initialize(initSettings);
 
-    final iosPlugin = _localNotifications
-        .resolvePlatformSpecificImplementation<
-          IOSFlutterLocalNotificationsPlugin
-        >();
+    final iosPlugin = _localNotifications.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
     await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
 
-    final androidPlugin = _localNotifications
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
+    final androidPlugin = _localNotifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     await androidPlugin?.createNotificationChannel(_channel);
+    await androidPlugin?.requestNotificationsPermission();
   }
 
   Future<void> _showLocalNotification(RemoteMessage message) async {
     final notification = message.notification;
-    final title =
-        notification?.title ?? message.data['title']?.toString() ?? 'Ollie';
+    final title = notification?.title ?? message.data['title']?.toString() ?? 'Ollie';
     final body = notification?.body ?? message.data['body']?.toString() ?? '';
 
     _logFcm('Showing local notification', remoteMessage: message);
@@ -88,15 +75,35 @@ class FirebaseService {
       priority: Priority.high,
     );
 
-    const notificationDetails = NotificationDetails(android: androidDetails);
-
-    await _localNotifications.show(
-      message.hashCode,
-      title,
-      body,
-      notificationDetails,
-      payload: message.data.toString(),
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
     );
+
+    const notificationDetails = NotificationDetails(android: androidDetails, iOS: iosDetails);
+
+    await _localNotifications.show(message.hashCode, title, body, notificationDetails, payload: message.data.toString());
+  }
+
+  void addMessageHandler(Future<void> Function(RemoteMessage message) handler) {
+    if (!_messageHandlers.contains(handler)) {
+      _messageHandlers.add(handler);
+    }
+  }
+
+  void removeMessageHandler(Future<void> Function(RemoteMessage message) handler) {
+    _messageHandlers.remove(handler);
+  }
+
+  Future<void> _notifyMessageHandlers(RemoteMessage message) async {
+    for (final handler in List<Future<void> Function(RemoteMessage message)>.from(_messageHandlers)) {
+      try {
+        await handler(message);
+      } catch (e) {
+        debugPrint('[FCM] Message handler failed: $e');
+      }
+    }
   }
 
   Future<void> showIncomingNotification(RemoteMessage message) async {
@@ -110,10 +117,12 @@ class FirebaseService {
     FirebaseMessaging.onMessage.listen((message) {
       _logFcm('Foreground message received', remoteMessage: message);
       _showLocalNotification(message);
+      _notifyMessageHandlers(message);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
       _logFcm('Notification tapped', remoteMessage: message);
+      _notifyMessageHandlers(message);
     });
   }
 
@@ -128,11 +137,7 @@ class FirebaseService {
     });
   }
 
-  Future<String?> _waitForApnsToken(
-    FirebaseMessaging messaging, {
-    required bool wait,
-    bool logResult = true,
-  }) async {
+  Future<String?> _waitForApnsToken(FirebaseMessaging messaging, {required bool wait, bool logResult = true}) async {
     String? apnsToken = await messaging.getAPNSToken();
 
     for (var attempt = 0; wait && apnsToken == null && attempt < 6; attempt++) {
@@ -155,32 +160,22 @@ class FirebaseService {
     return DateTime.now().difference(lastUnavailableAt) < _apnsRetryCooldown;
   }
 
-  Future<String?> _fetchAndCacheFcmToken({
-    bool waitForApnsToken = true,
-    bool logMissingApns = true,
-  }) async {
+  Future<String?> _fetchAndCacheFcmToken({bool waitForApnsToken = true, bool logMissingApns = true}) async {
     try {
       final messaging = FirebaseMessaging.instance;
 
-      if (defaultTargetPlatform == TargetPlatform.iOS ||
-          defaultTargetPlatform == TargetPlatform.macOS) {
+      if (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS) {
         if (_shouldSkipApnsRetry(waitForApnsToken)) {
           return null;
         }
 
-        final apnsToken = await _waitForApnsToken(
-          messaging,
-          wait: waitForApnsToken,
-          logResult: logMissingApns,
-        );
+        final apnsToken = await _waitForApnsToken(messaging, wait: waitForApnsToken, logResult: logMissingApns);
         if (apnsToken == null) {
           if (waitForApnsToken) {
             _lastApnsUnavailableAt = DateTime.now();
           }
           if (logMissingApns) {
-            debugPrint(
-              '[FCM] APNs token is not available yet. FCM token cannot be generated on iOS until APNs is ready.',
-            );
+            debugPrint('[FCM] APNs token is not available yet. FCM token cannot be generated on iOS until APNs is ready.');
           }
           return null;
         }
@@ -208,20 +203,15 @@ class FirebaseService {
       return cachedToken;
     }
 
-    final generatedToken =
-        'fallback-${defaultTargetPlatform.name}-${DateTime.now().microsecondsSinceEpoch}';
+    final generatedToken = 'fallback-${defaultTargetPlatform.name}-${DateTime.now().microsecondsSinceEpoch}';
     await _storage.write(key: fallbackTokenKey, value: generatedToken);
-    debugPrint(
-      '[FCM] Using fallback device token because FCM token is unavailable',
-    );
+    debugPrint('[FCM] Using fallback device token because FCM token is unavailable');
     return generatedToken;
   }
 
   bool _isUsableFcmToken(String? token) {
     final value = token?.trim() ?? '';
-    return value.isNotEmpty &&
-        value != 'test' &&
-        !value.startsWith('fallback-');
+    return value.isNotEmpty && value != 'test' && !value.startsWith('fallback-');
   }
 
   Future<bool> initialize() async {
@@ -230,29 +220,17 @@ class FirebaseService {
     }
 
     try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
       final messaging = FirebaseMessaging.instance;
       await messaging.requestPermission(alert: true, badge: true, sound: true);
       await _initLocalNotifications();
       _attachFirebaseListeners();
-      await FirebaseMessaging.instance
-          .setForegroundNotificationPresentationOptions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
+      await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
 
       final settings = await messaging.getNotificationSettings();
-      debugPrint(
-        '[FCM] iOS authorization status: ${settings.authorizationStatus}',
-      );
+      debugPrint('[FCM] ${defaultTargetPlatform.name} authorization status: ${settings.authorizationStatus}');
       debugPrint('[FCM] Firebase initialized successfully');
-      await _fetchAndCacheFcmToken(
-        waitForApnsToken: false,
-        logMissingApns: false,
-      );
+      await _fetchAndCacheFcmToken(waitForApnsToken: false, logMissingApns: false);
       _attachTokenRefreshListener();
 
       _initialized = true;
@@ -274,7 +252,7 @@ class FirebaseService {
       return _getOrCreateFallbackDeviceToken();
     }
 
-    final token = await _fetchAndCacheFcmToken();
+    final token = await _fetchAndCacheFcmToken(waitForApnsToken: false, logMissingApns: false);
     if (token != null && token.isNotEmpty) {
       return token;
     }
@@ -293,9 +271,19 @@ class FirebaseService {
       return null;
     }
 
-    final token = await _fetchAndCacheFcmToken(
-      waitForApnsToken: waitForApnsToken,
-    );
+    final token = await _fetchAndCacheFcmToken(waitForApnsToken: waitForApnsToken);
     return _isUsableFcmToken(token) ? token : null;
+  }
+
+  Future<Map<String, String>> getDeviceRegistrationPayload({bool waitForApnsToken = true}) async {
+    final token = await getRealDeviceToken(waitForApnsToken: waitForApnsToken);
+    if (token == null || token.isEmpty) {
+      return const {};
+    }
+
+    return {
+      'userDeviceToken': token,
+      'userDeviceType': defaultTargetPlatform == TargetPlatform.android ? 'ANDROID' : 'IOS',
+    };
   }
 }

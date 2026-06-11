@@ -1,7 +1,5 @@
 // ignore_for_file: avoid_print
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -59,15 +57,9 @@ class FinalScreen extends StatelessWidget {
                       return CustomButton(
                         text: "Next",
                         onPressed: () async {
-                          final deviceToken = await FirebaseService.instance
-                              .getRealDeviceToken();
-                          if (deviceToken == null || deviceToken.isEmpty) {
-                            appSnackbar(
-                              "Push Token Required",
-                              FirebaseService.tokenUnavailableMessage,
-                            );
-                            return;
-                          }
+                          final deviceRegistrationPayload =
+                              await FirebaseService.instance
+                                  .getDeviceRegistrationPayload();
                           var data = {
                             "userPhoneNumber": controller.fullPhoneNumber.value,
                             "userFirstName":
@@ -84,10 +76,7 @@ class FinalScreen extends StatelessWidget {
                                 .toList(),
                             "newInterests": interestController.customInterests
                                 .toList(),
-                            "userDeviceToken": deviceToken,
-                            "userDeviceType": Platform.isAndroid
-                                ? "ANDROID"
-                                : "IOS",
+                            ...deviceRegistrationPayload,
                             "emergencyContactNumber":
                                 interestController.selectedPhoneNumber.value,
                             "wantDailyActivities":

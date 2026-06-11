@@ -1,14 +1,15 @@
-import 'dart:convert';
+// ignore_for_file: unused_import
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:ollie/CareCircle/groups/one_to_many_chat_controller.dart';
+import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/HomeMain/bottomController.dart';
 import 'package:ollie/Splash.dart';
 import 'package:ollie/Storage/SharedPreferencesService.dart';
@@ -55,16 +56,18 @@ class MyApp extends StatelessWidget {
 
     return ScreenUtilInit(
       designSize: const Size(440, 956),
+      minTextAdapt: true,
+      splitScreenMode: true,
       builder: (context, child) {
         return MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.05)),
+          data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
           child: GetMaterialApp(
             title: 'Ollie',
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
               useMaterial3: true,
               fontFamily: 'Darker Grotesque',
-              textTheme: GoogleFonts.darkerGrotesqueTextTheme(),
+              textTheme: appTextTheme(),
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.yellowAccent),
             ),
             home: _determineStartScreen(),

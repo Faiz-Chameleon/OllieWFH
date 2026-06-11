@@ -1,3 +1,5 @@
+// ignore_for_file: use_super_parameters, camel_case_types
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -5,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/CareCircle/assistance/assistance_detail_screen.dart';
+import 'package:ollie/CareCircle/assistance/assistance_media_widgets.dart';
 import 'package:ollie/CareCircle/assistance/select_category_screen.dart';
 import 'package:ollie/CareCircle/care_circle_controller.dart';
 import 'package:ollie/Constants/Constants.dart';
@@ -26,7 +29,8 @@ class Assistance_screen extends StatefulWidget {
 }
 
 class _Assistance_screenState extends State<Assistance_screen> {
-  final OneToOneChatController chatController = Get.find<OneToOneChatController>();
+  final OneToOneChatController chatController =
+      Get.find<OneToOneChatController>();
 
   Future<void> _openNearbyFilterSheet() async {
     await widget.controller.loadAssistanceFilterCurrentLocation();
@@ -36,18 +40,22 @@ class _Assistance_screenState extends State<Assistance_screen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (_) => _AssistanceNearbyFilterSheet(controller: widget.controller),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) =>
+          _AssistanceNearbyFilterSheet(controller: widget.controller),
     );
   }
 
   String _categoryLabel(dynamic categories) {
     if (categories is List && categories.isNotEmpty) {
-      final firstCategory = categories.first;
-      final name = firstCategory?.name?.toString().trim();
-      if (name != null && name.isNotEmpty) {
-        return name;
-      }
+      final names = categories
+          .map((category) => category?.name?.toString().trim())
+          .whereType<String>()
+          .where((name) => name.isNotEmpty)
+          .toList();
+      if (names.isNotEmpty) return names.join(", ");
     }
     return "Errands";
   }
@@ -67,22 +75,32 @@ class _Assistance_screenState extends State<Assistance_screen> {
                 showStyledCreditDialog(
                   context: context,
                   title: "Use Credits?",
-                  message: "Sending this request will deduct 1 credit from your balance. Do you want to continue?",
+                  message:
+                      "Sending this request will deduct 1 credit from your balance. Do you want to continue?",
                   continueText: "Continue",
                   cancelText: "Cancel",
                   onContinue: () {
-                    Get.to(() => SelectCategoryScreen(), transition: Transition.fadeIn);
+                    Get.to(
+                      () => SelectCategoryScreen(),
+                      transition: Transition.fadeIn,
+                    );
                   },
                 );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: ksecondaryColor,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
                 padding: EdgeInsets.symmetric(vertical: 14.h),
               ),
               child: Text(
                 "Add New Request",
-                style: GoogleFonts.darkerGrotesque(color: Colors.black, fontWeight: FontWeight.bold, fontSize: responsiveFontSize(20, min: 18, max: 24)),
+                style: GoogleFonts.darkerGrotesque(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: responsiveFontSize(20, min: 18, max: 24),
+                ),
               ),
             ),
           ),
@@ -103,22 +121,40 @@ class _Assistance_screenState extends State<Assistance_screen> {
             children: [
               Text(
                 "Assistance Nearby",
-                style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold, fontSize: responsiveFontSize(22, min: 20, max: 26)),
+                style: GoogleFonts.darkerGrotesque(
+                  fontWeight: FontWeight.bold,
+                  fontSize: responsiveFontSize(22, min: 20, max: 26),
+                ),
               ),
               const Spacer(),
               Obx(() {
-                final isFiltered = widget.controller.assistanceFilterEnabled.value;
+                final isFiltered =
+                    widget.controller.assistanceFilterEnabled.value;
                 return Row(
                   children: [
                     if (isFiltered)
                       GestureDetector(
                         onTap: widget.controller.clearAssistanceNearbyFilter,
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                          decoration: BoxDecoration(color: const Color(0xFFF2ECE3), borderRadius: BorderRadius.circular(20)),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 8.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF2ECE3),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
                           child: Text(
                             "Clear",
-                            style: GoogleFonts.darkerGrotesque(color: Colors.black87, fontSize: responsiveFontSize(18, min: 16, max: 22), fontWeight: FontWeight.w600),
+                            style: GoogleFonts.darkerGrotesque(
+                              color: Colors.black87,
+                              fontSize: responsiveFontSize(
+                                18,
+                                min: 16,
+                                max: 22,
+                              ),
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
@@ -128,10 +164,15 @@ class _Assistance_screenState extends State<Assistance_screen> {
                       child: Container(
                         padding: EdgeInsets.all(10.w),
                         decoration: BoxDecoration(
-                          color: isFiltered ? ksecondaryColor : const Color(0xFFF2ECE3),
+                          color: isFiltered
+                              ? ksecondaryColor
+                              : const Color(0xFFF2ECE3),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Icon(Icons.filter_alt_outlined, color: Colors.black),
+                        child: const Icon(
+                          Icons.filter_alt_outlined,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
                   ],
@@ -160,14 +201,18 @@ class _Assistance_screenState extends State<Assistance_screen> {
                 location == null
                     ? "Nearby filter active"
                     : "Showing requests within ${widget.controller.assistanceFilterRadiusKm.value.toStringAsFixed(0)} km of ${location.latitude.toStringAsFixed(4)}, ${location.longitude.toStringAsFixed(4)}",
-                style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(17, min: 15, max: 20), fontWeight: FontWeight.w500),
+                style: GoogleFonts.darkerGrotesque(
+                  fontSize: responsiveFontSize(17, min: 15, max: 20),
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             );
           }),
 
           // Volunteer Requests PageView
           Obx(() {
-            if (widget.controller.getOthersCrteatedAssistanceStatus.value == RequestStatus.loading) {
+            if (widget.controller.getOthersCrteatedAssistanceStatus.value ==
+                RequestStatus.loading) {
               return const Center(child: CircularProgressIndicator());
             }
             if (widget.controller.othersCreatedAssistance.isEmpty) {
@@ -179,17 +224,25 @@ class _Assistance_screenState extends State<Assistance_screen> {
                 itemCount: widget.controller.othersCreatedAssistance.length,
                 onPageChanged: widget.controller.changePage,
                 itemBuilder: (context, index) {
-                  final otherAssistanceData = widget.controller.othersCreatedAssistance[index];
+                  final otherAssistanceData =
+                      widget.controller.othersCreatedAssistance[index];
                   return GestureDetector(
                     onTap: () {
                       Get.to(
-                        () => AssistanceDetailScreen(controller: widget.controller, assistance: otherAssistanceData, index: index),
+                        () => AssistanceDetailScreen(
+                          controller: widget.controller,
+                          assistance: otherAssistanceData,
+                          index: index,
+                        ),
                         transition: Transition.fadeIn,
                       );
                     },
                     child: Container(
                       margin: EdgeInsets.only(right: 8.w),
-                      decoration: BoxDecoration(color: white, borderRadius: BorderRadius.circular(16)),
+                      decoration: BoxDecoration(
+                        color: white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       padding: EdgeInsets.all(18.w),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,23 +252,52 @@ class _Assistance_screenState extends State<Assistance_screen> {
                             children: [
                               Row(
                                 children: [
-                                  CircleAvatar(radius: 12, backgroundColor: grey),
+                                  CircleAvatar(
+                                    radius: 12,
+                                    backgroundColor: grey,
+                                  ),
                                   SizedBox(width: 8.w),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         "Posted by ${otherAssistanceData.user?.firstName ?? ""}",
-                                        style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(19, min: 17, max: 24), fontWeight: FontWeight.w500),
+                                        style: GoogleFonts.darkerGrotesque(
+                                          fontSize: responsiveFontSize(
+                                            19,
+                                            min: 17,
+                                            max: 24,
+                                          ),
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                       Text(
-                                        widget.controller.formatDateAndTime(otherAssistanceData.scheduledAt.toString()),
-                                        style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(17, min: 15, max: 20), color: grey),
+                                        widget.controller.formatDateAndTime(
+                                          otherAssistanceData.scheduledAt
+                                              .toString(),
+                                        ),
+                                        style: GoogleFonts.darkerGrotesque(
+                                          fontSize: responsiveFontSize(
+                                            17,
+                                            min: 15,
+                                            max: 20,
+                                          ),
+                                          color: grey,
+                                        ),
                                       ),
-                                      if (otherAssistanceData.distanceKm != null)
+                                      if (otherAssistanceData.distanceKm !=
+                                          null)
                                         Text(
                                           "${otherAssistanceData.distanceKm!.toStringAsFixed(1)} km away",
-                                          style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(17, min: 15, max: 20), color: const Color(0xFF9C7D4A)),
+                                          style: GoogleFonts.darkerGrotesque(
+                                            fontSize: responsiveFontSize(
+                                              17,
+                                              min: 15,
+                                              max: 20,
+                                            ),
+                                            color: const Color(0xFF9C7D4A),
+                                          ),
                                         ),
                                     ],
                                   ),
@@ -223,11 +305,24 @@ class _Assistance_screenState extends State<Assistance_screen> {
                               ),
                               Row(
                                 children: [
-                                  Icon(Icons.shopping_bag_outlined, size: 16, color: Black),
+                                  Icon(
+                                    Icons.shopping_bag_outlined,
+                                    size: 16,
+                                    color: Black,
+                                  ),
                                   SizedBox(width: 4.w),
                                   Text(
-                                    _categoryLabel(otherAssistanceData.categories),
-                                    style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(19, min: 17, max: 24), fontWeight: FontWeight.w500),
+                                    _categoryLabel(
+                                      otherAssistanceData.categories,
+                                    ),
+                                    style: GoogleFonts.darkerGrotesque(
+                                      fontSize: responsiveFontSize(
+                                        19,
+                                        min: 17,
+                                        max: 24,
+                                      ),
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -236,17 +331,34 @@ class _Assistance_screenState extends State<Assistance_screen> {
                           const SizedBox(height: 10),
                           Text(
                             otherAssistanceData.description ?? "",
-                            style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(18, min: 16, max: 22), fontWeight: FontWeight.w500),
+                            style: GoogleFonts.darkerGrotesque(
+                              fontSize: responsiveFontSize(
+                                18,
+                                min: 16,
+                                max: 22,
+                              ),
+                              fontWeight: FontWeight.w500,
+                            ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 10),
                           Expanded(
                             child: GoogleMapPreview(
-                              latitude: otherAssistanceData.latitude ?? 40.712776,
-                              longitude: otherAssistanceData.longitude ?? -74.005974,
+                              latitude:
+                                  otherAssistanceData.latitude ?? 40.712776,
+                              longitude:
+                                  otherAssistanceData.longitude ?? -74.005974,
                             ),
                           ),
+                          if (otherAssistanceData.attachments?.isNotEmpty ==
+                              true) ...[
+                            const SizedBox(height: 8),
+                            AssistanceMediaStrip(
+                              attachments: otherAssistanceData.attachments!,
+                              height: 46,
+                            ),
+                          ],
                           const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -273,61 +385,143 @@ class _Assistance_screenState extends State<Assistance_screen> {
                               Obx(() {
                                 return ElevatedButton(
                                   onPressed:
-                                      !(otherAssistanceData.status == "NoRequest" ||
-                                          widget.controller.canVolunteerComplete(otherAssistanceData.status))
+                                      !(otherAssistanceData.status ==
+                                              "NoRequest" ||
+                                          widget.controller
+                                              .canVolunteerComplete(
+                                                otherAssistanceData.status,
+                                              ))
                                       ? null
                                       : () async {
-                                          final userController = Get.put(UserController());
-                                          final String loggedInUserId = userController.user.value?.id ?? '';
+                                          final userController = Get.put(
+                                            UserController(),
+                                          );
+                                          final String loggedInUserId =
+                                              userController.user.value?.id ??
+                                              '';
                                           String requestId = "";
-                                          for (final volunteerRequest in (otherAssistanceData.volunteerRequests ?? [])) {
-                                            if (volunteerRequest.volunteerId == loggedInUserId) {
-                                              requestId = volunteerRequest.id ?? "";
+                                          for (final volunteerRequest
+                                              in (otherAssistanceData
+                                                      .volunteerRequests ??
+                                                  [])) {
+                                            if (volunteerRequest.volunteerId ==
+                                                loggedInUserId) {
+                                              requestId =
+                                                  volunteerRequest.id ?? "";
                                               break;
                                             }
                                           }
-                                          widget.controller.postLoadingStatus[index].value = true;
-                                          if (otherAssistanceData.status == "NoRequest") {
-                                            await widget.controller.reachOutOnAssistance(otherAssistanceData.id ?? "", index);
-                                          } else if (widget.controller.canVolunteerComplete(otherAssistanceData.status) && requestId.isNotEmpty) {
-                                            await widget.controller.completeAssistanceByVolunter(requestId);
+                                          widget
+                                                  .controller
+                                                  .postLoadingStatus[index]
+                                                  .value =
+                                              true;
+                                          if (otherAssistanceData.status ==
+                                              "NoRequest") {
+                                            await widget.controller
+                                                .reachOutOnAssistance(
+                                                  otherAssistanceData.id ?? "",
+                                                  index,
+                                                );
+                                          } else if (widget.controller
+                                                  .canVolunteerComplete(
+                                                    otherAssistanceData.status,
+                                                  ) &&
+                                              requestId.isNotEmpty) {
+                                            await widget.controller
+                                                .completeAssistanceByVolunter(
+                                                  requestId,
+                                                );
                                           }
 
-                                          widget.controller.postLoadingStatus[index].value = false;
+                                          widget
+                                                  .controller
+                                                  .postLoadingStatus[index]
+                                                  .value =
+                                              false;
                                         },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: otherAssistanceData.status == "NoRequest" ? const Color(0xFFF4BD2A) : Colors.green,
+                                    backgroundColor:
+                                        otherAssistanceData.status ==
+                                            "NoRequest"
+                                        ? const Color(0xFFF4BD2A)
+                                        : Colors.green,
                                     minimumSize: Size(0, 44.h),
-                                    padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 14.w,
+                                      vertical: 10.h,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
                                   ),
-                                  child: widget.controller.postLoadingStatus[index].value
+                                  child:
+                                      widget
+                                          .controller
+                                          .postLoadingStatus[index]
+                                          .value
                                       ? const CircularProgressIndicator()
                                       : Text(
-                                          otherAssistanceData.status == "ReachOut"
+                                          otherAssistanceData.status ==
+                                                  "ReachOut"
                                               ? "Mark as Completed"
-                                              : widget.controller.statusLabelForOtherAssistance(otherAssistanceData.status),
-                                          style: GoogleFonts.darkerGrotesque(color: Colors.black, fontSize: responsiveFontSize(17, min: 15, max: 21), fontWeight: FontWeight.w600),
+                                              : widget.controller
+                                                    .statusLabelForOtherAssistance(
+                                                      otherAssistanceData
+                                                          .status,
+                                                    ),
+                                          style: GoogleFonts.darkerGrotesque(
+                                            color: Colors.black,
+                                            fontSize: responsiveFontSize(
+                                              17,
+                                              min: 15,
+                                              max: 21,
+                                            ),
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                 );
                               }),
                               GestureDetector(
                                 onTap: () async {
-                                  var data = {"userId": otherAssistanceData.user?.id.toString() ?? ""};
-                                  await chatController.createOneOnOneChat(data).then((value) {
-                                    Get.to(
-                                      () => ChatScreen(
-                                        userName: otherAssistanceData.user?.firstName.toString() ?? "",
-                                        userImage: otherAssistanceData.user?.image.toString() ?? "",
-                                      ),
-                                    );
-                                  });
+                                  var data = {
+                                    "userId":
+                                        otherAssistanceData.user?.id
+                                            .toString() ??
+                                        "",
+                                  };
+                                  await chatController
+                                      .createOneOnOneChat(data)
+                                      .then((value) {
+                                        Get.to(
+                                          () => ChatScreen(
+                                            userName:
+                                                otherAssistanceData
+                                                    .user
+                                                    ?.firstName
+                                                    .toString() ??
+                                                "",
+                                            userImage:
+                                                otherAssistanceData.user?.image
+                                                    .toString() ??
+                                                "",
+                                          ),
+                                        );
+                                      });
                                 },
                                 child: Obx(() {
-                                  if (chatController.createChatRoomRequestStatus.value == RequestStatus.loading) {
-                                    return const Center(child: CircularProgressIndicator());
+                                  if (chatController
+                                          .createChatRoomRequestStatus
+                                          .value ==
+                                      RequestStatus.loading) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
                                   }
-                                  return Icon(Icons.mark_unread_chat_alt_sharp, size: 28.sp);
+                                  return Icon(
+                                    Icons.mark_unread_chat_alt_sharp,
+                                    size: 28.sp,
+                                  );
                                 }),
                               ),
                             ],
@@ -346,17 +540,22 @@ class _Assistance_screenState extends State<Assistance_screen> {
           Obx(() {
             return Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(widget.controller.othersCreatedAssistance.length, (index) {
-                return Container(
-                  margin: EdgeInsets.symmetric(horizontal: 4.w),
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: widget.controller.currentPage.value == index ? const Color(0xFF3C3129) : Colors.grey.shade400,
-                  ),
-                );
-              }),
+              children: List.generate(
+                widget.controller.othersCreatedAssistance.length,
+                (index) {
+                  return Container(
+                    margin: EdgeInsets.symmetric(horizontal: 4.w),
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: widget.controller.currentPage.value == index
+                          ? const Color(0xFF3C3129)
+                          : Colors.grey.shade400,
+                    ),
+                  );
+                },
+              ),
             );
           }),
 
@@ -367,11 +566,23 @@ class _Assistance_screenState extends State<Assistance_screen> {
             children: [
               Text(
                 "Your Requests",
-                style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold, fontSize: responsiveFontSize(22, min: 20, max: 26)),
+                style: GoogleFonts.darkerGrotesque(
+                  fontWeight: FontWeight.bold,
+                  fontSize: responsiveFontSize(22, min: 20, max: 26),
+                ),
               ),
               GestureDetector(
-                onTap: () => Get.to(() => YourRequestsFullScreen(controller: widget.controller), transition: Transition.fadeIn),
-                child: Text("See All", style: GoogleFonts.darkerGrotesque(color: Colors.grey, fontSize: responsiveFontSize(16, min: 14, max: 18))),
+                onTap: () => Get.to(
+                  () => YourRequestsFullScreen(controller: widget.controller),
+                  transition: Transition.fadeIn,
+                ),
+                child: Text(
+                  "See All",
+                  style: GoogleFonts.darkerGrotesque(
+                    color: Colors.grey,
+                    fontSize: responsiveFontSize(16, min: 14, max: 18),
+                  ),
+                ),
               ),
             ],
           ),
@@ -379,7 +590,8 @@ class _Assistance_screenState extends State<Assistance_screen> {
 
           // Your Requests PageView
           Obx(() {
-            if (widget.controller.getCrteatedAssistanceStatus.value == RequestStatus.loading) {
+            if (widget.controller.getCrteatedAssistanceStatus.value ==
+                RequestStatus.loading) {
               return const Center(child: CircularProgressIndicator());
             }
             if (widget.controller.createdAssistance.isEmpty) {
@@ -392,12 +604,16 @@ class _Assistance_screenState extends State<Assistance_screen> {
                 itemCount: widget.controller.createdAssistance.length,
                 onPageChanged: widget.controller.changeYourRequestPage,
                 itemBuilder: (context, index) {
-                  final createdAssistanceRequest = widget.controller.createdAssistance[index];
+                  final createdAssistanceRequest =
+                      widget.controller.createdAssistance[index];
 
                   // final isCompleted = controller.taskCompleted.value;
                   return Container(
                     margin: EdgeInsets.only(right: 8.w),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     padding: EdgeInsets.all(14.w),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -407,18 +623,38 @@ class _Assistance_screenState extends State<Assistance_screen> {
                           children: [
                             Row(
                               children: [
-                                CircleAvatar(radius: 12, backgroundColor: Colors.grey),
+                                CircleAvatar(
+                                  radius: 12,
+                                  backgroundColor: Colors.grey,
+                                ),
                                 SizedBox(width: 8.w),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       "Posted by ${createdAssistanceRequest.user?.firstName ?? ""}",
-                                      style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(18, min: 16, max: 22), fontWeight: FontWeight.w500),
+                                      style: GoogleFonts.darkerGrotesque(
+                                        fontSize: responsiveFontSize(
+                                          18,
+                                          min: 16,
+                                          max: 22,
+                                        ),
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                     Text(
-                                      widget.controller.formatDateAndTime(createdAssistanceRequest.scheduledAt.toString()),
-                                      style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(16, min: 14, max: 18), color: Colors.grey),
+                                      widget.controller.formatDateAndTime(
+                                        createdAssistanceRequest.scheduledAt
+                                            .toString(),
+                                      ),
+                                      style: GoogleFonts.darkerGrotesque(
+                                        fontSize: responsiveFontSize(
+                                          16,
+                                          min: 14,
+                                          max: 18,
+                                        ),
+                                        color: Colors.grey,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -426,11 +662,24 @@ class _Assistance_screenState extends State<Assistance_screen> {
                             ),
                             Row(
                               children: [
-                                Icon(Icons.shopping_bag_outlined, size: 16, color: Colors.black54),
+                                Icon(
+                                  Icons.shopping_bag_outlined,
+                                  size: 16,
+                                  color: Colors.black54,
+                                ),
                                 SizedBox(width: 4.w),
                                 Text(
-                                  "Errands",
-                                  style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(18, min: 16, max: 22), fontWeight: FontWeight.w500),
+                                  _categoryLabel(
+                                    createdAssistanceRequest.categories,
+                                  ),
+                                  style: GoogleFonts.darkerGrotesque(
+                                    fontSize: responsiveFontSize(
+                                      18,
+                                      min: 16,
+                                      max: 22,
+                                    ),
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ],
                             ),
@@ -439,45 +688,87 @@ class _Assistance_screenState extends State<Assistance_screen> {
                         const SizedBox(height: 10),
                         Text(
                           createdAssistanceRequest.description ?? "",
-                          style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(18, min: 16, max: 22), fontWeight: FontWeight.w500),
+                          style: GoogleFonts.darkerGrotesque(
+                            fontSize: responsiveFontSize(18, min: 16, max: 22),
+                            fontWeight: FontWeight.w500,
+                          ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 10),
                         Expanded(
                           child: GoogleMapPreview(
-                            latitude: createdAssistanceRequest.latitude ?? 40.712776,
-                            longitude: createdAssistanceRequest.longitude ?? -74.005974,
+                            latitude:
+                                createdAssistanceRequest.latitude ?? 40.712776,
+                            longitude:
+                                createdAssistanceRequest.longitude ??
+                                -74.005974,
                           ),
                         ),
+                        if (createdAssistanceRequest.attachments?.isNotEmpty ==
+                            true) ...[
+                          const SizedBox(height: 8),
+                          AssistanceMediaStrip(
+                            attachments: createdAssistanceRequest.attachments!,
+                            height: 46,
+                          ),
+                        ],
                         const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             GestureDetector(
-                              onTap: widget.controller.canOwnerConfirmCompletion(createdAssistanceRequest.status)
+                              onTap:
+                                  widget.controller.canOwnerConfirmCompletion(
+                                    createdAssistanceRequest.status,
+                                  )
                                   ? () {
                                       String requestId = "";
-                                      for (final volunteerRequest in (createdAssistanceRequest.volunteerRequests ?? [])) {
-                                        if (volunteerRequest.status == "MarkAsCompleted") {
+                                      for (final volunteerRequest
+                                          in (createdAssistanceRequest
+                                                  .volunteerRequests ??
+                                              [])) {
+                                        if (volunteerRequest.status ==
+                                            "MarkAsCompleted") {
                                           requestId = volunteerRequest.id ?? "";
                                           break;
                                         }
                                       }
                                       if (requestId.isNotEmpty) {
-                                        widget.controller.completeTaskByOwner(requestId, postId: createdAssistanceRequest.id);
+                                        widget.controller.completeTaskByOwner(
+                                          requestId,
+                                          postId: createdAssistanceRequest.id,
+                                        );
                                       }
                                     }
                                   : null,
                               child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16.w,
+                                  vertical: 8.h,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: createdAssistanceRequest.status == "NoRequest" ? const Color(0xFFB4E197) : const Color(0xFFF4BD2A),
+                                  color:
+                                      createdAssistanceRequest.status ==
+                                          "NoRequest"
+                                      ? const Color(0xFFB4E197)
+                                      : const Color(0xFFF4BD2A),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
-                                  widget.controller.statusLabelForOwnerAssistance(createdAssistanceRequest.status),
-                                  style: GoogleFonts.darkerGrotesque(color: Colors.black, fontSize: responsiveFontSize(16, min: 14, max: 20), fontWeight: FontWeight.w600),
+                                  widget.controller
+                                      .statusLabelForOwnerAssistance(
+                                        createdAssistanceRequest.status,
+                                      ),
+                                  style: GoogleFonts.darkerGrotesque(
+                                    color: Colors.black,
+                                    fontSize: responsiveFontSize(
+                                      16,
+                                      min: 14,
+                                      max: 20,
+                                    ),
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ),
@@ -510,17 +801,24 @@ class _Assistance_screenState extends State<Assistance_screen> {
           Obx(
             () => Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(widget.controller.createdAssistance.length, (index) {
-                return Container(
-                  margin: EdgeInsets.symmetric(horizontal: 4.w),
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: widget.controller.currentYourRequestPage.value == index ? const Color(0xFF3C3129) : Colors.grey.shade400,
-                  ),
-                );
-              }),
+              children: List.generate(
+                widget.controller.createdAssistance.length,
+                (index) {
+                  return Container(
+                    margin: EdgeInsets.symmetric(horizontal: 4.w),
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color:
+                          widget.controller.currentYourRequestPage.value ==
+                              index
+                          ? const Color(0xFF3C3129)
+                          : Colors.grey.shade400,
+                    ),
+                  );
+                },
+              ),
             ),
           ),
           160.verticalSpace,
@@ -536,10 +834,12 @@ class _AssistanceNearbyFilterSheet extends StatefulWidget {
   final CareCircleController controller;
 
   @override
-  State<_AssistanceNearbyFilterSheet> createState() => _AssistanceNearbyFilterSheetState();
+  State<_AssistanceNearbyFilterSheet> createState() =>
+      _AssistanceNearbyFilterSheetState();
 }
 
-class _AssistanceNearbyFilterSheetState extends State<_AssistanceNearbyFilterSheet> {
+class _AssistanceNearbyFilterSheetState
+    extends State<_AssistanceNearbyFilterSheet> {
   late double selectedRadiusKm;
 
   @override
@@ -560,7 +860,12 @@ class _AssistanceNearbyFilterSheetState extends State<_AssistanceNearbyFilterShe
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 16.h, bottom: MediaQuery.of(context).viewInsets.bottom + 16.h),
+        padding: EdgeInsets.only(
+          left: 16.w,
+          right: 16.w,
+          top: 16.h,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 16.h,
+        ),
         child: Obx(() {
           final location = widget.controller.assistanceFilterLocation.value;
           final isLoading = widget.controller.assistanceFilterLoading.value;
@@ -573,18 +878,27 @@ class _AssistanceNearbyFilterSheetState extends State<_AssistanceNearbyFilterShe
                 child: Container(
                   width: 42,
                   height: 4,
-                  decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(999)),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
                 ),
               ),
               SizedBox(height: 16.h),
               Text(
                 "Nearby Assistance Filter",
-                style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(24, min: 22, max: 28), fontWeight: FontWeight.bold),
+                style: GoogleFonts.darkerGrotesque(
+                  fontSize: responsiveFontSize(24, min: 22, max: 28),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               SizedBox(height: 6.h),
               Text(
                 "Use your current location to show requests within a few kilometers.",
-                style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(17, min: 15, max: 20), color: Colors.black54),
+                style: GoogleFonts.darkerGrotesque(
+                  fontSize: responsiveFontSize(17, min: 15, max: 20),
+                  color: Colors.black54,
+                ),
               ),
               SizedBox(height: 16.h),
               ClipRRect(
@@ -596,17 +910,36 @@ class _AssistanceNearbyFilterSheetState extends State<_AssistanceNearbyFilterShe
                       ? const Center(child: CircularProgressIndicator())
                       : location == null
                       ? Center(
-                          child: Text("Current location unavailable", style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(18, min: 16, max: 22))),
+                          child: Text(
+                            "Current location unavailable",
+                            style: GoogleFonts.darkerGrotesque(
+                              fontSize: responsiveFontSize(
+                                18,
+                                min: 16,
+                                max: 22,
+                              ),
+                            ),
+                          ),
                         )
                       : GoogleMap(
-                          initialCameraPosition: CameraPosition(target: location, zoom: _zoomForRadius(selectedRadiusKm)),
-                          markers: {Marker(markerId: const MarkerId('current_location'), position: location)},
+                          initialCameraPosition: CameraPosition(
+                            target: location,
+                            zoom: _zoomForRadius(selectedRadiusKm),
+                          ),
+                          markers: {
+                            Marker(
+                              markerId: const MarkerId('current_location'),
+                              position: location,
+                            ),
+                          },
                           circles: {
                             Circle(
                               circleId: const CircleId('nearby_radius'),
                               center: location,
                               radius: selectedRadiusKm * 1000,
-                              fillColor: const Color(0xFFF4BD2A).withValues(alpha: 0.18),
+                              fillColor: const Color(
+                                0xFFF4BD2A,
+                              ).withValues(alpha: 0.18),
                               strokeColor: const Color(0xFFF4BD2A),
                               strokeWidth: 2,
                             ),
@@ -620,7 +953,10 @@ class _AssistanceNearbyFilterSheetState extends State<_AssistanceNearbyFilterShe
               SizedBox(height: 16.h),
               Text(
                 "Radius: ${selectedRadiusKm.toStringAsFixed(0)} km",
-                style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(18, min: 16, max: 22), fontWeight: FontWeight.w600),
+                style: GoogleFonts.darkerGrotesque(
+                  fontSize: responsiveFontSize(18, min: 16, max: 22),
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               Slider(
                 value: selectedRadiusKm,
@@ -640,7 +976,8 @@ class _AssistanceNearbyFilterSheetState extends State<_AssistanceNearbyFilterShe
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () async {
-                        await widget.controller.loadAssistanceFilterCurrentLocation();
+                        await widget.controller
+                            .loadAssistanceFilterCurrentLocation();
                       },
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.black,
@@ -650,7 +987,10 @@ class _AssistanceNearbyFilterSheetState extends State<_AssistanceNearbyFilterShe
                       ),
                       child: Text(
                         "Refresh Location",
-                        style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(18, min: 16, max: 22), fontWeight: FontWeight.w600),
+                        style: GoogleFonts.darkerGrotesque(
+                          fontSize: responsiveFontSize(18, min: 16, max: 22),
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -660,7 +1000,10 @@ class _AssistanceNearbyFilterSheetState extends State<_AssistanceNearbyFilterShe
                       onPressed: location == null
                           ? null
                           : () async {
-                              await widget.controller.applyAssistanceNearbyFilter(radiusKm: selectedRadiusKm);
+                              await widget.controller
+                                  .applyAssistanceNearbyFilter(
+                                    radiusKm: selectedRadiusKm,
+                                  );
                               if (context.mounted) {
                                 Navigator.of(context).pop();
                               }
@@ -673,7 +1016,10 @@ class _AssistanceNearbyFilterSheetState extends State<_AssistanceNearbyFilterShe
                       ),
                       child: Text(
                         "Apply Filter",
-                        style: GoogleFonts.darkerGrotesque(fontSize: responsiveFontSize(18, min: 16, max: 22), fontWeight: FontWeight.w700),
+                        style: GoogleFonts.darkerGrotesque(
+                          fontSize: responsiveFontSize(18, min: 16, max: 22),
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),

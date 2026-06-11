@@ -314,6 +314,13 @@ class LoginController extends GetxController {
     print('  - Auto-login status: ${isAutoLoggingIn.value}');
   }
 
+  @override
+  void onClose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.onClose();
+  }
+
   // Check if remember me is enabled
   Future<bool> isRememberMeEnabled() async {
     final storage = FlutterSecureStorage();
@@ -333,19 +340,12 @@ class LoginController extends GetxController {
     final resolvedToken =
         deviceToken ?? await FirebaseService.instance.getRealDeviceToken();
 
-    if (resolvedToken == null || resolvedToken.isEmpty) {
-      loginStatus.value = RequestStatus.error;
-      appSnackbar(
-        "Push Token Required",
-        FirebaseService.tokenUnavailableMessage,
-      );
-      return;
-    }
-
     final payload = {
       ...data,
-      'userDeviceType': Platform.isAndroid ? 'ANDROID' : 'IOS',
-      'userDeviceToken': resolvedToken,
+      if (resolvedToken != null && resolvedToken.isNotEmpty)
+        'userDeviceType': Platform.isAndroid ? 'ANDROID' : 'IOS',
+      if (resolvedToken != null && resolvedToken.isNotEmpty)
+        'userDeviceToken': resolvedToken,
       'userTimeZone': await DeviceTimeZoneService.getIanaTimeZone(),
     };
 
@@ -366,13 +366,15 @@ class LoginController extends GetxController {
         final storage = FlutterSecureStorage();
         await storage.write(key: 'userToken', value: userModel.data?.userToken);
         appSnackbar("Success", "Please Complete Your Profile");
-        Get.to(() => CreateProfileScreen(), transition: Transition.fadeIn);
+        Get.offAll(() => CreateProfileScreen(), transition: Transition.fadeIn);
       } else {
         final storage = FlutterSecureStorage();
         await storage.write(key: 'userToken', value: userModel.data?.userToken);
-        final bottomController = Get.put(Bottomcontroller());
+        final bottomController = Get.isRegistered<Bottomcontroller>()
+            ? Get.find<Bottomcontroller>()
+            : Get.put(Bottomcontroller());
         bottomController.updateIndex(0);
-        Get.to(() => ConvexStyledBarScreen(), transition: Transition.fadeIn);
+        Get.offAll(() => ConvexStyledBarScreen(), transition: Transition.fadeIn);
 
         appSnackbar("Success", result['message'] ?? "User registered");
       }

@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: avoid_print, duplicate_ignore, camel_case_types, unused_import, file_names
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,7 +11,9 @@ import 'package:ollie/Auth/CreateProfile/createProfile.dart';
 
 // ignore: camel_case_types
 class Splash_Screen extends StatefulWidget {
-  const Splash_Screen({super.key});
+  final bool enableNavigation;
+
+  const Splash_Screen({super.key, this.enableNavigation = true});
 
   @override
   State<Splash_Screen> createState() => _Splash_ScreenState();
@@ -23,7 +25,9 @@ class _Splash_ScreenState extends State<Splash_Screen> {
   @override
   void initState() {
     super.initState();
-    _handleNavigation();
+    if (widget.enableNavigation) {
+      _handleNavigation();
+    }
   }
 
   void _handleNavigation() async {
@@ -75,8 +79,17 @@ class _Splash_ScreenState extends State<Splash_Screen> {
             // Fallback to login
           }
         } else {
-          print('✅ User logged in but no navigation needed, staying on current screen');
-          return; // Don't navigate, user is already logged in
+          print('✅ User logged in without navigation flags, defaulting to HomeScreen...');
+          _hasNavigated = true;
+          try {
+            final bottomController = Get.isRegistered<Bottomcontroller>() ? Get.find<Bottomcontroller>() : Get.put(Bottomcontroller());
+            bottomController.updateIndex(0);
+            Get.offAll(() => ConvexStyledBarScreen());
+            return;
+          } catch (e) {
+            print('❌ Default navigation to HomeScreen failed: $e');
+            _hasNavigated = false;
+          }
         }
       }
     } catch (e) {

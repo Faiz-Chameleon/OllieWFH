@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -78,7 +80,9 @@ class CreateProfileController extends GetxController {
   var createProfileStatus = RequestStatus.idle.obs;
 
   clearFields() {
-    final interestController = Get.put(InterestController());
+    final interestController = Get.isRegistered<InterestController>()
+        ? Get.find<InterestController>()
+        : Get.put(InterestController());
 
     firstNameController.clear();
     lastNameController.clear();
@@ -103,16 +107,20 @@ class CreateProfileController extends GetxController {
     if (result['success'] == true) {
       clearFields();
       final userModel = UserModel.fromJson(result);
-      final userController = Get.put(UserController());
+      final userController = Get.isRegistered<UserController>()
+          ? Get.find<UserController>()
+          : Get.put(UserController());
       if (userModel.data != null) {
         userController.setUser(userModel.data!);
       }
       final storage = FlutterSecureStorage();
       await storage.write(key: 'userToken', value: userModel.data?.userToken);
       createProfileStatus.value = RequestStatus.success;
-      final bottomController = Get.put(Bottomcontroller());
+      final bottomController = Get.isRegistered<Bottomcontroller>()
+          ? Get.find<Bottomcontroller>()
+          : Get.put(Bottomcontroller());
       bottomController.updateIndex(0);
-      Get.to(() => ConvexStyledBarScreen(), transition: Transition.fadeIn);
+      Get.offAll(() => ConvexStyledBarScreen(), transition: Transition.fadeIn);
 
       appSnackbar("Success", result['message'] ?? "User registered");
     } else {
@@ -120,5 +128,13 @@ class CreateProfileController extends GetxController {
 
       appSnackbar("Error", result['message'] ?? "Registration failed");
     }
+  }
+
+  @override
+  void onClose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
+    phoneController.dispose();
+    super.onClose();
   }
 }

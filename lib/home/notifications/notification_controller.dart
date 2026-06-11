@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:ollie/home/notifications/notification_repository.dart';
 import 'package:ollie/request_status.dart';
+import 'package:ollie/services/firebase_service.dart';
 
 class NotificationItem {
   final String id;
@@ -42,7 +44,18 @@ class NotificationController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    FirebaseService.instance.addMessageHandler(_handlePushMessage);
     fetchNotifications();
+  }
+
+  @override
+  void onClose() {
+    FirebaseService.instance.removeMessageHandler(_handlePushMessage);
+    super.onClose();
+  }
+
+  Future<void> _handlePushMessage(RemoteMessage message) async {
+    await fetchNotifications();
   }
 
   Future<void> fetchNotifications() async {
