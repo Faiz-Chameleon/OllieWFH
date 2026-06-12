@@ -215,6 +215,28 @@ class _Assistance_screenState extends State<Assistance_screen> {
                 RequestStatus.loading) {
               return const Center(child: CircularProgressIndicator());
             }
+            if (widget.controller.getOthersCrteatedAssistanceStatus.value ==
+                    RequestStatus.error &&
+                widget
+                    .controller
+                    .assistanceLocationErrorMessage
+                    .value
+                    .isNotEmpty) {
+              return Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Text(
+                    widget.controller.assistanceLocationErrorMessage.value,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.darkerGrotesque(
+                      fontSize: responsiveFontSize(18, min: 16, max: 22),
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              );
+            }
             if (widget.controller.othersCreatedAssistance.isEmpty) {
               return const Center(child: Text("No Other's User Request Found"));
             }

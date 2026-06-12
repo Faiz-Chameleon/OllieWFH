@@ -12,7 +12,20 @@ import 'package:ollie/common/common.dart';
 
 // Extension to get month name from DateTime
 extension DateExtensions on DateTime {
-  String get monthName => ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][month - 1];
+  String get monthName => [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ][month - 1];
 }
 
 /// To use this screen, navigate to EasyDatePickerDemoScreen() from anywhere in your app.
@@ -22,11 +35,14 @@ class EasyDatePickerDemoScreen extends StatefulWidget {
   EasyDatePickerDemoScreen({Key? key}) : super(key: key);
 
   @override
-  State<EasyDatePickerDemoScreen> createState() => _EasyDatePickerDemoScreenState();
+  State<EasyDatePickerDemoScreen> createState() =>
+      _EasyDatePickerDemoScreenState();
 }
 
 class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
-  final local_controller.EasyDatePickerController controller = Get.put(local_controller.EasyDatePickerController());
+  final local_controller.EasyDatePickerController controller = Get.put(
+    local_controller.EasyDatePickerController(),
+  );
 
   @override
   void initState() {
@@ -51,7 +67,11 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
         elevation: 0,
         title: Text(
           'To-Do List',
-          style: GoogleFonts.darkerGrotesque(fontSize: 24.sp, fontWeight: FontWeight.bold, color: HeadingColor),
+          style: GoogleFonts.darkerGrotesque(
+            fontSize: 24.sp,
+            fontWeight: FontWeight.bold,
+            color: HeadingColor,
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -82,7 +102,9 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
                 return InkResponse(
                   onTap: onTap,
                   child: CircleAvatar(
-                    backgroundColor: isSelected ? ksecondaryColor : Colors.white,
+                    backgroundColor: isSelected
+                        ? ksecondaryColor
+                        : Colors.white,
                     child: Text(
                       date.day.toString(),
                       style: GoogleFonts.darkerGrotesque(
@@ -115,19 +137,37 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 18, offset: const Offset(0, 8))],
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.06),
+                              blurRadius: 18,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
                         ),
-                        child: const Icon(Icons.event_note_rounded, size: 34, color: buttonColor),
+                        child: const Icon(
+                          Icons.event_note_rounded,
+                          size: 34,
+                          color: buttonColor,
+                        ),
                       ),
                       const SizedBox(height: 14),
                       Text(
                         "No tasks for today",
-                        style: GoogleFonts.darkerGrotesque(fontSize: 22, fontWeight: FontWeight.bold, color: HeadingColor),
+                        style: GoogleFonts.darkerGrotesque(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: HeadingColor,
+                        ),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         "Tap + to add your first task",
-                        style: GoogleFonts.darkerGrotesque(fontSize: 17, fontWeight: FontWeight.w500, color: Colors.black54),
+                        style: GoogleFonts.darkerGrotesque(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black54,
+                        ),
                       ),
                     ],
                   ),
@@ -142,16 +182,21 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
                   final task = taskList[index];
                   final originalIndex = controller.tasks.indexOf(task);
                   final isDone = task["markAsComplete"] == true;
-                  final taskName = (task["taskName"] ?? "Untitled task").toString();
-                  final description = (task["taskDescription"] ?? "").toString();
-                  final timeText = (task["scheduledTime"] ?? task["time"] ?? "Any time").toString();
+                  final taskName = (task["taskName"] ?? "Untitled task")
+                      .toString();
+                  final description = (task["taskDescription"] ?? "")
+                      .toString();
+                  final timeText =
+                      (task["scheduledTime"] ?? task["time"] ?? "Any time")
+                          .toString();
 
                   return _TaskCard(
                     title: taskName,
                     description: description,
                     timeText: timeText,
                     isDone: isDone,
-                    onComplete: () => controller.toggleTask(originalIndex, task["id"]),
+                    onComplete: () =>
+                        controller.toggleTask(originalIndex, task["id"]),
                     onTap: () {
                       if (!isDone) {
                         showDialog(
@@ -159,29 +204,50 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
                           builder: (_) {
                             return Dialog(
                               backgroundColor: BGcolor,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 24,
+                                ),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(color: ksecondaryColor.withOpacity(0.18), shape: BoxShape.circle),
-                                      child: const Icon(Icons.check_circle_outline, color: buttonColor, size: 28),
+                                      decoration: BoxDecoration(
+                                        color: ksecondaryColor.withOpacity(
+                                          0.18,
+                                        ),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.check_circle_outline,
+                                        color: buttonColor,
+                                        size: 28,
+                                      ),
                                     ),
                                     const SizedBox(height: 14),
                                     Text(
                                       taskName,
                                       textAlign: TextAlign.center,
-                                      style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold, fontSize: 22, color: HeadingColor),
+                                      style: GoogleFonts.darkerGrotesque(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 22,
+                                        color: HeadingColor,
+                                      ),
                                     ),
                                     if (description.isNotEmpty) ...[
                                       const SizedBox(height: 8),
                                       Text(
                                         description,
                                         textAlign: TextAlign.center,
-                                        style: GoogleFonts.darkerGrotesque(fontSize: 17, color: Colors.black87),
+                                        style: GoogleFonts.darkerGrotesque(
+                                          fontSize: 17,
+                                          color: Colors.black87,
+                                        ),
                                       ),
                                     ],
                                     const SizedBox(height: 18),
@@ -190,17 +256,31 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
                                         Expanded(
                                           child: ElevatedButton(
                                             onPressed: () {
-                                              controller.toggleTask(originalIndex, task["id"]);
+                                              controller.toggleTask(
+                                                originalIndex,
+                                                task["id"],
+                                              );
                                               Navigator.pop(context);
                                             },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor: buttonColor,
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                              minimumSize: const Size(double.infinity, 46),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              minimumSize: const Size(
+                                                double.infinity,
+                                                46,
+                                              ),
                                             ),
                                             child: Text(
                                               "Mark Done",
-                                              style: GoogleFonts.darkerGrotesque(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w700),
+                                              style:
+                                                  GoogleFonts.darkerGrotesque(
+                                                    fontSize: 18,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
                                             ),
                                           ),
                                         ),
@@ -220,17 +300,33 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
                         builder: (_) {
                           return AlertDialog(
                             backgroundColor: BGcolor,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                            title: Text("Delete Task", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
-                            content: Text('Are you sure you want to delete "$taskName"?', style: GoogleFonts.darkerGrotesque(fontSize: 18)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            title: Text(
+                              "Delete Task",
+                              style: GoogleFonts.darkerGrotesque(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            content: Text(
+                              'Are you sure you want to delete "$taskName"?',
+                              style: GoogleFonts.darkerGrotesque(fontSize: 18),
+                            ),
                             actions: [
-                              TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("Cancel"),
+                              ),
                               TextButton(
                                 onPressed: () async {
                                   Navigator.pop(context);
                                   await controller.deleteTask(task["id"]);
                                 },
-                                child: const Text("Delete", style: TextStyle(color: Colors.red)),
+                                child: const Text(
+                                  "Delete",
+                                  style: TextStyle(color: Colors.red),
+                                ),
                               ),
                             ],
                           );
@@ -312,8 +408,16 @@ class _TaskCard extends StatelessWidget {
               topRight: Radius.circular(16),
               bottomRight: Radius.circular(16),
             ),
-            border: Border.all(color: isDone ? const Color(0xFFD7F0E0) : const Color(0xFFF0E1AD)),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 18, offset: const Offset(0, 8))],
+            border: Border.all(
+              color: isDone ? const Color(0xFFD7F0E0) : const Color(0xFFF0E1AD),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,7 +425,10 @@ class _TaskCard extends StatelessWidget {
               Container(
                 width: 10,
                 height: 96,
-                decoration: BoxDecoration(color: rail, borderRadius: BorderRadius.circular(999)),
+                decoration: BoxDecoration(
+                  color: rail,
+                  borderRadius: BorderRadius.circular(999),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -339,9 +446,21 @@ class _TaskCard extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.9),
                               shape: BoxShape.circle,
-                              boxShadow: [BoxShadow(color: accent.withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 4))],
+                              boxShadow: [
+                                BoxShadow(
+                                  color: accent.withOpacity(0.08),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
-                            child: Icon(isDone ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded, color: accent, size: 26),
+                            child: Icon(
+                              isDone
+                                  ? Icons.check_circle_rounded
+                                  : Icons.radio_button_unchecked_rounded,
+                              color: accent,
+                              size: 26,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -368,7 +487,9 @@ class _TaskCard extends StatelessWidget {
                                   height: 0.95,
                                   fontWeight: FontWeight.w800,
                                   color: isDone ? Colors.black45 : HeadingColor,
-                                  decoration: isDone ? TextDecoration.lineThrough : TextDecoration.none,
+                                  decoration: isDone
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
                                 ),
                               ),
                             ],
@@ -376,7 +497,10 @@ class _TaskCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.9),
                             borderRadius: BorderRadius.circular(999),
@@ -385,11 +509,19 @@ class _TaskCard extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.schedule_rounded, size: 15, color: accent),
+                              Icon(
+                                Icons.schedule_rounded,
+                                size: 15,
+                                color: accent,
+                              ),
                               const SizedBox(width: 5),
                               Text(
                                 timeText,
-                                style: GoogleFonts.darkerGrotesque(fontSize: 15, fontWeight: FontWeight.w800, color: accent),
+                                style: GoogleFonts.darkerGrotesque(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                  color: accent,
+                                ),
                               ),
                             ],
                           ),
@@ -402,16 +534,26 @@ class _TaskCard extends StatelessWidget {
                         description,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.darkerGrotesque(fontSize: 18, height: 1.1, fontWeight: FontWeight.w500, color: Colors.black87),
+                        style: GoogleFonts.darkerGrotesque(
+                          fontSize: 18,
+                          height: 1.1,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
                       ),
                     ],
                     const SizedBox(height: 14),
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 7,
+                          ),
                           decoration: BoxDecoration(
-                            color: isDone ? const Color(0xFFD9F5E5) : const Color(0xFFFFE7BA),
+                            color: isDone
+                                ? const Color(0xFFD9F5E5)
+                                : const Color(0xFFFFE7BA),
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Text(
@@ -419,7 +561,9 @@ class _TaskCard extends StatelessWidget {
                             style: GoogleFonts.darkerGrotesque(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
-                              color: isDone ? const Color(0xFF1D7A4D) : const Color(0xFF9D6500),
+                              color: isDone
+                                  ? const Color(0xFF1D7A4D)
+                                  : const Color(0xFF9D6500),
                             ),
                           ),
                         ),
@@ -428,12 +572,26 @@ class _TaskCard extends StatelessWidget {
                           onPressed: onDelete,
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.red,
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
                             backgroundColor: Colors.white.withOpacity(0.75),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(999),
+                            ),
                           ),
-                          icon: const Icon(Icons.delete_outline_rounded, size: 18),
-                          label: Text("Delete", style: GoogleFonts.darkerGrotesque(fontSize: 15, fontWeight: FontWeight.w800)),
+                          icon: const Icon(
+                            Icons.delete_outline_rounded,
+                            size: 18,
+                          ),
+                          label: Text(
+                            "Delete",
+                            style: GoogleFonts.darkerGrotesque(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -459,13 +617,16 @@ class CreateTaskSheet extends StatefulWidget {
 class _CreateTaskSheetState extends State<CreateTaskSheet> {
   final _taskController = TextEditingController();
   final _descController = TextEditingController();
+  static const Duration _minimumReminderLeadTime = Duration(minutes: 6);
 
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   bool showDateTimePicker = false;
 
   void _submitTask() async {
-    if (_taskController.text.trim().isNotEmpty && selectedDate != null && selectedTime != null) {
+    if (_taskController.text.trim().isNotEmpty &&
+        selectedDate != null &&
+        selectedTime != null) {
       await widget.controller.userCreateTask(
         taskName: _taskController.text.trim(),
         taskDescription: _descController.text.trim(),
@@ -499,22 +660,46 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
           child: ListView(
             controller: scrollController,
             children: [
-              const Center(child: Icon(Icons.drag_handle, color: Colors.black26)),
+              const Center(
+                child: Icon(Icons.drag_handle, color: Colors.black26),
+              ),
               20.verticalSpace,
-              Text("Create a Task", style: GoogleFonts.darkerGrotesque(fontSize: 24, fontWeight: FontWeight.bold)),
+              Text(
+                "Create a Task",
+                style: GoogleFonts.darkerGrotesque(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               20.verticalSpace,
-              Text("What do you want to do?", style: GoogleFonts.darkerGrotesque(fontSize: 19, fontWeight: FontWeight.w600)),
+              Text(
+                "What do you want to do?",
+                style: GoogleFonts.darkerGrotesque(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               TextField(
                 controller: _taskController,
                 style: const TextStyle(fontSize: 18),
-                decoration: const InputDecoration(hintText: "Type your task here"),
+                decoration: const InputDecoration(
+                  hintText: "Type your task here",
+                ),
               ),
               15.verticalSpace,
-              Text("Add a short note", style: GoogleFonts.darkerGrotesque(fontSize: 19, fontWeight: FontWeight.w600)),
+              Text(
+                "Add a short note",
+                style: GoogleFonts.darkerGrotesque(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               TextField(
                 controller: _descController,
                 style: const TextStyle(fontSize: 18),
-                decoration: const InputDecoration(hintText: "Example: Take medicine after breakfast"),
+                decoration: const InputDecoration(
+                  hintText: "Example: Take medicine after breakfast",
+                ),
               ),
               25.verticalSpace,
 
@@ -524,20 +709,42 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                   setState(() => showDateTimePicker = !showDateTimePicker);
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  decoration: BoxDecoration(color: ksecondaryColor, borderRadius: BorderRadius.circular(30)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                  decoration: BoxDecoration(
+                    color: ksecondaryColor,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Choose day and time", style: GoogleFonts.darkerGrotesque(fontSize: 18, fontWeight: FontWeight.w600)),
-                      Icon(showDateTimePicker ? Icons.expand_less : Icons.expand_more),
+                      Text(
+                        "Choose day and time",
+                        style: GoogleFonts.darkerGrotesque(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Icon(
+                        showDateTimePicker
+                            ? Icons.expand_less
+                            : Icons.expand_more,
+                      ),
                     ],
                   ),
                 ),
               ),
               if (showDateTimePicker) ...[
                 15.verticalSpace,
-                Text("Select a day", style: GoogleFonts.darkerGrotesque(fontSize: 18, fontWeight: FontWeight.w600)),
+                Text(
+                  "Select a day",
+                  style: GoogleFonts.darkerGrotesque(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 8.verticalSpace,
                 OutlinedButton(
                   onPressed: () async {
@@ -548,14 +755,27 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                       lastDate: DateTime(2030),
                       builder: (context, child) {
                         return MediaQuery(
-                          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.15),
+                          data: MediaQuery.of(
+                            context,
+                          ).copyWith(textScaleFactor: 1.15),
                           child: Theme(
                             data: Theme.of(context).copyWith(
-                              textTheme: Theme.of(context).textTheme.apply(fontSizeFactor: 1.15),
+                              textTheme: Theme.of(
+                                context,
+                              ).textTheme.apply(fontSizeFactor: 1.15),
                               datePickerTheme: const DatePickerThemeData(
-                                headerHeadlineStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-                                weekdayStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                                dayStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                headerHeadlineStyle: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                weekdayStyle: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                dayStyle: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                             child: child!,
@@ -566,20 +786,30 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                     if (picked != null) setState(() => selectedDate = picked);
                   },
                   style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                     minimumSize: const Size(double.infinity, 48),
                     side: const BorderSide(color: Colors.black12),
                   ),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      selectedDate != null ? "${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}" : "Choose a day",
+                      selectedDate != null
+                          ? "${selectedDate!.day}-${selectedDate!.month}-${selectedDate!.year}"
+                          : "Choose a day",
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),
                 ),
                 15.verticalSpace,
-                Text("Select a time", style: GoogleFonts.darkerGrotesque(fontSize: 18, fontWeight: FontWeight.w600)),
+                Text(
+                  "Select a time",
+                  style: GoogleFonts.darkerGrotesque(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 8.verticalSpace,
                 InkWell(
                   borderRadius: BorderRadius.circular(30),
@@ -590,13 +820,24 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                       initialEntryMode: TimePickerEntryMode.inputOnly,
                       builder: (context, child) {
                         return MediaQuery(
-                          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.15),
+                          data: MediaQuery.of(
+                            context,
+                          ).copyWith(textScaleFactor: 1.15),
                           child: Theme(
                             data: Theme.of(context).copyWith(
                               timePickerTheme: const TimePickerThemeData(
-                                hourMinuteTextStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-                                dayPeriodTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                                dialTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                hourMinuteTextStyle: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                dayPeriodTextStyle: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                dialTextStyle: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                             child: child!,
@@ -613,8 +854,14 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                         picked.hour,
                         picked.minute,
                       );
-                      if (selectedDate != null && _isSameDay(selectedDate!, now) && selected.isBefore(now)) {
-                        appSnackbar("Error", "You can't select a past time.");
+                      if (selectedDate != null &&
+                          selected.isBefore(
+                            now.add(_minimumReminderLeadTime),
+                          )) {
+                        appSnackbar(
+                          "Error",
+                          "Please choose a time at least 6 minutes from now.",
+                        );
                         return;
                       }
                       setState(() => selectedTime = picked);
@@ -622,7 +869,10 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                   },
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(30),
@@ -632,8 +882,14 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          selectedTime != null ? selectedTime!.format(context) : "Choose a time",
-                          style: GoogleFonts.darkerGrotesque(fontSize: 18, fontWeight: FontWeight.w600, color: HeadingColor),
+                          selectedTime != null
+                              ? selectedTime!.format(context)
+                              : "Choose a time",
+                          style: GoogleFonts.darkerGrotesque(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: HeadingColor,
+                          ),
                         ),
                         const Icon(Icons.access_time, color: HeadingColor),
                       ],
@@ -644,25 +900,45 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
               30.verticalSpace,
               Obx(
                 () => ElevatedButton(
-                  onPressed: widget.controller.createTaskStatus.value == RequestStatus.loading ? null : _submitTask,
+                  onPressed:
+                      widget.controller.createTaskStatus.value ==
+                          RequestStatus.loading
+                      ? null
+                      : _submitTask,
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                         _taskController.text.trim().isNotEmpty &&
                             selectedDate != null &&
                             selectedTime != null &&
-                            widget.controller.createTaskStatus.value != RequestStatus.loading
+                            widget.controller.createTaskStatus.value !=
+                                RequestStatus.loading
                         ? buttonColor
                         : Colors.grey.shade400,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                     minimumSize: const Size(double.infinity, 50),
                   ),
-                  child: widget.controller.createTaskStatus.value == RequestStatus.loading
+                  child:
+                      widget.controller.createTaskStatus.value ==
+                          RequestStatus.loading
                       ? const SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
                         )
-                      : Text("Save Task", style: GoogleFonts.darkerGrotesque(fontSize: 18, color: Colors.white)),
+                      : Text(
+                          "Save Task",
+                          style: GoogleFonts.darkerGrotesque(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
             ],
@@ -671,8 +947,4 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
       },
     );
   }
-}
-
-bool _isSameDay(DateTime a, DateTime b) {
-  return a.year == b.year && a.month == b.month && a.day == b.day;
 }

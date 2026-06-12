@@ -9,6 +9,7 @@ import 'package:ollie/common/common.dart';
 
 class EasyDatePickerController extends GetxController {
   final HomeRepository homeRepository = HomeRepository();
+  static const Duration minimumReminderLeadTime = Duration(minutes: 6);
   // Observable for the focused date
   final focusedDate = DateTime.now().obs;
 
@@ -20,14 +21,27 @@ class EasyDatePickerController extends GetxController {
     userTaskByDate();
   }
 
-  void addTask({required String text, String? description, required DateTime date, String? time}) {
-    tasks.add({'text': text, 'description': description ?? '', 'date': DateTime(date.year, date.month, date.day), 'time': time, 'done': false});
+  void addTask({
+    required String text,
+    String? description,
+    required DateTime date,
+    String? time,
+  }) {
+    tasks.add({
+      'text': text,
+      'description': description ?? '',
+      'date': DateTime(date.year, date.month, date.day),
+      'time': time,
+      'done': false,
+    });
   }
 
   List<Map<String, dynamic>> getTasksForDate(DateTime date) {
     return tasks.where((task) {
       final taskDate = task['date'] as DateTime;
-      return taskDate.year == date.year && taskDate.month == date.month && taskDate.day == date.day;
+      return taskDate.year == date.year &&
+          taskDate.month == date.month &&
+          taskDate.day == date.day;
     }).toList();
   }
 
@@ -55,7 +69,26 @@ class EasyDatePickerController extends GetxController {
 
   var createTaskStatus = RequestStatus.idle.obs;
 
-  Future<void> userCreateTask({required String taskName, required String taskDescription, required DateTime date, required TimeOfDay time}) async {
+  Future<void> userCreateTask({
+    required String taskName,
+    required String taskDescription,
+    required DateTime date,
+    required TimeOfDay time,
+  }) async {
+    final now = DateTime.now();
+    final scheduledAt = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
+    if (scheduledAt.isBefore(now.add(minimumReminderLeadTime))) {
+      createTaskStatus.value = RequestStatus.error;
+      appSnackbar("Error", "Please choose a time at least 6 minutes from now.");
+      return;
+    }
+
     createTaskStatus.value = RequestStatus.loading;
 
     final payload = {

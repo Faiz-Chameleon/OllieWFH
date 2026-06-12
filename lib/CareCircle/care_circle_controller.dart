@@ -50,6 +50,8 @@ class CareCircleController extends GetxController {
   var assistanceFilterRadiusKm = 3.0.obs;
   var assistanceFilterLoading = false.obs;
   var assistanceFilterLocation = Rxn<LatLng>();
+  var assistanceLocationErrorMessage = ''.obs;
+  static const int assistancePageLimit = 20;
 
   @override
   void onInit() {
@@ -597,16 +599,29 @@ class CareCircleController extends GetxController {
   var othersCreatedAssistance = <OthersCreatedAssistance>[].obs;
 
   var getOthersCrteatedAssistanceStatus = RequestStatus.idle.obs;
-  Future<void> userFetchOthersCreatedAssitance() async {
+  Future<void> userFetchOthersCreatedAssitance({int page = 1}) async {
     final userController = Get.put(UserController());
     final String loggedInUserId = userController.user.value?.id ?? '';
     getOthersCrteatedAssistanceStatus.value = RequestStatus.loading;
-    final LatLng? activeLocation = assistanceFilterEnabled.value
-        ? assistanceFilterLocation.value
-        : null;
+
+    final hasLocation = await loadAssistanceFilterCurrentLocation(
+      showSnackbars: false,
+    );
+    final LatLng? activeLocation = assistanceFilterLocation.value;
+    if (!hasLocation || activeLocation == null) {
+      othersCreatedAssistance.clear();
+      postLoadingStatus.clear();
+      assistanceLocationErrorMessage.value =
+          "Location permission is required to load nearby assistance.";
+      getOthersCrteatedAssistanceStatus.value = RequestStatus.error;
+      return;
+    }
+
     final result = await careCircleRepository.getOthersCreatedAssistance(
-      latitude: activeLocation?.latitude,
-      longitude: activeLocation?.longitude,
+      page: page,
+      limit: assistancePageLimit,
+      latitude: activeLocation.latitude,
+      longitude: activeLocation.longitude,
       radiusKm: assistanceFilterEnabled.value
           ? assistanceFilterRadiusKm.value
           : null,
@@ -631,6 +646,7 @@ class CareCircleController extends GetxController {
         filteredList.length,
         (_) => false.obs,
       );
+      assistanceLocationErrorMessage.value = '';
       getOthersCrteatedAssistanceStatus.value = RequestStatus.success;
     } else {
       getOthersCrteatedAssistanceStatus.value = RequestStatus.error;
@@ -639,16 +655,22 @@ class CareCircleController extends GetxController {
     }
   }
 
-  Future<void> loadAssistanceFilterCurrentLocation() async {
+  Future<bool> loadAssistanceFilterCurrentLocation({
+    bool showSnackbars = true,
+  }) async {
     assistanceFilterLoading.value = true;
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        appSnackbar(
-          "Location Disabled",
-          "Please enable location services to filter nearby assistance.",
-        );
-        return;
+        assistanceLocationErrorMessage.value =
+            "Turn on location services to load nearby assistance.";
+        if (showSnackbars) {
+          appSnackbar(
+            "Location Disabled",
+            "Please enable location services to load nearby assistance.",
+          );
+        }
+        return false;
       }
 
       LocationPermission permission = await Geolocator.checkPermission();
@@ -658,11 +680,15 @@ class CareCircleController extends GetxController {
 
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
-        appSnackbar(
-          "Permission Required",
-          "Location permission is needed to filter nearby assistance.",
-        );
-        return;
+        assistanceLocationErrorMessage.value =
+            "Location permission is required to load nearby assistance.";
+        if (showSnackbars) {
+          appSnackbar(
+            "Permission Required",
+            "Location permission is needed to load nearby assistance.",
+          );
+        }
+        return false;
       }
 
       final position = await Geolocator.getCurrentPosition(
@@ -674,8 +700,15 @@ class CareCircleController extends GetxController {
         position.latitude,
         position.longitude,
       );
+      assistanceLocationErrorMessage.value = '';
+      return true;
     } catch (e) {
-      appSnackbar("Error", "Unable to fetch current location.");
+      assistanceLocationErrorMessage.value =
+          "Unable to get your current location. Nearby assistance cannot be loaded.";
+      if (showSnackbars) {
+        appSnackbar("Error", "Unable to fetch current location.");
+      }
+      return false;
     } finally {
       assistanceFilterLoading.value = false;
     }

@@ -135,26 +135,25 @@ class CareCircleRepository {
   }
 
   Future<Map<String, dynamic>> getOthersCreatedAssistance({
-    double? latitude,
-    double? longitude,
+    required double latitude,
+    required double longitude,
+    int page = 1,
+    int limit = 20,
     double? radiusKm,
   }) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
 
-    final queryParameters = <String, String>{};
+    final queryParameters = <String, String>{
+      'page': page.toString(),
+      'limit': limit.toString(),
+      'latitude': latitude.toString(),
+      'longitude': longitude.toString(),
+      if (radiusKm != null) 'radiusKm': radiusKm.toString(),
+    };
 
-    if (latitude != null && longitude != null) {
-      queryParameters['latitude'] = latitude.toString();
-      queryParameters['longitude'] = longitude.toString();
-      if (radiusKm != null) {
-        queryParameters['radiusKm'] = radiusKm.toString();
-      }
-    }
-
-    final endpoint = queryParameters.isEmpty
-        ? ApiUrls.getOthersCreatedAssistance
-        : '${ApiUrls.getOthersCreatedAssistance}?${Uri(queryParameters: queryParameters).query}';
+    final endpoint =
+        '${ApiUrls.getOthersCreatedAssistance}?${Uri(queryParameters: queryParameters).query}';
 
     return ApiService.getMethod(endpoint, token: requiredToken);
   }
