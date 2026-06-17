@@ -21,7 +21,9 @@ class Group_Screen extends StatelessWidget {
 
   final CareCircleController controller;
 
-  final OneToManyChatController groupChatcontroller = Get.put(OneToManyChatController());
+  final OneToManyChatController groupChatcontroller = Get.put(
+    OneToManyChatController(),
+  );
 
   void _log(String message) {
     debugPrint('[GroupScreen] $message');
@@ -36,10 +38,10 @@ class Group_Screen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _sectionHeader("Featured", () {
+            _sectionHeader("Nearby Groups", () {
               Get.to(
                 () => GroupListScreen(
-                  title: "Featured",
+                  title: "Nearby Groups",
                   controller: controller,
                   // groups: [
                   //   {'title': 'Tea & Tales', 'image': 'assets/images/Frame 1686560577.png', 'joined': true},
@@ -50,14 +52,22 @@ class Group_Screen extends StatelessWidget {
             }),
             SizedBox(height: 10.h),
             Obx(() {
-              if (controller.getOthersGroupsStatus.value == RequestStatus.loading) {
+              if (controller.getOthersGroupsStatus.value ==
+                  RequestStatus.loading) {
                 return Center(child: CircularProgressIndicator());
-              } else if (controller.getOthersGroupsStatus.value == RequestStatus.error) {
-                return Center(child: Text("Failed to load groups"));
+              } else if (controller.getOthersGroupsStatus.value ==
+                  RequestStatus.error) {
+                return Center(
+                  child: Text(
+                    controller.groupLocationErrorMessage.value.isEmpty
+                        ? "Unable to load nearby groups"
+                        : controller.groupLocationErrorMessage.value,
+                  ),
+                );
               } else if (controller.othersGroups.isEmpty) {
-                return Center(child: Text("No Others groups found"));
+                return Center(child: Text("No nearby groups found"));
               }
-              final groupsToShow = controller.othersGroups.isNotEmpty ? controller.othersGroups.take(2).toList() : controller.myGroups;
+              final groupsToShow = controller.othersGroups.take(2).toList();
 
               return SizedBox(
                 height: 230.h,
@@ -73,25 +83,39 @@ class Group_Screen extends StatelessWidget {
 
                     return GestureDetector(
                       onTap: () {
-                        final othersGroup = controller.othersGroups[index];
-                        _log('Featured group tapped: groupId=${othersGroup.id}, name=${othersGroup.name}, memberCount=${othersGroup.memberCount}');
-                        groupChatcontroller.joinGroupChatRoom(othersGroup.id.toString()).then((value) {
-                          _log(
-                            'Navigation to group chat after join API: groupId=${othersGroup.id}, conversationId=${groupChatcontroller.groupConversationId.value}, status=${groupChatcontroller.joinGrouoChatRoomRequestStatus.value}',
-                          );
-                          Get.to(() => GrouoChatScreen(userName: othersGroup.name ?? "", groupDetails: othersGroup));
-                        });
+                        _log(
+                          'Featured group tapped: groupId=${othersGroup.id}, name=${othersGroup.name}, memberCount=${othersGroup.memberCount}',
+                        );
+                        groupChatcontroller
+                            .joinGroupChatRoom(othersGroup.id.toString())
+                            .then((joined) {
+                              if (!joined) return;
+                              _log(
+                                'Navigation to group chat after join API: groupId=${othersGroup.id}, conversationId=${groupChatcontroller.groupConversationId.value}, status=${groupChatcontroller.joinGrouoChatRoomRequestStatus.value}',
+                              );
+                              Get.to(
+                                () => GrouoChatScreen(
+                                  userName: othersGroup.name ?? "",
+                                  groupDetails: othersGroup,
+                                ),
+                              );
+                            });
                       },
                       child: Padding(
                         padding: EdgeInsets.all(6.w),
                         child: GroupCardWidget(
                           title: othersGroup.name ?? "",
                           members: "${othersGroup.memberCount.toString()}+",
-                          action: "Join",
+                          action:
+                              othersGroup.groupPrivacy?.toUpperCase() ==
+                                  "PRIVATE"
+                              ? "Request"
+                              : "Join",
                           imagePath: othersGroup.image ?? "",
                           membersImages: othersGroup.participants?.users ?? [],
-                          joined: true,
+                          joined: false,
                           width: 210.w,
+                          distanceKm: othersGroup.distanceKm,
                         ),
                       ),
                     );
@@ -118,18 +142,27 @@ class Group_Screen extends StatelessWidget {
                 Get.put(CreateGroupController());
               }
 
-              Get.to(() => OnlyYourGroups(title: "Your Groups", controller: controller));
+              Get.to(
+                () => OnlyYourGroups(
+                  title: "Your Groups",
+                  controller: controller,
+                ),
+              );
             }),
             SizedBox(height: 10.h),
             Obx(() {
-              if (controller.getYourGroupsStatus.value == RequestStatus.loading) {
+              if (controller.getYourGroupsStatus.value ==
+                  RequestStatus.loading) {
                 return Center(child: CircularProgressIndicator());
-              } else if (controller.getYourGroupsStatus.value == RequestStatus.error) {
+              } else if (controller.getYourGroupsStatus.value ==
+                  RequestStatus.error) {
                 return Center(child: Text("Failed to load groups"));
               } else if (controller.myGroups.isEmpty) {
                 return Center(child: Text("No groups found"));
               }
-              final groupsToShow = controller.myGroups.length > 2 ? controller.myGroups.sublist(0, 2) : controller.myGroups;
+              final groupsToShow = controller.myGroups.length > 2
+                  ? controller.myGroups.sublist(0, 2)
+                  : controller.myGroups;
 
               return SizedBox(
                 height: 230.h,
@@ -146,13 +179,23 @@ class Group_Screen extends StatelessWidget {
                     return GestureDetector(
                       onTap: () {
                         final group = controller.myGroups[index];
-                        _log('Your group tapped: groupId=${group.id}, name=${group.name}, memberCount=${group.memberCount}');
-                        groupChatcontroller.joinGroupChatRoom(group.id.toString()).then((value) {
-                          _log(
-                            'Navigation to group chat after join API: groupId=${group.id}, conversationId=${groupChatcontroller.groupConversationId.value}, status=${groupChatcontroller.joinGrouoChatRoomRequestStatus.value}',
-                          );
-                          Get.to(() => GrouoChatScreen(userName: group.name ?? "", groupDetails: group));
-                        });
+                        _log(
+                          'Your group tapped: groupId=${group.id}, name=${group.name}, memberCount=${group.memberCount}',
+                        );
+                        groupChatcontroller
+                            .joinGroupChatRoom(group.id.toString())
+                            .then((joined) {
+                              if (!joined) return;
+                              _log(
+                                'Navigation to group chat after join API: groupId=${group.id}, conversationId=${groupChatcontroller.groupConversationId.value}, status=${groupChatcontroller.joinGrouoChatRoomRequestStatus.value}',
+                              );
+                              Get.to(
+                                () => GrouoChatScreen(
+                                  userName: group.name ?? "",
+                                  groupDetails: group,
+                                ),
+                              );
+                            });
                       },
                       child: Padding(
                         padding: EdgeInsets.all(6.w),
@@ -174,20 +217,30 @@ class Group_Screen extends StatelessWidget {
 
             SizedBox(height: 20.h),
 
-            110.verticalSpace,
+            170.verticalSpace,
           ],
         ),
       ),
-      floatingActionButton: SafeArea(
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(bottom: 145.h),
         child: GestureDetector(
-          onTap: () => Get.to(() => Group_Creation_Screen(), transition: Transition.fadeIn),
+          onTap: () => Get.to(
+            () => Group_Creation_Screen(),
+            transition: Transition.fadeIn,
+          ),
           child: Container(
             width: 56,
             height: 56,
             decoration: BoxDecoration(
               color: buttonColor,
               borderRadius: BorderRadius.circular(16),
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 12, offset: Offset(0, 6))],
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 12,
+                  offset: Offset(0, 6),
+                ),
+              ],
             ),
             child: const Icon(Icons.add, color: white),
           ),
@@ -202,13 +255,19 @@ class Group_Screen extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyle(fontSize: responsiveFontSize(20, min: 18, max: 24), fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: responsiveFontSize(20, min: 18, max: 24),
+            fontWeight: FontWeight.bold,
+          ),
         ),
         GestureDetector(
           onTap: onSeeAllTap,
           child: Text(
             "See All",
-            style: TextStyle(color: Colors.grey, fontSize: responsiveFontSize(16, min: 14, max: 18)),
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: responsiveFontSize(16, min: 14, max: 18),
+            ),
           ),
         ),
       ],

@@ -41,7 +41,10 @@ class GroupDescriptionScreen extends StatelessWidget {
                               SizedBox(width: 8),
                               Text(
                                 "Create new group",
-                                style: GoogleFonts.darkerGrotesque(fontSize: 20.sp, fontWeight: FontWeight.w600),
+                                style: GoogleFonts.darkerGrotesque(
+                                  fontSize: 20.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ],
                           ),
@@ -49,12 +52,17 @@ class GroupDescriptionScreen extends StatelessWidget {
                         30.verticalSpace,
                         Text(
                           "Add group\ndescription",
-                          style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 36.sp, fontWeight: FontWeight.bold),
+                          style: GoogleFonts.darkerGrotesque(
+                            color: HeadingColor,
+                            fontSize: 36.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         30.verticalSpace,
                         TextField(
                           controller: controller.descriptionController,
-                          onChanged: (val) => controller.description.value = val,
+                          onChanged: (val) =>
+                              controller.description.value = val,
                           maxLines: 5,
                           minLines: 4,
                           style: const TextStyle(fontSize: 14),
@@ -62,23 +70,68 @@ class GroupDescriptionScreen extends StatelessWidget {
                             hintText: "Add a description",
                             filled: true,
                             fillColor: const Color(0xFFF4EAD5),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
+                        18.verticalSpace,
+                        Text(
+                          "Group access",
+                          style: GoogleFonts.darkerGrotesque(
+                            color: HeadingColor,
+                            fontSize: 22.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        8.verticalSpace,
+                        Obx(
+                          () => SegmentedButton<String>(
+                            segments: const [
+                              ButtonSegment<String>(
+                                value: "PUBLIC",
+                                label: Text("Public"),
+                                icon: Icon(Icons.lock_open_rounded),
+                              ),
+                              ButtonSegment<String>(
+                                value: "PRIVATE",
+                                label: Text("Private"),
+                                icon: Icon(Icons.lock_rounded),
+                              ),
+                            ],
+                            selected: {controller.groupPrivacy.value},
+                            onSelectionChanged: (selected) {
+                              controller.selectGroupPrivacy(selected.first);
+                            },
                           ),
                         ),
                         20.verticalSpace,
                         Obx(() {
-                          final isActive = controller.description.value.trim().isNotEmpty;
+                          final isActive = controller.description.value
+                              .trim()
+                              .isNotEmpty;
                           return CustomButton(
                             text: "Next",
                             onPressed: isActive
                                 ? () {
-                                    print("Description: ${controller.description.value}");
-                                    Get.to(() => GroupReviewScreen(), transition: Transition.fadeIn);
+                                    print(
+                                      "Description: ${controller.description.value}",
+                                    );
+                                    Get.to(
+                                      () => GroupReviewScreen(),
+                                      transition: Transition.fadeIn,
+                                    );
                                   }
                                 : null,
                             // height: 50.h,
-                            color: isActive ? buttonColor : const Color(0xFFD6CCBC),
+                            color: isActive
+                                ? buttonColor
+                                : const Color(0xFFD6CCBC),
                             textColor: isActive ? Colors.white : Colors.grey,
                             width: double.infinity,
                           );
@@ -92,7 +145,12 @@ class GroupDescriptionScreen extends StatelessWidget {
             ),
 
             // Bottom smiley image
-            Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
+            Image.asset(
+              "assets/images/Group 1000000919.png",
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: 400.h,
+            ),
           ],
         ),
       ),

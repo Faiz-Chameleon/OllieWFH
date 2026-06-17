@@ -17,12 +17,73 @@ import 'package:ollie/request_status.dart';
 import 'package:ollie/common/common.dart';
 import 'package:ollie/services/google_places_service.dart';
 
+class LocationSearchResult {
+  LocationSearchResult({
+    required this.displayName,
+    required this.latitude,
+    required this.longitude,
+  });
+
+  final String displayName;
+  final double latitude;
+  final double longitude;
+
+  String get mainText {
+    final parts = displayName.split(',');
+    return parts.first.trim().isEmpty ? displayName : parts.first.trim();
+  }
+
+  String get secondaryText {
+    final commaIndex = displayName.indexOf(',');
+    if (commaIndex < 0 || commaIndex + 1 >= displayName.length) {
+      return '';
+    }
+    return displayName.substring(commaIndex + 1).trim();
+  }
+
+  LatLng get latLng => LatLng(latitude, longitude);
+
+  static double? _readCoordinate(Map<String, dynamic> json, List<String> keys) {
+    for (final key in keys) {
+      final value = json[key];
+      if (value is num) return value.toDouble();
+      final parsed = double.tryParse(value?.toString() ?? '');
+      if (parsed != null) return parsed;
+    }
+    return null;
+  }
+
+  factory LocationSearchResult.fromJson(Map<String, dynamic> json) {
+    final displayName =
+        json['displayName']?.toString() ??
+        json['display_name']?.toString() ??
+        json['name']?.toString() ??
+        json['address']?.toString() ??
+        json['formattedAddress']?.toString() ??
+        '';
+    final latitude = _readCoordinate(json, ['latitude', 'lat']);
+    final longitude = _readCoordinate(json, ['longitude', 'lng', 'lon']);
+
+    if (displayName.trim().isEmpty || latitude == null || longitude == null) {
+      throw const FormatException('Invalid location search result');
+    }
+
+    return LocationSearchResult(
+      displayName: displayName.trim(),
+      latitude: latitude,
+      longitude: longitude,
+    );
+  }
+}
+
 class Assistance_Controller extends GetxController {
   final AssistanceRepository createAssistanceRepository =
       AssistanceRepository();
   final GooglePlacesService _googlePlacesService = GooglePlacesService();
 
   final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController categorySearchController =
+      TextEditingController();
   final TextEditingController locationSearchController =
       TextEditingController();
   final RxBool isExpanded = false.obs;
@@ -38,9 +99,10 @@ class Assistance_Controller extends GetxController {
   final RxBool hasLocationPermission = false.obs;
   final RxBool isSearchingLocation = false.obs;
   final RxList<XFile> attachments = <XFile>[].obs;
-  final RxList<GooglePlacePrediction> locationPredictions =
-      <GooglePlacePrediction>[].obs;
+  final RxList<LocationSearchResult> locationPredictions =
+      <LocationSearchResult>[].obs;
   Timer? _locationSearchDebounce;
+  Timer? _categorySearchDebounce;
 
   ////////// voucher ////////////
   final RxString selectedVolunteer = ''.obs;
@@ -192,9 +254,12 @@ class Assistance_Controller extends GetxController {
 
     try {
       isSearchingLocation.value = true;
-      final predictions = await _googlePlacesService.autocomplete(
+      final response = await createAssistanceRepository.searchLocation(
         normalizedQuery,
       );
+      final predictions = response['success'] == true
+          ? _parseLocationSearchResults(response['data'])
+          : <LocationSearchResult>[];
       if (locationSearchController.text.trim() == normalizedQuery) {
         locationPredictions.assignAll(predictions);
       }
@@ -207,6 +272,35 @@ class Assistance_Controller extends GetxController {
         isSearchingLocation.value = false;
       }
     }
+  }
+
+  List<LocationSearchResult> _parseLocationSearchResults(dynamic rawData) {
+    final rawList = rawData is List
+        ? rawData
+        : rawData is Map && rawData['locations'] is List
+        ? rawData['locations'] as List
+        : rawData is Map && rawData['results'] is List
+        ? rawData['results'] as List
+        : rawData is Map && rawData['data'] is List
+        ? rawData['data'] as List
+        : const [];
+
+    final results = <LocationSearchResult>[];
+    for (final item in rawList.whereType<Map>()) {
+      try {
+        results.add(
+          LocationSearchResult.fromJson(
+            item.map((key, value) => MapEntry(key.toString(), value)),
+          ),
+        );
+      } catch (_) {}
+    }
+    return results;
+  }
+
+  Future<void> selectLocationSearchResult(LocationSearchResult result) async {
+    _setSelectedLocation(result.latLng, result.displayName);
+    locationPredictions.clear();
   }
 
   Future<void> selectGooglePlace(GooglePlacePrediction prediction) async {
@@ -239,6 +333,17 @@ class Assistance_Controller extends GetxController {
 
     try {
       isSearchingLocation.value = true;
+      final response = await createAssistanceRepository.searchLocation(
+        normalizedQuery,
+      );
+      if (response['success'] == true) {
+        final results = _parseLocationSearchResults(response['data']);
+        if (results.isNotEmpty) {
+          await selectLocationSearchResult(results.first);
+          return;
+        }
+      }
+
       GooglePlaceDetails? placeDetails;
       GooglePlacePrediction? firstPrediction;
 
@@ -305,7 +410,9 @@ class Assistance_Controller extends GetxController {
   @override
   void onClose() {
     _locationSearchDebounce?.cancel();
+    _categorySearchDebounce?.cancel();
     descriptionController.dispose();
+    categorySearchController.dispose();
     locationSearchController.dispose();
     super.onClose();
   }
@@ -323,7 +430,11 @@ class Assistance_Controller extends GetxController {
     selectedLongitude.value = 0.0;
     locationPredictions.clear();
     _locationSearchDebounce?.cancel();
+    _categorySearchDebounce?.cancel();
     selectedCategories.clear();
+    newCategories.clear();
+    categorySearchController.clear();
+    categorySearchQuery.value = '';
     attachments.clear();
     selectedVolunteer.value = '';
     formattedDateAndTime.value = '';
@@ -375,14 +486,6 @@ class Assistance_Controller extends GetxController {
       createAssistanceStatus.value = RequestStatus.error;
 
       final message = (result['message'] ?? "Registration failed").toString();
-      if (message.toLowerCase().contains('not a valid fcm')) {
-        appSnackbar(
-          "Push Token Error",
-          "The saved notification token is invalid. Log out and log in again on a real device so the backend receives a valid FCM token.",
-        );
-        return;
-      }
-
       appSnackbar("Error", message);
     }
   }
@@ -390,7 +493,8 @@ class Assistance_Controller extends GetxController {
   var selectedCategory = Rx<AssistanceReasonsData?>(null);
 
   void selectCategory(AssistanceReasonsData category) {
-    var id = category.id ?? -1;
+    final id = category.id;
+    if (id == null || id.isEmpty) return;
     if (selectedCategories.contains(id)) {
       selectedCategories.remove(id);
     } else {
@@ -403,22 +507,195 @@ class Assistance_Controller extends GetxController {
     return selectedCategories.contains(category.id);
   }
 
-  var categories = <AssistanceReasonsData>[];
+  final RxList<String> newCategories = <String>[].obs;
+  final RxString categorySearchQuery = ''.obs;
+  var categories = <AssistanceReasonsData>[].obs;
   var getReasonsForAssistanceStatus = RequestStatus.idle.obs;
+  final RxString categoryFeedMessage = ''.obs;
+
+  List<AssistanceReasonsData> get suggestedCategories {
+    final selectedIds = selectedCategories.toSet();
+    final query = categorySearchQuery.value.trim().toLowerCase();
+    final source = query.isEmpty
+        ? categories
+        : categories.where((item) {
+            return (item.name ?? '').toLowerCase().contains(query);
+          });
+    return source
+        .where((item) => !selectedIds.contains(item.id))
+        .take(8)
+        .toList();
+  }
+
+  bool get hasAnyCategorySelection =>
+      selectedCategories.isNotEmpty || newCategories.isNotEmpty;
+
+  bool get canAddNewCategory {
+    final value = categorySearchQuery.value.trim();
+    if (value.isEmpty) return false;
+
+    final normalized = value.toLowerCase();
+    final existsInCategories = categories.any(
+      (item) => (item.name ?? '').toLowerCase() == normalized,
+    );
+    final existsInNew = newCategories.any(
+      (item) => item.toLowerCase() == normalized,
+    );
+    return !existsInCategories && !existsInNew;
+  }
+
+  AssistanceReasonsData? get matchedCategory {
+    final query = categorySearchQuery.value.trim().toLowerCase();
+    if (query.isEmpty) return null;
+
+    for (final item in categories) {
+      if ((item.name ?? '').toLowerCase().contains(query)) {
+        return item;
+      }
+    }
+    return null;
+  }
+
+  void updateCategorySearch(String value) {
+    categorySearchQuery.value = value;
+    _categorySearchDebounce?.cancel();
+
+    final query = value.trim();
+    if (query.length < 2) return;
+
+    _categorySearchDebounce = Timer(const Duration(milliseconds: 350), () {
+      searchCategoriesForAssistance(query);
+    });
+  }
+
+  void addNewCategory([String? value]) {
+    final rawValue = (value ?? categorySearchController.text).trim();
+    if (rawValue.isEmpty) return;
+
+    final normalized = rawValue.toLowerCase();
+    final existingCategory = categories.firstWhereOrNull(
+      (item) => (item.name ?? '').toLowerCase() == normalized,
+    );
+    if (existingCategory != null) {
+      addMatchedCategory(existingCategory);
+      return;
+    }
+
+    final existsInNew = newCategories.any(
+      (item) => item.toLowerCase() == normalized,
+    );
+    if (!existsInNew) {
+      newCategories.add(rawValue);
+    }
+    categorySearchController.clear();
+    categorySearchQuery.value = '';
+  }
+
+  void addMatchedCategory(AssistanceReasonsData category) {
+    if (category.id == null || category.id!.isEmpty) return;
+    if (!selectedCategories.contains(category.id)) {
+      selectedCategories.add(category.id);
+    }
+    categorySearchController.clear();
+    categorySearchQuery.value = '';
+  }
+
+  void removeNewCategory(String value) {
+    newCategories.remove(value);
+  }
+
   Future<void> getCategoriesForAssistance() async {
     getReasonsForAssistanceStatus.value = RequestStatus.loading;
+    categoryFeedMessage.value = '';
 
-    final result = await createAssistanceRepository.getEachAssistanceReasons();
+    final location = await _getCurrentCategoryFeedLocation();
+    if (location == null) {
+      categories.clear();
+      categoryFeedMessage.value = "Location required to load nearby categories";
+      getReasonsForAssistanceStatus.value = RequestStatus.error;
+      return;
+    }
+
+    final result = await createAssistanceRepository.getCategoryFeed(
+      latitude: location.latitude,
+      longitude: location.longitude,
+      limit: 20,
+    );
 
     if (result['success'] == true) {
-      categories = (result['data'] as List)
-          .map((data) => AssistanceReasonsData.fromJson(data))
-          .toList();
+      categories.assignAll(_parseCategories(result['data']));
       getReasonsForAssistanceStatus.value = RequestStatus.success;
     } else {
       getReasonsForAssistanceStatus.value = RequestStatus.error;
+      categoryFeedMessage.value =
+          result['message'] ?? "Unable to load nearby categories";
 
       appSnackbar("Error", result['message'] ?? "Registration failed");
     }
+  }
+
+  Future<LatLng?> _getCurrentCategoryFeedLocation() async {
+    if (selectedLatLng.value != null) {
+      return selectedLatLng.value;
+    }
+
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return null;
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return null;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+      return LatLng(position.latitude, position.longitude);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> searchCategoriesForAssistance(String query) async {
+    final result = await createAssistanceRepository.searchAssistanceReasons(
+      query,
+    );
+    if (result['success'] != true) return;
+
+    final searchedCategories = _parseCategories(result['data']);
+    for (final category in searchedCategories) {
+      final id = category.id;
+      if (id == null || id.isEmpty) continue;
+      final existingIndex = categories.indexWhere((item) => item.id == id);
+      if (existingIndex == -1) {
+        categories.add(category);
+      }
+    }
+    categories.refresh();
+  }
+
+  List<AssistanceReasonsData> _parseCategories(dynamic data) {
+    final rawList = data is Map && data['data'] is List
+        ? data['data'] as List
+        : data is List
+        ? data
+        : const [];
+
+    return rawList
+        .whereType<Map>()
+        .map(
+          (item) => AssistanceReasonsData.fromJson(
+            item.map((key, value) => MapEntry(key.toString(), value)),
+          ),
+        )
+        .toList();
   }
 }

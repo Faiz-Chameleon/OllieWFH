@@ -3,6 +3,8 @@
 import 'dart:io';
 
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ollie/CareCircle/care_circle_controller.dart';
@@ -22,10 +24,18 @@ class CreateGroupController extends GetxController {
 
   var groupName = "".obs;
   final groupNameController = TextEditingController();
+  final groupPrivacy = "PUBLIC".obs;
+
+  void selectGroupPrivacy(String value) {
+    if (value == "PUBLIC" || value == "PRIVATE") {
+      groupPrivacy.value = value;
+    }
+  }
 
   void clearGroupName() {
     groupName.value = "";
     groupNameController.clear();
+    groupPrivacy.value = "PUBLIC";
   }
 
   void clearAll() {
@@ -55,7 +65,10 @@ class CreateGroupController extends GetxController {
       return;
     }
 
-    final result = await groupsRepository.createGroups(data, fileToSend);
+    final requestData = Map<String, dynamic>.from(data);
+    requestData.addAll(await _getGroupLocationPayload());
+
+    final result = await groupsRepository.createGroups(requestData, fileToSend);
     if (result['success'] == true) {
       createGrouptRequestStatus.value = RequestStatus.success;
       appSnackbar("Success", result['message'] ?? "");
@@ -87,6 +100,54 @@ class CreateGroupController extends GetxController {
     }
 
     Future.microtask(() => bottomController.updateIndex(1));
+  }
+
+  Future<Map<String, dynamic>> _getGroupLocationPayload() async {
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return {};
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return {};
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+      String? city;
+      String? country;
+
+      try {
+        final placemarks = await placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+        if (placemarks.isNotEmpty) {
+          final place = placemarks.first;
+          city = place.locality?.isNotEmpty == true
+              ? place.locality
+              : place.subAdministrativeArea;
+          country = place.country;
+        }
+      } catch (_) {}
+
+      return {
+        'latitude': position.latitude,
+        'longitude': position.longitude,
+        if (city != null && city.isNotEmpty) 'city': city,
+        if (country != null && country.isNotEmpty) 'country': country,
+      };
+    } catch (_) {
+      return {};
+    }
   }
 
   Future<File> _compressedGroupImage(File source) async {

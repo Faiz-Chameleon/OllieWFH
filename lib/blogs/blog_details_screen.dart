@@ -42,6 +42,7 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
         if (blog == null) {
           return const Center(child: Text("No data found"));
         }
+        final typeLabel = widget.controller.blogTypeLabel(blog.type);
         return Column(
           children: [
             Stack(
@@ -88,10 +89,10 @@ class _BlogDetailScreenState extends State<BlogDetailScreen> {
                       Wrap(
                         spacing: 10,
                         children: [
+                          if (typeLabel.isNotEmpty) _tag(typeLabel, bgColor: Color(0xFFFFE08A)),
                           _tag(blog.category?.name ?? "N/A"),
                           // _tag("6 min read"),
                           _tag(widget.controller.timeAgo(blog.createdAt.toString())),
-                          _tag("Sponsored", bgColor: Color(0xFFFFE08A)),
                         ],
                       ),
                       16.verticalSpace,

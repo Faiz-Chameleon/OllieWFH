@@ -8,6 +8,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/CareCircle/assistance/assistance_detail_screen.dart';
 import 'package:ollie/CareCircle/assistance/assistance_media_widgets.dart';
+import 'package:ollie/CareCircle/assistance/assistance_controller.dart';
 import 'package:ollie/CareCircle/assistance/select_category_screen.dart';
 import 'package:ollie/CareCircle/care_circle_controller.dart';
 import 'package:ollie/Constants/Constants.dart';
@@ -31,6 +32,17 @@ class Assistance_screen extends StatefulWidget {
 class _Assistance_screenState extends State<Assistance_screen> {
   final OneToOneChatController chatController =
       Get.find<OneToOneChatController>();
+  final Assistance_Controller assistanceController = Get.put(
+    Assistance_Controller(),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      assistanceController.getCategoriesForAssistance();
+    });
+  }
 
   Future<void> _openNearbyFilterSheet() async {
     await widget.controller.loadAssistanceFilterCurrentLocation();
@@ -215,18 +227,15 @@ class _Assistance_screenState extends State<Assistance_screen> {
                 RequestStatus.loading) {
               return const Center(child: CircularProgressIndicator());
             }
-            if (widget.controller.getOthersCrteatedAssistanceStatus.value ==
-                    RequestStatus.error &&
-                widget
-                    .controller
-                    .assistanceLocationErrorMessage
-                    .value
-                    .isNotEmpty) {
+            Widget emptyNearbyMessage(String message) {
               return Center(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 24.w,
+                    vertical: 18.h,
+                  ),
                   child: Text(
-                    widget.controller.assistanceLocationErrorMessage.value,
+                    message,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.darkerGrotesque(
                       fontSize: responsiveFontSize(18, min: 16, max: 22),
@@ -237,8 +246,20 @@ class _Assistance_screenState extends State<Assistance_screen> {
                 ),
               );
             }
+
+            if (widget.controller.getOthersCrteatedAssistanceStatus.value ==
+                    RequestStatus.error &&
+                widget
+                    .controller
+                    .assistanceLocationErrorMessage
+                    .value
+                    .isNotEmpty) {
+              return emptyNearbyMessage(
+                widget.controller.assistanceLocationErrorMessage.value,
+              );
+            }
             if (widget.controller.othersCreatedAssistance.isEmpty) {
-              return const Center(child: Text("No Other's User Request Found"));
+              return emptyNearbyMessage("No nearby assistance requests found.");
             }
             return SizedBox(
               height: 270,

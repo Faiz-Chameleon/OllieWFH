@@ -26,7 +26,9 @@ class _popular_screenState extends State<popular_screen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.controller.currentTab.value == "popular" ? widget.controller.loadBlogForTab(widget.controller.currentTab.value) : null;
+      widget.controller.currentTab.value == "popular"
+          ? widget.controller.loadBlogForTab(widget.controller.currentTab.value)
+          : null;
     });
   }
 
@@ -44,7 +46,8 @@ class _popular_screenState extends State<popular_screen> {
                 ? widget.controller.trendingBlog.value
                 : widget.controller.recentBlog.value;
 
-            if (widget.controller.getBlogStatus.value == RequestStatus.loading) {
+            if (widget.controller.getBlogStatus.value ==
+                RequestStatus.loading) {
               return Center(child: const CircularProgressIndicator());
             }
 
@@ -64,37 +67,64 @@ class _popular_screenState extends State<popular_screen> {
                 ),
               );
             }
+            final typeLabel = widget.controller.blogTypeLabel(
+              blog.blog?.type,
+              fallback: widget.controller.currentTab.value,
+            );
 
             return GestureDetector(
               onTap: () {
-                Get.to(() => BlogDetailScreen(controller: widget.controller, blogId: blog.blog?.id));
+                Get.to(
+                  () => BlogDetailScreen(
+                    controller: widget.controller,
+                    blogId: blog.blog?.id,
+                  ),
+                );
               },
               child: Container(
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Stack(
                       children: [
                         ClipRRect(
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                          child: Image.network(blog.blog?.image ?? "", height: 200.h, width: double.infinity, fit: BoxFit.cover),
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(20),
+                          ),
+                          child: Image.network(
+                            blog.blog?.image ?? "",
+                            height: 200.h,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         Positioned(
                           top: 12,
                           left: 12,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(color: const Color(0xFFFFECA3), borderRadius: BorderRadius.circular(12)),
-                            child: Text(
-                              "Sponsored",
-                              style: GoogleFonts.darkerGrotesque(
-                                fontSize: 15.sp,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ),
+                          child: typeLabel.isEmpty
+                              ? const SizedBox.shrink()
+                              : Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFECA3),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    typeLabel,
+                                    style: GoogleFonts.darkerGrotesque(
+                                      fontSize: 15.sp,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ),
                         ),
                         Positioned(
                           top: 12,
@@ -113,14 +143,26 @@ class _popular_screenState extends State<popular_screen> {
                                   fromWhere = "recent";
                                   break;
                                 default:
-                                  fromWhere = "unknown"; // Or handle default case
+                                  fromWhere =
+                                      "unknown"; // Or handle default case
                               }
-                              await widget.controller.saveBlogToggle(blog.blog?.id ?? "", fromWhere); // Passing the new save state
+                              await widget.controller.saveBlogToggle(
+                                blog.blog?.id ?? "",
+                                fromWhere,
+                              ); // Passing the new save state
                             },
                             child: Container(
                               padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                              child: Icon(blog.isSaveBlog == true ? Icons.bookmark : Icons.bookmark_border, size: 18),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                blog.isSaveBlog == true
+                                    ? Icons.bookmark
+                                    : Icons.bookmark_border,
+                                size: 18,
+                              ),
                             ),
                           ),
                         ),
@@ -143,7 +185,11 @@ class _popular_screenState extends State<popular_screen> {
                           10.verticalSpace,
                           Row(
                             children: [
-                              Icon(Icons.person_outline, size: 18.sp, color: Colors.black54),
+                              Icon(
+                                Icons.person_outline,
+                                size: 18.sp,
+                                color: Colors.black54,
+                              ),
                               SizedBox(width: 5.w),
                               Text(
                                 blog.blog?.admin?.name ?? "",
@@ -155,7 +201,9 @@ class _popular_screenState extends State<popular_screen> {
                               ),
                               SizedBox(width: 12.w),
                               Text(
-                                widget.controller.timeAgo(blog.blog?.createdAt ?? ""),
+                                widget.controller.timeAgo(
+                                  blog.blog?.createdAt ?? "",
+                                ),
                                 style: GoogleFonts.darkerGrotesque(
                                   fontSize: 17.sp,
                                   fontWeight: FontWeight.w600,
@@ -164,8 +212,14 @@ class _popular_screenState extends State<popular_screen> {
                               ),
                               const Spacer(),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(color: const Color(0xFFFFF3C2), borderRadius: BorderRadius.circular(12)),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF3C2),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                                 child: Text(
                                   blog.blog?.category?.name ?? "",
                                   style: GoogleFonts.darkerGrotesque(
@@ -199,23 +253,35 @@ class _popular_screenState extends State<popular_screen> {
             children: [
               Text(
                 "Browse Topics",
-                style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w700, fontSize: 20.sp, color: Colors.black87),
+                style: GoogleFonts.darkerGrotesque(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 20.sp,
+                  color: Colors.black87,
+                ),
               ),
               GestureDetector(
                 onTap: () {
-                  Get.to(() => BrowseTopicsScreen(controller: widget.controller), transition: Transition.fadeIn);
+                  Get.to(
+                    () => BrowseTopicsScreen(controller: widget.controller),
+                    transition: Transition.fadeIn,
+                  );
                 },
 
                 child: Text(
                   "See All",
-                  style: GoogleFonts.darkerGrotesque(color: Colors.black54, fontSize: 18.sp, fontWeight: FontWeight.w600),
+                  style: GoogleFonts.darkerGrotesque(
+                    color: Colors.black54,
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
           ),
           12.verticalSpace,
           Obx(() {
-            if (widget.controller.getBlogTopicsStatus.value == RequestStatus.loading) {
+            if (widget.controller.getBlogTopicsStatus.value ==
+                RequestStatus.loading) {
               return Center(child: const CircularProgressIndicator());
             }
 
@@ -227,14 +293,29 @@ class _popular_screenState extends State<popular_screen> {
                     return Padding(
                       padding: const EdgeInsets.only(right: 10),
                       child: GestureDetector(
-                        onTap: () =>
-                            Get.to(() => BlogCategoryScreen(category: topic.name ?? "", controller: widget.controller, topicId: topic.id.toString())),
+                        onTap: () => Get.to(
+                          () => BlogCategoryScreen(
+                            category: topic.name ?? "",
+                            controller: widget.controller,
+                            topicId: topic.id.toString(),
+                          ),
+                        ),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(color: const Color(0xFFFFE08A), borderRadius: BorderRadius.circular(18)),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFE08A),
+                            borderRadius: BorderRadius.circular(18),
+                          ),
                           child: Text(
                             topic.name ?? "",
-                            style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w700, fontSize: 18.sp, color: Colors.black87),
+                            style: GoogleFonts.darkerGrotesque(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 18.sp,
+                              color: Colors.black87,
+                            ),
                           ),
                         ),
                       ),
@@ -251,15 +332,26 @@ class _popular_screenState extends State<popular_screen> {
             children: [
               Text(
                 "Latest Blogs",
-                style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.w700, fontSize: 20.sp, color: Colors.black87),
+                style: GoogleFonts.darkerGrotesque(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 20.sp,
+                  color: Colors.black87,
+                ),
               ),
               GestureDetector(
                 onTap: () {
-                  Get.to(() => LatestBlogsScreen(controller: widget.controller), transition: Transition.fadeIn);
+                  Get.to(
+                    () => LatestBlogsScreen(controller: widget.controller),
+                    transition: Transition.fadeIn,
+                  );
                 },
                 child: Text(
                   "See All",
-                  style: GoogleFonts.darkerGrotesque(color: Colors.black54, fontSize: 18.sp, fontWeight: FontWeight.w600),
+                  style: GoogleFonts.darkerGrotesque(
+                    color: Colors.black54,
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -287,9 +379,15 @@ class _popular_screenState extends State<popular_screen> {
 
             return Column(
               children: blogs.take(3).map((blog) {
+                final typeLabel = widget.controller.blogTypeLabel(blog.type);
                 return GestureDetector(
                   onTap: () {
-                    Get.to(() => BlogDetailScreen(controller: widget.controller, blogId: blog.id));
+                    Get.to(
+                      () => BlogDetailScreen(
+                        controller: widget.controller,
+                        blogId: blog.id,
+                      ),
+                    );
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 16),
@@ -303,7 +401,11 @@ class _popular_screenState extends State<popular_screen> {
                             height: 60,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
-                                Image.asset("assets/images/placeholder.png", width: 60, height: 60), // optional fallback
+                                Image.asset(
+                                  "assets/images/placeholder.png",
+                                  width: 60,
+                                  height: 60,
+                                ), // optional fallback
                           ),
                         ),
                         12.horizontalSpace,
@@ -315,12 +417,39 @@ class _popular_screenState extends State<popular_screen> {
                                 blog.title ?? "No title",
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontWeight: FontWeight.w600),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                               4.verticalSpace,
-                              Text(
-                                "${widget.controller.timeAgo(blog.createdAt ?? "")} · 6 min read", // optional fixed read time
-                                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 4,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  Text(
+                                    widget.controller.timeAgo(blog.createdAt ?? ""),
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  if (typeLabel.isNotEmpty)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFE08A),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        typeLabel,
+                                        style: const TextStyle(fontSize: 10),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ],
                           ),

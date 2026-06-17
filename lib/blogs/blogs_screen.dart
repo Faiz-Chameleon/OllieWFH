@@ -37,6 +37,7 @@ class BlogsScreen extends StatelessWidget {
               child: Row(
                 children: [
                   Image.asset("assets/icons/MagnifyingGlass.png", scale: 3.4),
+
                   SizedBox(width: 12.w),
                   GestureDetector(
                     onTap: () {
@@ -45,27 +46,12 @@ class BlogsScreen extends StatelessWidget {
                     child: Image.asset("assets/icons/Vector (2).png", scale: 3.4),
                   ),
                   SizedBox(width: 12.w),
-                  // GestureDetector(
-                  //   onTap: () {
-                  //     Get.to(() => CreditsSubscriptionScreen(), transition: Transition.fadeIn);
-                  //   },
-                  //   child: Container(
-                  //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  //     decoration: BoxDecoration(color: kprimaryColor, borderRadius: BorderRadius.circular(20)),
-                  //     child: Row(
-                  //       children: [
-                  //         Image.asset("assets/icons/Vector (1).png", scale: 4),
-                  //         const SizedBox(width: 5),
-                  //         Text("0", style: GoogleFonts.darkerGrotesque(fontWeight: FontWeight.bold)),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
                 ],
               ),
             ),
           ],
           bottom: TabBar(
+            indicatorSize: TabBarIndicatorSize.tab,
             isScrollable: false,
             labelColor: Black,
             unselectedLabelColor: Colors.black54,

@@ -197,6 +197,15 @@ class _EasyDatePickerDemoScreenState extends State<EasyDatePickerDemoScreen> {
                     isDone: isDone,
                     onComplete: () =>
                         controller.toggleTask(originalIndex, task["id"]),
+                    onEdit: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) =>
+                            CreateTaskSheet(controller: controller, task: task),
+                      );
+                    },
                     onTap: () {
                       if (!isDone) {
                         showDialog(
@@ -374,6 +383,7 @@ class _TaskCard extends StatelessWidget {
   final String timeText;
   final bool isDone;
   final VoidCallback onComplete;
+  final VoidCallback onEdit;
   final VoidCallback onTap;
   final VoidCallback onDelete;
 
@@ -383,6 +393,7 @@ class _TaskCard extends StatelessWidget {
     required this.timeText,
     required this.isDone,
     required this.onComplete,
+    required this.onEdit,
     required this.onTap,
     required this.onDelete,
   });
@@ -569,6 +580,29 @@ class _TaskCard extends StatelessWidget {
                         ),
                         const Spacer(),
                         TextButton.icon(
+                          onPressed: onEdit,
+                          style: TextButton.styleFrom(
+                            foregroundColor: buttonColor,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            backgroundColor: Colors.white.withOpacity(0.75),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                          ),
+                          icon: const Icon(Icons.edit_outlined, size: 18),
+                          label: Text(
+                            "Edit",
+                            style: GoogleFonts.darkerGrotesque(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        TextButton.icon(
                           onPressed: onDelete,
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.red,
@@ -608,7 +642,9 @@ class _TaskCard extends StatelessWidget {
 
 class CreateTaskSheet extends StatefulWidget {
   final local_controller.EasyDatePickerController controller;
-  const CreateTaskSheet({Key? key, required this.controller}) : super(key: key);
+  final Map<String, dynamic>? task;
+  const CreateTaskSheet({Key? key, required this.controller, this.task})
+    : super(key: key);
 
   @override
   State<CreateTaskSheet> createState() => _CreateTaskSheetState();
@@ -621,27 +657,135 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
 
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
+  DateTime? _initialDate;
+  TimeOfDay? _initialTime;
   bool showDateTimePicker = false;
+
+  bool get _isEditing => widget.task != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final task = widget.task;
+    if (task == null) {
+      return;
+    }
+
+    _taskController.text = (task["taskName"] ?? "").toString();
+    _descController.text = (task["taskDescription"] ?? "").toString();
+    selectedDate = _parseTaskDate(task) ?? widget.controller.focusedDate.value;
+    selectedTime = _parseTaskTime(task) ?? TimeOfDay.now();
+    _initialDate = selectedDate;
+    _initialTime = selectedTime;
+    showDateTimePicker = true;
+  }
+
+  DateTime? _parseTaskDate(Map<String, dynamic> task) {
+    for (final key in ["date", "scheduledDate", "taskDate"]) {
+      final value = task[key];
+      if (value == null) {
+        continue;
+      }
+      final raw = value.toString();
+      final parsed = DateTime.tryParse(raw);
+      if (parsed != null) {
+        return DateTime(parsed.year, parsed.month, parsed.day);
+      }
+
+      final parts = raw.split("-");
+      if (parts.length == 3) {
+        final day = int.tryParse(parts[0]);
+        final month = int.tryParse(parts[1]);
+        final year = int.tryParse(parts[2]);
+        if (day != null && month != null && year != null) {
+          return DateTime(year, month, day);
+        }
+      }
+    }
+    return null;
+  }
+
+  TimeOfDay? _parseTaskTime(Map<String, dynamic> task) {
+    final raw = (task["scheduledTime"] ?? task["time"])?.toString();
+    if (raw == null || raw.trim().isEmpty) {
+      return null;
+    }
+
+    final parts = raw.trim().split(":");
+    if (parts.length >= 2) {
+      final hour = int.tryParse(parts[0]);
+      final minute = int.tryParse(parts[1]);
+      if (hour != null &&
+          minute != null &&
+          hour >= 0 &&
+          hour <= 23 &&
+          minute >= 0 &&
+          minute <= 59) {
+        return TimeOfDay(hour: hour, minute: minute);
+      }
+    }
+
+    return null;
+  }
+
+  @override
+  void dispose() {
+    _taskController.dispose();
+    _descController.dispose();
+    super.dispose();
+  }
 
   void _submitTask() async {
     if (_taskController.text.trim().isNotEmpty &&
         selectedDate != null &&
         selectedTime != null) {
-      await widget.controller.userCreateTask(
-        taskName: _taskController.text.trim(),
-        taskDescription: _descController.text.trim(),
-        date: selectedDate!,
-        time: selectedTime!,
-      );
+      if (_isEditing) {
+        final hasScheduleChanged =
+            !_isSameDate(selectedDate, _initialDate) ||
+            !_isSameTime(selectedTime, _initialTime);
+        await widget.controller.userRescheduleTask(
+          taskId: widget.task!["id"].toString(),
+          taskName: _taskController.text.trim(),
+          taskDescription: _descController.text.trim(),
+          date: hasScheduleChanged ? selectedDate : null,
+          time: hasScheduleChanged ? selectedTime : null,
+        );
+      } else {
+        await widget.controller.userCreateTask(
+          taskName: _taskController.text.trim(),
+          taskDescription: _descController.text.trim(),
+          date: selectedDate!,
+          time: selectedTime!,
+        );
+      }
 
       if (!mounted) {
         return;
       }
 
-      if (widget.controller.createTaskStatus.value == RequestStatus.success) {
+      final status = _isEditing
+          ? widget.controller.rescheduleTaskStatus.value
+          : widget.controller.createTaskStatus.value;
+      if (status == RequestStatus.success) {
         Navigator.pop(context);
       }
     }
+  }
+
+  bool _isSameDate(DateTime? first, DateTime? second) {
+    if (first == null || second == null) {
+      return first == second;
+    }
+    return first.year == second.year &&
+        first.month == second.month &&
+        first.day == second.day;
+  }
+
+  bool _isSameTime(TimeOfDay? first, TimeOfDay? second) {
+    if (first == null || second == null) {
+      return first == second;
+    }
+    return first.hour == second.hour && first.minute == second.minute;
   }
 
   @override
@@ -665,7 +809,7 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
               ),
               20.verticalSpace,
               Text(
-                "Create a Task",
+                _isEditing ? "Edit Task" : "Create a Task",
                 style: GoogleFonts.darkerGrotesque(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -721,7 +865,9 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Choose day and time",
+                        _isEditing
+                            ? "Change day and time"
+                            : "Choose day and time",
                         style: GoogleFonts.darkerGrotesque(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -898,20 +1044,19 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                 ),
               ],
               30.verticalSpace,
-              Obx(
-                () => ElevatedButton(
-                  onPressed:
-                      widget.controller.createTaskStatus.value ==
-                          RequestStatus.loading
-                      ? null
-                      : _submitTask,
+              Obx(() {
+                final status = _isEditing
+                    ? widget.controller.rescheduleTaskStatus.value
+                    : widget.controller.createTaskStatus.value;
+                final isLoading = status == RequestStatus.loading;
+                return ElevatedButton(
+                  onPressed: isLoading ? null : _submitTask,
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                         _taskController.text.trim().isNotEmpty &&
                             selectedDate != null &&
                             selectedTime != null &&
-                            widget.controller.createTaskStatus.value !=
-                                RequestStatus.loading
+                            !isLoading
                         ? buttonColor
                         : Colors.grey.shade400,
                     shape: RoundedRectangleBorder(
@@ -919,9 +1064,7 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                     ),
                     minimumSize: const Size(double.infinity, 50),
                   ),
-                  child:
-                      widget.controller.createTaskStatus.value ==
-                          RequestStatus.loading
+                  child: isLoading
                       ? const SizedBox(
                           height: 20,
                           width: 20,
@@ -933,14 +1076,14 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                           ),
                         )
                       : Text(
-                          "Save Task",
+                          _isEditing ? "Update Task" : "Save Task",
                           style: GoogleFonts.darkerGrotesque(
                             fontSize: 18,
                             color: Colors.white,
                           ),
                         ),
-                ),
-              ),
+                );
+              }),
             ],
           ),
         );

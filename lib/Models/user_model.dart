@@ -1,3 +1,5 @@
+import 'package:ollie/Models/supplement_model.dart';
+
 class UserModel {
   final bool success;
   final String message;
@@ -14,7 +16,11 @@ class UserModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {'success': success, 'message': message, if (data != null) 'data': data!.toJson()};
+    return {
+      'success': success,
+      'message': message,
+      if (data != null) 'data': data!.toJson(),
+    };
   }
 }
 
@@ -45,6 +51,7 @@ class UserData {
   final List<dynamic>? wallet;
   final List<dynamic>? connectPurchase;
   final List<dynamic>? userSubscription;
+  final List<SupplementData>? userSupplements;
   final String? userToken;
 
   UserData({
@@ -74,6 +81,7 @@ class UserData {
     this.wallet,
     this.connectPurchase,
     this.userSubscription,
+    this.userSupplements,
     this.userToken,
   });
 
@@ -105,6 +113,16 @@ class UserData {
       wallet: json['Wallet'],
       connectPurchase: json['ConnectPurchase'],
       userSubscription: json['UserSubscription'],
+      userSupplements: json['userSupplements'] is List
+          ? (json['userSupplements'] as List)
+                .whereType<Map>()
+                .map(
+                  (item) => SupplementData.fromJson(
+                    item.map((key, value) => MapEntry(key.toString(), value)),
+                  ),
+                )
+                .toList()
+          : null,
       userToken: json['userToken'],
     );
   }
@@ -137,6 +155,17 @@ class UserData {
       'Wallet': wallet,
       'ConnectPurchase': connectPurchase,
       'UserSubscription': userSubscription,
+      'userSupplements': userSupplements
+          ?.map(
+            (item) => {
+              'id': item.id,
+              'name': item.name,
+              'dosage': item.dosage,
+              'reminderEnabled': item.reminderEnabled,
+              'reminderTime': item.reminderTime,
+            },
+          )
+          .toList(),
       'userToken': userToken,
     };
   }

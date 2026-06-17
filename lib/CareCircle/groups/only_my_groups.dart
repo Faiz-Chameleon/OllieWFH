@@ -13,14 +13,20 @@ import 'package:ollie/Models/my_groups_model.dart';
 class OnlyYourGroups extends StatefulWidget {
   final CareCircleController controller;
   final String title;
-  const OnlyYourGroups({super.key, required this.title, required this.controller});
+  const OnlyYourGroups({
+    super.key,
+    required this.title,
+    required this.controller,
+  });
 
   @override
   State<OnlyYourGroups> createState() => _OnlyYourGroupsState();
 }
 
 class _OnlyYourGroupsState extends State<OnlyYourGroups> {
-  final OneToManyChatController groupChatcontroller = Get.put(OneToManyChatController());
+  final OneToManyChatController groupChatcontroller = Get.put(
+    OneToManyChatController(),
+  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +37,11 @@ class _OnlyYourGroupsState extends State<OnlyYourGroups> {
         centerTitle: false,
         title: Text(
           widget.title,
-          style: GoogleFonts.darkerGrotesque(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 26.sp),
+          style: GoogleFonts.darkerGrotesque(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 26.sp,
+          ),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -54,9 +64,17 @@ class _OnlyYourGroupsState extends State<OnlyYourGroups> {
             return GestureDetector(
               onTap: () {
                 final group = widget.controller.myGroups[index];
-                groupChatcontroller.joinGroupChatRoom(group.id.toString()).then((value) {
-                  Get.to(() => GrouoChatScreen(userName: group.name ?? "", groupDetails: group));
-                });
+                groupChatcontroller.joinGroupChatRoom(group.id.toString()).then(
+                  (joined) {
+                    if (!joined) return;
+                    Get.to(
+                      () => GrouoChatScreen(
+                        userName: group.name ?? "",
+                        groupDetails: group,
+                      ),
+                    );
+                  },
+                );
               },
               child: Padding(
                 padding: const EdgeInsets.all(5.0),

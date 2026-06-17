@@ -36,7 +36,7 @@ class BlogsOnFiltersData {
   String? image;
   String? categoryId;
   String? adminId;
-  Null? type;
+  String? type;
   int? views;
   String? createdAt;
   String? updatedAt;
@@ -71,7 +71,9 @@ class BlogsOnFiltersData {
     views = json['views'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
-    category = json['category'] != null ? new Category.fromJson(json['category']) : null;
+    category = json['category'] != null
+        ? new Category.fromJson(json['category'])
+        : null;
     admin = json['admin'] != null ? new Admin.fromJson(json['admin']) : null;
     cCount = json['_count'] != null ? new Count.fromJson(json['_count']) : null;
   }
@@ -133,7 +135,16 @@ class Admin {
   String? userType;
   String? image;
 
-  Admin({this.id, this.email, this.password, this.name, this.deviceToken, this.otp, this.userType, this.image});
+  Admin({
+    this.id,
+    this.email,
+    this.password,
+    this.name,
+    this.deviceToken,
+    this.otp,
+    this.userType,
+    this.image,
+  });
 
   Admin.fromJson(Map<String, dynamic> json) {
     id = json['id'];

@@ -11,6 +11,7 @@ class GroupCardWidget extends StatelessWidget {
   final List<Users> membersImages;
   final bool joined;
   final double? width;
+  final double? distanceKm;
 
   const GroupCardWidget({
     super.key,
@@ -21,12 +22,18 @@ class GroupCardWidget extends StatelessWidget {
     required this.membersImages,
     required this.joined,
     this.width,
+    this.distanceKm,
   });
 
   @override
   Widget build(BuildContext context) {
-    final memberImages = membersImages.take(2).map((p) => p.image ?? "").toList();
-    final validMemberImages = memberImages.where((image) => image.trim().isNotEmpty).toList();
+    final memberImages = membersImages
+        .take(2)
+        .map((p) => p.image ?? "")
+        .toList();
+    final validMemberImages = memberImages
+        .where((image) => image.trim().isNotEmpty)
+        .toList();
 
     return Container(
       width: width,
@@ -48,7 +55,9 @@ class GroupCardWidget extends StatelessWidget {
           Container(
             height: 104.h,
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24),
+              ),
               gradient: const LinearGradient(
                 colors: [Color(0xFFF6D58C), Color(0xFFECA95F)],
                 begin: Alignment.topLeft,
@@ -59,7 +68,9 @@ class GroupCardWidget extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24),
+                  ),
                   child: Image.network(
                     imagePath,
                     fit: BoxFit.cover,
@@ -67,14 +78,20 @@ class GroupCardWidget extends StatelessWidget {
                       return Container(
                         color: const Color(0xFFF4E4C3),
                         alignment: Alignment.center,
-                        child: Icon(Icons.groups_rounded, size: 42, color: Colors.brown.shade400),
+                        child: Icon(
+                          Icons.groups_rounded,
+                          size: 42,
+                          color: Colors.brown.shade400,
+                        ),
                       );
                     },
                   ),
                 ),
                 Container(
                   decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
                     gradient: LinearGradient(
                       colors: [Color(0x12000000), Color(0x9A000000)],
                       begin: Alignment.topCenter,
@@ -104,7 +121,10 @@ class GroupCardWidget extends StatelessWidget {
                       ),
                       const SizedBox(width: 10),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xE6FFF4D7),
                           borderRadius: BorderRadius.circular(999),
@@ -130,20 +150,45 @@ class GroupCardWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    joined ? 'Already active in this circle' : 'Discover and connect with this circle',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: const Color(0xFF6E6256),
-                      fontSize: responsiveFontSize(15, min: 13, max: 18),
-                      fontWeight: FontWeight.w500,
-                      height: 1.1,
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          joined
+                              ? 'Already active in this circle'
+                              : 'Discover and connect with this circle',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: const Color(0xFF6E6256),
+                            fontSize: responsiveFontSize(15, min: 13, max: 18),
+                            fontWeight: FontWeight.w500,
+                            height: 1.1,
+                          ),
+                        ),
+                      ),
+                      if (distanceKm != null) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          '${distanceKm!.toStringAsFixed(distanceKm! < 10 ? 1 : 0)} km',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: const Color(0xFF4B3510),
+                            fontSize: responsiveFontSize(13, min: 12, max: 15),
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   const Spacer(),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 8.h,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF7E8C9),
                       borderRadius: BorderRadius.circular(18),
@@ -162,7 +207,9 @@ class GroupCardWidget extends StatelessWidget {
                                   child: CircleAvatar(
                                     radius: 11,
                                     backgroundColor: Colors.white,
-                                    backgroundImage: NetworkImage(validMemberImages[0]),
+                                    backgroundImage: NetworkImage(
+                                      validMemberImages[0],
+                                    ),
                                   ),
                                 )
                               else
@@ -171,7 +218,11 @@ class GroupCardWidget extends StatelessWidget {
                                   child: CircleAvatar(
                                     radius: 11,
                                     backgroundColor: Color(0xFFD8C6A6),
-                                    child: Icon(Icons.person, size: 14, color: Colors.white),
+                                    child: Icon(
+                                      Icons.person,
+                                      size: 14,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               if (validMemberImages.length > 1)
@@ -180,7 +231,9 @@ class GroupCardWidget extends StatelessWidget {
                                   child: CircleAvatar(
                                     radius: 11,
                                     backgroundColor: Colors.white,
-                                    backgroundImage: NetworkImage(validMemberImages[1]),
+                                    backgroundImage: NetworkImage(
+                                      validMemberImages[1],
+                                    ),
                                   ),
                                 ),
                             ],
@@ -194,7 +247,11 @@ class GroupCardWidget extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: const Color(0xFF2F241B),
-                              fontSize: responsiveFontSize(15, min: 13, max: 18),
+                              fontSize: responsiveFontSize(
+                                15,
+                                min: 13,
+                                max: 18,
+                              ),
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -203,7 +260,9 @@ class GroupCardWidget extends StatelessWidget {
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: joined ? const Color(0xFF7BB662) : const Color(0xFFE59A48),
+                            color: joined
+                                ? const Color(0xFF7BB662)
+                                : const Color(0xFFE59A48),
                             shape: BoxShape.circle,
                           ),
                         ),

@@ -11,8 +11,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:ollie/HomeMain/HomeMain.dart';
 import 'package:ollie/HomeMain/bottomController.dart';
+import 'package:ollie/common/common.dart';
 import 'package:ollie/request_status.dart';
-import 'package:ollie/services/firebase_service.dart';
 
 class ReviewPostScreen extends StatelessWidget {
   ReviewPostScreen({super.key});
@@ -210,25 +210,32 @@ class ReviewPostScreen extends StatelessWidget {
                       RequestStatus.loading) {
                     return Center(child: CircularProgressIndicator());
                   }
-                  return ElevatedButton(
+                    return ElevatedButton(
                     onPressed: () async {
-                      final deviceToken = await FirebaseService.instance
-                          .getDeviceToken();
+                      final latitude = controller.selectedLatitude.value;
+                      final longitude = controller.selectedLongitude.value;
+                      if (controller.selectedLatLng.value == null ||
+                          latitude == 0.0 ||
+                          longitude == 0.0) {
+                        appSnackbar(
+                          "Location Required",
+                          "Please select a valid location before posting.",
+                        );
+                        return;
+                      }
+
                       var data = {
                         "dateAndTime": controller.formattedDateAndTime
                             .toString(),
                         "postdescription":
                             controller.descriptionController.value.text,
-                        "longitude": controller.selectedLongitude.value,
-                        "latitude": controller.selectedLatitude.value,
+                        "longitude": longitude,
+                        "latitude": latitude,
                         "postRequestCategory": controller.selectedCategories
                             .toList(),
-                        if (deviceToken.isNotEmpty)
-                          "userDeviceToken": deviceToken,
-                        if (deviceToken.isNotEmpty)
-                          "userDeviceType": Platform.isAndroid
-                              ? "ANDROID"
-                              : "IOS",
+                        "selectedCategoryIds": controller.selectedCategories
+                            .toList(),
+                        "newCategories": controller.newCategories.toList(),
                       };
                       controller.createAssistanceByUser(data);
                       // final bottomController = Get.find<Bottomcontroller>();

@@ -6,7 +6,8 @@ class BlogRepository {
   Future<Map<String, dynamic>> getBlogsWithRespectToCategories(type) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    return ApiService.getMethod("${ApiUrls.getBlogsByCategory}?type=$type", token: requiredToken);
+    final query = Uri(queryParameters: {'type': type.toString()}).query;
+    return ApiService.getMethod("${ApiUrls.getBlogsByCategory}?$query", token: requiredToken);
   }
 
   Future<Map<String, dynamic>> getBlogsTopics() async {
@@ -30,7 +31,14 @@ class BlogRepository {
   Future<Map<String, dynamic>> getBlogsByItsTopicOnFilter(lable) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    return ApiService.getMethod("${ApiUrls.getBlogsByTopicsOnFilter}?type=$lable", token: requiredToken);
+    final query = Uri(
+      queryParameters: {
+        'type': lable.toString(),
+        'page': '1',
+        'limit': '10',
+      },
+    ).query;
+    return ApiService.getMethod("${ApiUrls.getBlogsByTopicsOnFilter}?$query", token: requiredToken);
   }
 
   Future<Map<String, dynamic>> getBlogDetails(id) async {

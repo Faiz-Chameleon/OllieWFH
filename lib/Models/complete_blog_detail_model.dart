@@ -10,7 +10,9 @@ class CompleteBlog {
   CompleteBlog.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     message = json['message'];
-    data = json['data'] != null ? new CompleteBlogDetails.fromJson(json['data']) : null;
+    data = json['data'] != null
+        ? new CompleteBlogDetails.fromJson(json['data'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -32,7 +34,7 @@ class CompleteBlogDetails {
   String? image;
   String? categoryId;
   String? adminId;
-  Null? type;
+  String? type;
   int? views;
   String? createdAt;
   String? updatedAt;
@@ -67,7 +69,9 @@ class CompleteBlogDetails {
     views = json['views'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
-    category = json['category'] != null ? new Category.fromJson(json['category']) : null;
+    category = json['category'] != null
+        ? new Category.fromJson(json['category'])
+        : null;
     cCount = json['_count'] != null ? new Count.fromJson(json['_count']) : null;
     isLiked = json['isLiked'];
   }

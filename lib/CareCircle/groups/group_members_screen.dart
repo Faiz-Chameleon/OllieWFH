@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/CareCircle/groups/one_to_many_chat_controller.dart';
+import 'package:ollie/CareCircle/groups/group_shared_media_screen.dart';
 import 'package:ollie/Models/my_groups_model.dart';
 import 'package:ollie/request_status.dart';
 import 'package:ollie/common/common.dart';
@@ -32,6 +33,11 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   void initState() {
     super.initState();
     members = _buildMembers();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_canReviewJoinRequests && _isPrivateGroup) {
+        groupChatController.fetchGroupJoinRequests(_resolvedChatRoomId);
+      }
+    });
   }
 
   String get _loggedInUserId => userController.user.value?.id ?? '';
@@ -40,6 +46,12 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
       ? widget.groupDetails.creatorId!.trim()
       : null;
   bool get _isCreator => widget.groupDetails.isCurrentUserCreator == true;
+  bool get _isAdmin => members.any(
+    (member) => member.id == _loggedInUserId && member.memberType == 'ADMIN',
+  );
+  bool get _canReviewJoinRequests => _isCreator || _isAdmin;
+  bool get _isPrivateGroup =>
+      widget.groupDetails.groupPrivacy?.toUpperCase() == 'PRIVATE';
 
   String get _resolvedChatRoomId => widget.chatRoomId?.trim().isNotEmpty == true
       ? widget.chatRoomId!.trim()
@@ -211,6 +223,155 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     });
   }
 
+  Future<void> _leaveGroup() async {
+    final chatRoomId = _resolvedChatRoomId;
+    if (chatRoomId.isEmpty) {
+      appSnackbar("Error", "Unable to leave this group right now");
+      return;
+    }
+
+    final shouldLeave = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Leave Group'),
+          content: const Text('Are you sure you want to leave this group?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Leave'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldLeave != true) return;
+
+    final left = await groupChatController.leaveGroupChatRoom(chatRoomId);
+    if (left) {
+      Get.back();
+      Get.back();
+    }
+  }
+
+  String _requestId(Map<String, dynamic> request) {
+    return (request['id'] ?? request['requestId'] ?? '').toString();
+  }
+
+  String _requesterName(Map<String, dynamic> request) {
+    final requester =
+        request['requester'] ?? request['user'] ?? request['member'];
+    if (requester is Map) {
+      final first = requester['firstName']?.toString().trim() ?? '';
+      final last = requester['lastName']?.toString().trim() ?? '';
+      final fullName = [first, last].where((part) => part.isNotEmpty).join(' ');
+      if (fullName.isNotEmpty) return fullName;
+
+      final name = requester['name']?.toString().trim();
+      if (name != null && name.isNotEmpty) return name;
+    }
+
+    return request['userName']?.toString() ??
+        request['requesterName']?.toString() ??
+        'Pending member';
+  }
+
+  Widget _buildPendingRequestsSection() {
+    if (!_canReviewJoinRequests || !_isPrivateGroup) {
+      return const SizedBox.shrink();
+    }
+
+    return Obx(() {
+      if (groupChatController.groupJoinRequestsStatus.value ==
+          RequestStatus.loading) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      final requests = groupChatController.groupJoinRequests;
+      if (requests.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      return Container(
+        width: 1.sw,
+        margin: const EdgeInsets.only(bottom: 24),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20.r),
+          color: const Color(0x1E18180D),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 12),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Pending Requests',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+            ),
+            const SizedBox(height: 8),
+            ...requests.map((request) => _buildJoinRequestTile(request)),
+            const SizedBox(height: 8),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildJoinRequestTile(Map<String, dynamic> request) {
+    final requestId = _requestId(request);
+    final name = _requesterName(request);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      child: Row(
+        children: [
+          const CircleAvatar(child: Icon(Icons.person_rounded)),
+          const SizedBox(width: 12),
+          Expanded(child: Text(name, style: const TextStyle(fontSize: 16))),
+          Obx(() {
+            final isReviewing =
+                groupChatController.reviewGroupJoinRequestStatus.value ==
+                RequestStatus.loading;
+            return Row(
+              children: [
+                IconButton(
+                  onPressed: isReviewing
+                      ? null
+                      : () => groupChatController.reviewGroupJoinRequest(
+                          requestId,
+                          'REJECT',
+                        ),
+                  icon: const Icon(Icons.close_rounded),
+                ),
+                IconButton(
+                  onPressed: isReviewing
+                      ? null
+                      : () async {
+                          final approved = await groupChatController
+                              .reviewGroupJoinRequest(requestId, 'APPROVE');
+                          if (approved) {
+                            groupChatController.fetchGroupJoinRequests(
+                              _resolvedChatRoomId,
+                            );
+                          }
+                        },
+                  icon: const Icon(Icons.check_rounded),
+                ),
+              ],
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -283,6 +444,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
               ],
             ),
             const SizedBox(height: 24),
+            _buildPendingRequestsSection(),
             _buildSettingsSection(),
             const SizedBox(height: 24),
             Container(
@@ -340,32 +502,60 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
           _buildSettingTile(
             icon: Icons.photo_library_rounded,
             title: 'Shared Media',
+            onTap: () {
+              final chatRoomId = _resolvedChatRoomId;
+              if (chatRoomId.isEmpty) {
+                appSnackbar("Error", "Unable to open shared media right now");
+                return;
+              }
+              Get.to(() => GroupSharedMediaScreen(chatRoomId: chatRoomId));
+            },
           ),
           _buildSettingTile(
             icon: Icons.notifications_rounded,
             title: 'Notifications',
           ),
+          if (!_isCreator)
+            Obx(() {
+              final isLeaving =
+                  groupChatController.leaveGroupRequestStatus.value ==
+                  RequestStatus.loading;
+              return _buildSettingTile(
+                icon: Icons.logout_rounded,
+                title: isLeaving ? 'Leaving...' : 'Leave Group',
+                color: Colors.red.shade700,
+                onTap: isLeaving ? null : _leaveGroup,
+              );
+            }),
         ],
       ),
     );
   }
 
-  Widget _buildSettingTile({required IconData icon, required String title}) {
-    return SizedBox(
-      height: 50.h,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Row(
-          children: [
-            Icon(icon, size: 24, color: Colors.black),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(fontSize: 16, color: Colors.black),
+  Widget _buildSettingTile({
+    required IconData icon,
+    required String title,
+    Color color = Colors.black,
+    VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: SizedBox(
+        height: 50.h,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              Icon(icon, size: 24, color: color),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(fontSize: 16, color: color),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

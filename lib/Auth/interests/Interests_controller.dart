@@ -4,6 +4,7 @@
 
 import 'package:flutter_native_contact_picker/flutter_native_contact_picker.dart';
 import 'package:flutter_native_contact_picker/model/contact.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ollie/Auth/auth_repository.dart';
@@ -15,16 +16,23 @@ class InterestModel {
   final String interestId;
   bool isSelected;
 
-  InterestModel({required this.name, required this.interestId, this.isSelected = false});
+  InterestModel({
+    required this.name,
+    required this.interestId,
+    this.isSelected = false,
+  });
 }
 
 class InterestController extends GetxController {
   final AuthRepository authRepository = AuthRepository();
   var interests = <InterestModel>[].obs;
-  final TextEditingController interestSearchController = TextEditingController();
+  final TextEditingController interestSearchController =
+      TextEditingController();
   final RxList<String> customInterests = <String>[].obs;
   final RxString interestSearchQuery = ''.obs;
-  final FlutterNativeContactPicker _contactPicker = FlutterNativeContactPicker();
+  Timer? _interestSearchDebounce;
+  final FlutterNativeContactPicker _contactPicker =
+      FlutterNativeContactPicker();
 
   var contacts = <Contact>[].obs;
   var selectedPhoneNumber = ''.obs;
@@ -52,11 +60,14 @@ class InterestController extends GetxController {
     }
   }
 
-  bool get isContactSelected => selectedContact.value.isNotEmpty && selectedContactNumber.value.isNotEmpty;
+  bool get isContactSelected =>
+      selectedContact.value.isNotEmpty &&
+      selectedContactNumber.value.isNotEmpty;
 
   bool get hasSelection => interests.any((e) => e.isSelected);
 
-  bool get hasAnyInterestSelection => hasSelection || customInterests.isNotEmpty;
+  bool get hasAnyInterestSelection =>
+      hasSelection || customInterests.isNotEmpty;
 
   List<InterestModel> get filteredInterests {
     final query = interestSearchQuery.value.trim().toLowerCase();
@@ -68,7 +79,10 @@ class InterestController extends GetxController {
 
   List<InterestModel> get suggestedInterests {
     final selectedIds = selectedInterestIds.toSet();
-    return interests.where((item) => !selectedIds.contains(item.interestId)).take(6).toList();
+    return interests
+        .where((item) => !selectedIds.contains(item.interestId))
+        .take(6)
+        .toList();
   }
 
   bool get canAddCustomInterest {
@@ -76,8 +90,12 @@ class InterestController extends GetxController {
     if (value.isEmpty) return false;
 
     final normalized = value.toLowerCase();
-    final existsInBuiltIn = interests.any((item) => item.name.toLowerCase() == normalized);
-    final existsInCustom = customInterests.any((item) => item.toLowerCase() == normalized);
+    final existsInBuiltIn = interests.any(
+      (item) => item.name.toLowerCase() == normalized,
+    );
+    final existsInCustom = customInterests.any(
+      (item) => item.toLowerCase() == normalized,
+    );
     return !existsInBuiltIn && !existsInCustom;
   }
 
@@ -97,6 +115,16 @@ class InterestController extends GetxController {
 
   void updateInterestSearch(String value) {
     interestSearchQuery.value = value;
+    _interestSearchDebounce?.cancel();
+
+    final query = value.trim();
+    if (query.length < 2) {
+      return;
+    }
+
+    _interestSearchDebounce = Timer(const Duration(milliseconds: 350), () {
+      searchInterests(query);
+    });
   }
 
   void addCustomInterest([String? value]) {
@@ -104,8 +132,12 @@ class InterestController extends GetxController {
     if (rawValue.isEmpty) return;
 
     final normalized = rawValue.toLowerCase();
-    final existsInBuiltIn = interests.any((item) => item.name.toLowerCase() == normalized);
-    final existsInCustom = customInterests.any((item) => item.toLowerCase() == normalized);
+    final existsInBuiltIn = interests.any(
+      (item) => item.name.toLowerCase() == normalized,
+    );
+    final existsInCustom = customInterests.any(
+      (item) => item.toLowerCase() == normalized,
+    );
     if (existsInBuiltIn || existsInCustom) {
       interestSearchController.clear();
       interestSearchQuery.value = '';
@@ -118,7 +150,9 @@ class InterestController extends GetxController {
   }
 
   void addMatchedInterest(InterestModel item) {
-    final index = interests.indexWhere((interest) => interest.interestId == item.interestId);
+    final index = interests.indexWhere(
+      (interest) => interest.interestId == item.interestId,
+    );
     if (index == -1) return;
 
     if (!interests[index].isSelected) {
@@ -162,9 +196,7 @@ class InterestController extends GetxController {
       final result = await authRepository.getInterest();
       if (result['success'] == true) {
         getInterestStatus.value = RequestStatus.success;
-
-        final rawList = result['data']["data"] as List;
-        interests.value = rawList.map((e) => InterestModel(name: e['name'] ?? 'Unnamed', interestId: e["id"])).toList();
+        interests.value = _parseInterests(result['data']);
       } else {
         appSnackbar("Failed to Load Interests", result['message']);
       }
@@ -176,8 +208,51 @@ class InterestController extends GetxController {
 
   RxList<String> selectedInterestIds = <String>[].obs;
 
+  Future<void> searchInterests(String query) async {
+    try {
+      final result = await authRepository.searchInterest(query);
+      if (result['success'] != true) return;
+
+      final searchedInterests = _parseInterests(result['data']);
+      for (final interest in searchedInterests) {
+        final existingIndex = interests.indexWhere(
+          (item) => item.interestId == interest.interestId,
+        );
+        if (existingIndex == -1) {
+          interest.isSelected = selectedInterestIds.contains(
+            interest.interestId,
+          );
+          interests.add(interest);
+        } else if (selectedInterestIds.contains(interest.interestId)) {
+          interests[existingIndex].isSelected = true;
+        }
+      }
+      interests.refresh();
+    } catch (_) {}
+  }
+
+  List<InterestModel> _parseInterests(dynamic data) {
+    final rawList = data is Map && data['data'] is List
+        ? data['data'] as List
+        : data is List
+        ? data
+        : const [];
+
+    return rawList
+        .whereType<Map>()
+        .map(
+          (item) => InterestModel(
+            name: (item['name'] ?? 'Unnamed').toString(),
+            interestId: item['id'].toString(),
+            isSelected: selectedInterestIds.contains(item['id'].toString()),
+          ),
+        )
+        .toList();
+  }
+
   @override
   void onClose() {
+    _interestSearchDebounce?.cancel();
     interestSearchController.dispose();
     super.onClose();
   }

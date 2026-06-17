@@ -36,6 +36,12 @@ class MyGroupsData {
   String? description;
   String? image;
   String? creatorId;
+  String? groupPrivacy;
+  double? latitude;
+  double? longitude;
+  String? city;
+  String? country;
+  double? distanceKm;
   GroupCreator? creator;
   bool? isCurrentUserCreator;
   String? createdAt;
@@ -51,6 +57,12 @@ class MyGroupsData {
     this.description,
     this.image,
     this.creatorId,
+    this.groupPrivacy,
+    this.latitude,
+    this.longitude,
+    this.city,
+    this.country,
+    this.distanceKm,
     this.creator,
     this.isCurrentUserCreator,
     this.createdAt,
@@ -67,13 +79,25 @@ class MyGroupsData {
     description = json['description'];
     image = json['image'];
     creatorId = json['creatorId'];
-    creator = json['creator'] != null ? GroupCreator.fromJson(json['creator']) : null;
+    groupPrivacy = json['groupPrivacy'];
+    latitude = _toDouble(json['latitude']);
+    longitude = _toDouble(json['longitude']);
+    city = json['city'];
+    country = json['country'];
+    distanceKm = _toDouble(json['distanceKm']);
+    creator = json['creator'] != null
+        ? GroupCreator.fromJson(json['creator'])
+        : null;
     isCurrentUserCreator = json['isCurrentUserCreator'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
-    lastMessage = json['lastMessage'] != null ? new LastMessage.fromJson(json['lastMessage']) : null;
+    lastMessage = json['lastMessage'] != null
+        ? new LastMessage.fromJson(json['lastMessage'])
+        : null;
     memberCount = json['memberCount'];
-    participants = json['participants'] != null ? new Participants.fromJson(json['participants']) : null;
+    participants = json['participants'] != null
+        ? new Participants.fromJson(json['participants'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -84,6 +108,12 @@ class MyGroupsData {
     data['description'] = this.description;
     data['image'] = this.image;
     data['creatorId'] = this.creatorId;
+    data['groupPrivacy'] = this.groupPrivacy;
+    data['latitude'] = this.latitude;
+    data['longitude'] = this.longitude;
+    data['city'] = this.city;
+    data['country'] = this.country;
+    data['distanceKm'] = this.distanceKm;
     if (this.creator != null) {
       data['creator'] = this.creator!.toJson();
     }
@@ -98,6 +128,12 @@ class MyGroupsData {
       data['participants'] = this.participants!.toJson();
     }
     return data;
+  }
+
+  static double? _toDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    return double.tryParse(value.toString());
   }
 }
 
@@ -251,7 +287,9 @@ class LastMessage {
     createdAt = json['createdAt'];
     senderId = json['senderId'];
     adminSenderId = json['adminSenderId'];
-    sender = json['sender'] != null ? new Sender.fromJson(json['sender']) : null;
+    sender = json['sender'] != null
+        ? new Sender.fromJson(json['sender'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {

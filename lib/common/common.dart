@@ -13,7 +13,7 @@ export 'package:ollie/common/app_typography.dart';
 
 void appSnackbar(
   String title,
-  String message, {
+  Object? message, {
   SnackPosition snackPosition = SnackPosition.TOP,
   Duration duration = const Duration(seconds: 3),
   Color? backgroundColor,
@@ -21,12 +21,36 @@ void appSnackbar(
 }) {
   _showAppSnackbarWhenReady(
     title,
-    message,
+    _cleanSnackbarMessage(message),
     snackPosition: snackPosition,
     duration: duration,
     backgroundColor: backgroundColor,
     colorText: colorText,
   );
+}
+
+String _cleanSnackbarMessage(Object? message) {
+  if (message == null) return '';
+  if (message is String) return message.trim();
+  if (message is Map) {
+    for (final key in const ['message', 'msg', 'error', 'title']) {
+      final value = message[key];
+      if (value != null && value.toString().trim().isNotEmpty) {
+        return value.toString().trim();
+      }
+    }
+    if (message['joined'] == true) {
+      final privacy = message['privacy']?.toString().toUpperCase();
+      return privacy == 'PRIVATE'
+          ? 'Your request is pending approval.'
+          : 'You joined successfully.';
+    }
+    return 'Request completed successfully.';
+  }
+  if (message is Iterable) {
+    return message.where((item) => item != null).join(', ').trim();
+  }
+  return message.toString().trim();
 }
 
 OverlayState? _snackbarOverlay() => Get.key.currentState?.overlay;

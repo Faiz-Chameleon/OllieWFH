@@ -74,6 +74,9 @@ class FinalScreen extends StatelessWidget {
                                 .toUpperCase(),
                             "interest": interestController.selectedInterestIds
                                 .toList(),
+                            "selectedInterestIds": interestController
+                                .selectedInterestIds
+                                .toList(),
                             "newInterests": interestController.customInterests
                                 .toList(),
                             ...deviceRegistrationPayload,

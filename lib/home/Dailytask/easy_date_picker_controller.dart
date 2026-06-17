@@ -68,6 +68,7 @@ class EasyDatePickerController extends GetxController {
   }
 
   var createTaskStatus = RequestStatus.idle.obs;
+  var rescheduleTaskStatus = RequestStatus.idle.obs;
 
   Future<void> userCreateTask({
     required String taskName,
@@ -106,10 +107,106 @@ class EasyDatePickerController extends GetxController {
       createTaskStatus.value = RequestStatus.success;
       appSnackbar("Success", result['message'] ?? "message required frontend");
     } else {
-      createTaskStatus.value = RequestStatus.error;
-
-      appSnackbar("Error", result['message'] ?? "message required frontend");
+      if (_isInvalidFcmTokenError(result['message'])) {
+        await userTaskByDate();
+        await userTaskByDateOnHome();
+        createTaskStatus.value = RequestStatus.success;
+        _showTaskSavedWithoutReminderMessage();
+      } else {
+        createTaskStatus.value = RequestStatus.error;
+        _showTaskReminderError(result['message']);
+      }
     }
+  }
+
+  Future<void> userRescheduleTask({
+    required String taskId,
+    required String taskName,
+    required String taskDescription,
+    DateTime? date,
+    TimeOfDay? time,
+  }) async {
+    final isScheduleChange = date != null || time != null;
+    if (isScheduleChange) {
+      if (date == null || time == null) {
+        rescheduleTaskStatus.value = RequestStatus.error;
+        appSnackbar("Error", "Please choose both date and time.");
+        return;
+      }
+
+      final now = DateTime.now();
+      final scheduledAt = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+      );
+      if (scheduledAt.isBefore(now.add(minimumReminderLeadTime))) {
+        rescheduleTaskStatus.value = RequestStatus.error;
+        appSnackbar(
+          "Error",
+          "Please choose a time at least 6 minutes from now.",
+        );
+        return;
+      }
+    }
+
+    rescheduleTaskStatus.value = RequestStatus.loading;
+
+    final payload = <String, dynamic>{
+      "taskName": taskName,
+      "taskDescription": taskDescription,
+    };
+    if (isScheduleChange) {
+      payload["date"] = formatDateForAPI(date!);
+      payload["time"] = formatTimeForAPI(time!);
+    }
+
+    final result = await homeRepository.rescheduleTask(taskId, payload);
+    if (result['success'] == true) {
+      await userTaskByDate();
+      await userTaskByDateOnHome();
+      rescheduleTaskStatus.value = RequestStatus.success;
+      appSnackbar("Success", result['message'] ?? "Task updated successfully");
+    } else {
+      if (_isInvalidFcmTokenError(result['message'])) {
+        await userTaskByDate();
+        await userTaskByDateOnHome();
+        rescheduleTaskStatus.value = RequestStatus.success;
+        _showTaskSavedWithoutReminderMessage();
+      } else {
+        rescheduleTaskStatus.value = RequestStatus.error;
+        _showTaskReminderError(result['message']);
+      }
+    }
+  }
+
+  bool _isInvalidFcmTokenError(dynamic rawMessage) {
+    return (rawMessage ?? '')
+        .toString()
+        .toLowerCase()
+        .contains('not a valid fcm');
+  }
+
+  void _showTaskSavedWithoutReminderMessage() {
+    appSnackbar(
+      "Task Saved",
+      "Task was saved, but reminder push could not be scheduled because this device does not have a valid push token.",
+    );
+  }
+
+  void _showTaskReminderError(dynamic rawMessage) {
+    final message = (rawMessage ?? "Something went wrong").toString();
+    if (_isInvalidFcmTokenError(message)) {
+      appSnackbar(
+        "Push Token Error",
+        "Task reminders need a valid push token. Log out and log in again on a real device with notifications enabled.",
+      );
+      return;
+    }
+
+    appSnackbar("Error", message);
   }
 
   var getTaskStatus = RequestStatus.idle.obs;

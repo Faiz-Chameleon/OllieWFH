@@ -78,6 +78,7 @@ class ApiService {
     var headers = {
       'Content-Type': 'application/json',
       if (token != null) 'x-access-token': '$token',
+      if (token != null) 'Authorization': 'Bearer $token',
     };
 
     var request = http.Request('GET', Uri.parse('${ApiUrls.baseUrl}$endpoint'));
@@ -115,6 +116,7 @@ class ApiService {
     var headers = {
       'Content-Type': 'application/json',
       if (token != null) 'x-access-token': '$token',
+      if (token != null) 'Authorization': 'Bearer $token',
     };
 
     var request = http.Request('PUT', Uri.parse('${ApiUrls.baseUrl}$endpoint'));

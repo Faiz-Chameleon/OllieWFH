@@ -47,13 +47,10 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   void _initUserPrefs() {}
-
   @override
   Widget build(BuildContext context) {
     _initUserPrefs();
-
     return ScreenUtilInit(
       designSize: const Size(440, 956),
       minTextAdapt: true,

@@ -196,6 +196,22 @@ class BlogsController extends GetxController {
     }
   }
 
+  String blogTypeLabel(String? type, {String? fallback}) {
+    final rawValue = (type?.trim().isNotEmpty == true ? type : fallback) ?? '';
+    if (rawValue.trim().isEmpty) return '';
+
+    return rawValue
+        .trim()
+        .replaceAll('_', ' ')
+        .split(RegExp(r'\s+'))
+        .map((part) {
+          final lower = part.toLowerCase();
+          if (lower.isEmpty) return lower;
+          return '${lower[0].toUpperCase()}${lower.substring(1)}';
+        })
+        .join(' ');
+  }
+
   RxList<BlogData> blogsTopicNames = <BlogData>[].obs;
   var getBlogTopicsStatus = RequestStatus.idle.obs;
   Future<void> getBlogsTopics() async {

@@ -20,6 +20,10 @@ class OneToManyChatController extends GetxController {
 
   var messages = [].obs;
   var removeParticipantRequestStatus = RequestStatus.idle.obs;
+  var leaveGroupRequestStatus = RequestStatus.idle.obs;
+  var groupJoinRequestsStatus = RequestStatus.idle.obs;
+  var reviewGroupJoinRequestStatus = RequestStatus.idle.obs;
+  var groupJoinRequests = <Map<String, dynamic>>[].obs;
 
   void _log(String message) {
     debugPrint('[GroupChatController] $message');
@@ -243,7 +247,7 @@ class OneToManyChatController extends GetxController {
   }
 
   var joinGrouoChatRoomRequestStatus = RequestStatus.idle.obs;
-  Future<void> joinGroupChatRoom(String gropupId) async {
+  Future<bool> joinGroupChatRoom(String gropupId) async {
     _log('joinGroupChatRoom started for groupId=$gropupId');
     joinGrouoChatRoomRequestStatus.value = RequestStatus.loading;
     final result = await groupChatRepository.joinGroupChatRoom(gropupId);
@@ -251,16 +255,137 @@ class OneToManyChatController extends GetxController {
       'joinGroupChatRoom finished: success=${result['success']}, rawMessage=${result['message']}, data=${result['data']}',
     );
     if (result['success'] == true) {
-      groupConversationId.value = result["message"]["chatRoomId"];
-      _log(
-        'Resolved groupConversationId=${groupConversationId.value} for groupId=$gropupId',
-      );
+      final chatRoomId = _extractChatRoomId(result);
+      if (chatRoomId == null || chatRoomId.isEmpty) {
+        joinGrouoChatRoomRequestStatus.value = RequestStatus.success;
+        appSnackbar("Request Sent", _joinGroupSuccessMessage(result));
+        return false;
+      }
 
+      groupConversationId.value = chatRoomId;
+      _log('Resolved groupConversationId=$chatRoomId for groupId=$gropupId');
       joinGrouoChatRoomRequestStatus.value = RequestStatus.success;
+      return true;
     } else {
       joinGrouoChatRoomRequestStatus.value = RequestStatus.error;
       appSnackbar("Error", result['message'] ?? "Something went wrong");
+      return false;
     }
+  }
+
+  String? _extractChatRoomId(Map<String, dynamic> result) {
+    final data = result['data'];
+    final message = result['message'];
+    if (data is Map && data['chatRoomId'] != null) {
+      return data['chatRoomId'].toString();
+    }
+    if (data is Map && data['id'] != null) {
+      return data['id'].toString();
+    }
+    if (message is Map && message['chatRoomId'] != null) {
+      return message['chatRoomId'].toString();
+    }
+    return null;
+  }
+
+  String _joinGroupSuccessMessage(Map<String, dynamic> result) {
+    final message = result['message'];
+    final data = result['data'];
+
+    if (message is String && message.trim().isNotEmpty) {
+      return message.trim();
+    }
+    if (data is String && data.trim().isNotEmpty) {
+      return data.trim();
+    }
+
+    final source = message is Map
+        ? message
+        : data is Map
+        ? data
+        : const {};
+    final privacy = source['privacy']?.toString().toUpperCase();
+    final joined = source['joined'] == true;
+
+    if (joined) {
+      return privacy == 'PRIVATE'
+          ? 'Your request is pending approval.'
+          : 'You joined the group successfully.';
+    }
+    return privacy == 'PRIVATE'
+        ? 'Your request is pending approval.'
+        : 'Group request sent successfully.';
+  }
+
+  Future<bool> leaveGroupChatRoom(String chatRoomId) async {
+    if (chatRoomId.isEmpty) {
+      appSnackbar("Error", "No conversation ID found");
+      return false;
+    }
+
+    leaveGroupRequestStatus.value = RequestStatus.loading;
+    final result = await groupChatRepository.leaveGroupChatRoom(chatRoomId);
+    if (result['success'] == true) {
+      leaveGroupRequestStatus.value = RequestStatus.success;
+      appSnackbar("Success", result['message'] ?? "You left the group");
+      return true;
+    }
+
+    leaveGroupRequestStatus.value = RequestStatus.error;
+    appSnackbar("Error", result['message'] ?? "Something went wrong");
+    return false;
+  }
+
+  Future<void> fetchGroupJoinRequests(String chatRoomId) async {
+    if (chatRoomId.isEmpty) return;
+
+    groupJoinRequestsStatus.value = RequestStatus.loading;
+    final result = await groupChatRepository.getGroupJoinRequests(chatRoomId);
+    if (result['success'] == true) {
+      groupJoinRequests.assignAll(_parseRequestList(result['data']));
+      groupJoinRequestsStatus.value = RequestStatus.success;
+      return;
+    }
+
+    groupJoinRequests.clear();
+    groupJoinRequestsStatus.value = RequestStatus.error;
+  }
+
+  Future<bool> reviewGroupJoinRequest(String requestId, String action) async {
+    if (requestId.isEmpty) return false;
+
+    reviewGroupJoinRequestStatus.value = RequestStatus.loading;
+    final result = await groupChatRepository.reviewGroupJoinRequest(
+      requestId,
+      action,
+    );
+    if (result['success'] == true) {
+      groupJoinRequests.removeWhere(
+        (request) => request['id']?.toString() == requestId,
+      );
+      reviewGroupJoinRequestStatus.value = RequestStatus.success;
+      appSnackbar("Success", result['message'] ?? "Request updated");
+      return true;
+    }
+
+    reviewGroupJoinRequestStatus.value = RequestStatus.error;
+    appSnackbar("Error", result['message'] ?? "Something went wrong");
+    return false;
+  }
+
+  List<Map<String, dynamic>> _parseRequestList(dynamic data) {
+    final rawList = data is Map && data['data'] is List
+        ? data['data'] as List
+        : data is List
+        ? data
+        : const [];
+
+    return rawList
+        .whereType<Map>()
+        .map(
+          (item) => item.map((key, value) => MapEntry(key.toString(), value)),
+        )
+        .toList();
   }
 
   Future<bool> removeParticipantFromGroupChatRoom(
@@ -276,16 +401,16 @@ class OneToManyChatController extends GetxController {
     removeParticipantRequestStatus.value = RequestStatus.loading;
     final result = await groupChatRepository.removeParticipantFromGroupChatRoom(
       chatRoomId,
-      {
-        'memberId': memberId,
-        'memberType': memberType,
-      },
+      {'memberId': memberId, 'memberType': memberType},
     );
 
     if (result['success'] == true) {
       removeParticipantRequestStatus.value = RequestStatus.success;
       socketController.socket.emit('joinRoom', {'chatRoom': chatRoomId});
-      appSnackbar("Success", result['message'] ?? "Member removed successfully");
+      appSnackbar(
+        "Success",
+        result['message'] ?? "Member removed successfully",
+      );
       return true;
     }
 

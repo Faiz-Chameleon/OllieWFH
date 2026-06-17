@@ -7,10 +7,24 @@ class HomeRepository {
   Future<Map<String, dynamic>> createTask(Map<String, dynamic> data) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    final requestBody = await DeviceTimeZoneService.requestBodyWithDeviceTimeZone(data);
+    final requestBody =
+        await DeviceTimeZoneService.requestBodyWithDeviceTimeZone(data);
     return ApiService.postMethod(
       ApiUrls.createTask,
       requestBody,
+      token: requiredToken,
+    );
+  }
+
+  Future<Map<String, dynamic>> rescheduleTask(
+    String taskId,
+    Map<String, dynamic> data,
+  ) async {
+    final storage = FlutterSecureStorage();
+    final requiredToken = await storage.read(key: 'userToken');
+    return ApiService.putMethod(
+      '${ApiUrls.rescheduleTask}/$taskId',
+      data: data,
       token: requiredToken,
     );
   }

@@ -37,7 +37,10 @@ class GroupReviewScreen extends StatelessWidget {
                         SizedBox(width: 8),
                         Text(
                           "Create new group",
-                          style: GoogleFonts.darkerGrotesque(fontSize: 18.sp, fontWeight: FontWeight.w600),
+                          style: GoogleFonts.darkerGrotesque(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ],
                     ),
@@ -45,14 +48,21 @@ class GroupReviewScreen extends StatelessWidget {
                   30.verticalSpace,
                   Text(
                     "Review group\ninformation",
-                    style: GoogleFonts.darkerGrotesque(color: HeadingColor, fontSize: 36.sp, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.darkerGrotesque(
+                      color: HeadingColor,
+                      fontSize: 36.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   30.verticalSpace,
 
                   // Group name + image
                   Obx(
                     () => Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
@@ -62,17 +72,29 @@ class GroupReviewScreen extends StatelessWidget {
                         children: [
                           CircleAvatar(
                             radius: 20,
-                            backgroundImage: controller.selectedImage.value != null
+                            backgroundImage:
+                                controller.selectedImage.value != null
                                 ? FileImage(controller.selectedImage.value!)
-                                : const AssetImage("assets/images/Frame 1686560577.png") as ImageProvider,
+                                : const AssetImage(
+                                        "assets/images/Frame 1686560577.png",
+                                      )
+                                      as ImageProvider,
                           ),
                           const SizedBox(width: 10),
                           Expanded(
-                            child: Text(controller.groupName.value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                            child: Text(
+                              controller.groupName.value,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
                           IconButton(
                             icon: Icon(Icons.edit_outlined),
-                            onPressed: () => Get.to(() => EditGroupScreen()), // 👈 Navigate to edit
+                            onPressed: () => Get.to(
+                              () => EditGroupScreen(),
+                            ), // 👈 Navigate to edit
                           ),
                         ],
                       ),
@@ -85,9 +107,18 @@ class GroupReviewScreen extends StatelessWidget {
                   Obx(
                     () => Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      decoration: BoxDecoration(color: const Color(0xFFF4EAD5), borderRadius: BorderRadius.circular(16)),
-                      child: Text(controller.description.value, style: const TextStyle(fontSize: 14)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF4EAD5),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        controller.description.value,
+                        style: const TextStyle(fontSize: 14),
+                      ),
                     ),
                   ),
 
@@ -95,14 +126,22 @@ class GroupReviewScreen extends StatelessWidget {
 
                   // Create button
                   Obx(() {
-                    if (controller.createGrouptRequestStatus.value == RequestStatus.loading) {
+                    if (controller.createGrouptRequestStatus.value ==
+                        RequestStatus.loading) {
                       return const Center(child: CircularProgressIndicator());
                     }
                     return CustomButton(
                       text: "Create Group",
                       onPressed: () {
-                        var data = {"name": controller.groupName.value, "description": controller.description.value};
-                        controller.createGroupsForChat(data, controller.selectedImage.value);
+                        var data = {
+                          "name": controller.groupName.value,
+                          "description": controller.description.value,
+                          "groupPrivacy": controller.groupPrivacy.value,
+                        };
+                        controller.createGroupsForChat(
+                          data,
+                          controller.selectedImage.value,
+                        );
                         // Show success toast/snackbar if needed
                         // appSnackbar(
                         //   "Success",
@@ -140,7 +179,12 @@ class GroupReviewScreen extends StatelessWidget {
               ),
             ),
 
-            Image.asset("assets/images/Group 1000000919.png", fit: BoxFit.cover, width: double.infinity, height: 400.h),
+            Image.asset(
+              "assets/images/Group 1000000919.png",
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: 400.h,
+            ),
           ],
         ),
       ),

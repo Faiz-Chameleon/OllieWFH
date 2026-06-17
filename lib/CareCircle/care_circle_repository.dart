@@ -86,11 +86,24 @@ class CareCircleRepository {
     );
   }
 
-  Future<Map<String, dynamic>> getOthersGroups() async {
+  Future<Map<String, dynamic>> getOthersGroups({
+    required double latitude,
+    required double longitude,
+    double? radiusKm,
+  }) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
 
-    return ApiService.getMethod(ApiUrls.getOthersGroup, token: requiredToken);
+    final queryParameters = <String, String>{
+      'latitude': latitude.toString(),
+      'longitude': longitude.toString(),
+      if (radiusKm != null) 'radiusKm': radiusKm.toString(),
+    };
+
+    final endpoint =
+        '${ApiUrls.getOthersGroup}?${Uri(queryParameters: queryParameters).query}';
+
+    return ApiService.getMethod(endpoint, token: requiredToken);
   }
 
   Future<Map<String, dynamic>> getYourGroups() async {
@@ -241,9 +254,13 @@ class CareCircleRepository {
   ) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
+    final normalizedInterestId = interestId.trim();
+    final endpoint = normalizedInterestId.isEmpty
+        ? ApiUrls.createUserPost
+        : "${ApiUrls.createUserPost}/$normalizedInterestId";
 
     return ApiService.postMultipartWithFiles(
-      "${ApiUrls.createUserPost}/$interestId",
+      endpoint,
       data,
       imageFile,
       videoFile,

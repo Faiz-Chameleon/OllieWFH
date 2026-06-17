@@ -35,4 +35,45 @@ class AssistanceRepository {
       token: requiredToken,
     );
   }
+
+  Future<Map<String, dynamic>> getCategoryFeed({
+    required double latitude,
+    required double longitude,
+    double? radiusKm,
+    int limit = 20,
+  }) async {
+    final storage = FlutterSecureStorage();
+    final requiredToken = await storage.read(key: 'userToken');
+    final queryParameters = <String, String>{
+      'latitude': latitude.toString(),
+      'longitude': longitude.toString(),
+      'limit': limit.toString(),
+      if (radiusKm != null) 'radiusKm': radiusKm.toString(),
+    };
+    final endpoint =
+        '${ApiUrls.assistanceCategoryFeed}?${Uri(queryParameters: queryParameters).query}';
+    return ApiService.getMethod(endpoint, token: requiredToken);
+  }
+
+  Future<Map<String, dynamic>> searchLocation(
+    String query, {
+    int limit = 20,
+  }) async {
+    final storage = FlutterSecureStorage();
+    final requiredToken = await storage.read(key: 'userToken');
+    final endpoint =
+        '${ApiUrls.searchLocation}?${Uri(queryParameters: {'q': query, 'limit': limit.toString()}).query}';
+    return ApiService.getMethod(endpoint, token: requiredToken);
+  }
+
+  Future<Map<String, dynamic>> searchAssistanceReasons(
+    String query, {
+    int limit = 20,
+  }) async {
+    final storage = FlutterSecureStorage();
+    final requiredToken = await storage.read(key: 'userToken');
+    final endpoint =
+        '${ApiUrls.getReasonsForAssistance}?${Uri(queryParameters: {'q': query, 'limit': limit.toString()}).query}';
+    return ApiService.getMethod(endpoint, token: requiredToken);
+  }
 }

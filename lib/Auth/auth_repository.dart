@@ -30,6 +30,12 @@ class AuthRepository {
     return ApiService.get(ApiUrls.getInterest);
   }
 
+  Future<Map<String, dynamic>> searchInterest(String query, {int limit = 20}) {
+    final endpoint =
+        '${ApiUrls.getInterest}?${Uri(queryParameters: {'q': query, 'limit': limit.toString()}).query}';
+    return ApiService.get(endpoint);
+  }
+
   Future<Map<String, dynamic>> forgotPassword(Map<String, dynamic> data) {
     return ApiService.postMethod(ApiUrls.forgotPassword, data);
   }

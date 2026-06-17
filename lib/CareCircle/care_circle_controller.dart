@@ -51,6 +51,9 @@ class CareCircleController extends GetxController {
   var assistanceFilterLoading = false.obs;
   var assistanceFilterLocation = Rxn<LatLng>();
   var assistanceLocationErrorMessage = ''.obs;
+  var groupDiscoveryRadiusKm = 5.0.obs;
+  var groupDiscoveryLocation = Rxn<LatLng>();
+  var groupLocationErrorMessage = ''.obs;
   static const int assistancePageLimit = 20;
 
   @override
@@ -342,7 +345,21 @@ class CareCircleController extends GetxController {
   Future<void> fetchOthersGroups() async {
     final UserController userController = Get.find<UserController>();
     getOthersGroupsStatus.value = RequestStatus.loading;
-    final result = await careCircleRepository.getOthersGroups();
+    groupLocationErrorMessage.value = '';
+
+    final location = await _getGroupDiscoveryLocation();
+    if (location == null) {
+      othersGroups.clear();
+      groupLocationErrorMessage.value = "Unable to load nearby groups";
+      getOthersGroupsStatus.value = RequestStatus.error;
+      return;
+    }
+
+    final result = await careCircleRepository.getOthersGroups(
+      latitude: location.latitude,
+      longitude: location.longitude,
+      radiusKm: groupDiscoveryRadiusKm.value,
+    );
     if (result['success'] == true && result['data'] != null) {
       othersGroups.clear();
 
@@ -362,6 +379,11 @@ class CareCircleController extends GetxController {
             othersGroups.add(group);
           }
         }
+        othersGroups.sort((a, b) {
+          final aDistance = a.distanceKm ?? double.infinity;
+          final bDistance = b.distanceKm ?? double.infinity;
+          return aDistance.compareTo(bDistance);
+        });
       }
       getOthersGroupsStatus.value = RequestStatus.success;
     } else if (result['success'] == false &&
@@ -370,9 +392,40 @@ class CareCircleController extends GetxController {
       getOthersGroupsStatus.value = RequestStatus.success;
     } else {
       getOthersGroupsStatus.value = RequestStatus.error;
+      groupLocationErrorMessage.value =
+          result['message'] ?? "Unable to load nearby groups";
 
       appSnackbar("Error", result['message'] ?? "message required frontend");
     }
+  }
+
+  Future<LatLng?> _getGroupDiscoveryLocation() async {
+    final cachedLocation = groupDiscoveryLocation.value;
+    if (cachedLocation != null) {
+      return cachedLocation;
+    }
+
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return null;
+    }
+
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      return null;
+    }
+
+    final position = await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+    );
+    final location = LatLng(position.latitude, position.longitude);
+    groupDiscoveryLocation.value = location;
+    return location;
   }
 
   var postLoadingStatus = <RxBool>[].obs;
@@ -604,54 +657,71 @@ class CareCircleController extends GetxController {
     final String loggedInUserId = userController.user.value?.id ?? '';
     getOthersCrteatedAssistanceStatus.value = RequestStatus.loading;
 
-    final hasLocation = await loadAssistanceFilterCurrentLocation(
-      showSnackbars: false,
-    );
-    final LatLng? activeLocation = assistanceFilterLocation.value;
-    if (!hasLocation || activeLocation == null) {
+    try {
+      final hasLocation = await loadAssistanceFilterCurrentLocation(
+        showSnackbars: false,
+      ).timeout(const Duration(seconds: 12));
+      final LatLng? activeLocation = assistanceFilterLocation.value;
+      if (!hasLocation || activeLocation == null) {
+        othersCreatedAssistance.clear();
+        postLoadingStatus.clear();
+        assistanceLocationErrorMessage.value =
+            assistanceLocationErrorMessage.value.isNotEmpty
+            ? assistanceLocationErrorMessage.value
+            : "Location permission is required to load nearby assistance.";
+        getOthersCrteatedAssistanceStatus.value = RequestStatus.error;
+        return;
+      }
+
+      final result = await careCircleRepository
+          .getOthersCreatedAssistance(
+            page: page,
+            limit: assistancePageLimit,
+            latitude: activeLocation.latitude,
+            longitude: activeLocation.longitude,
+            radiusKm: assistanceFilterEnabled.value
+                ? assistanceFilterRadiusKm.value
+                : null,
+          )
+          .timeout(const Duration(seconds: 15));
+      if (result['success'] == true) {
+        List<dynamic> othersCreatedAssistanceList = result['data'] ?? [];
+        List<OthersCreatedAssistance> filteredList = othersCreatedAssistanceList
+            .where((assistancetJson) {
+              final assistance = OthersCreatedAssistance.fromJson(
+                assistancetJson,
+              );
+              return assistance.userId != loggedInUserId;
+            })
+            .map(
+              (assistancetJson) =>
+                  OthersCreatedAssistance.fromJson(assistancetJson),
+            )
+            .toList();
+
+        othersCreatedAssistance.value = filteredList;
+        postLoadingStatus.value = List.generate(
+          filteredList.length,
+          (_) => false.obs,
+        );
+        assistanceLocationErrorMessage.value = filteredList.isEmpty
+            ? "No nearby assistance requests found."
+            : '';
+        getOthersCrteatedAssistanceStatus.value = RequestStatus.success;
+      } else {
+        othersCreatedAssistance.clear();
+        postLoadingStatus.clear();
+        assistanceLocationErrorMessage.value =
+            result['message']?.toString() ??
+            "No nearby assistance requests found.";
+        getOthersCrteatedAssistanceStatus.value = RequestStatus.error;
+      }
+    } catch (_) {
       othersCreatedAssistance.clear();
       postLoadingStatus.clear();
       assistanceLocationErrorMessage.value =
-          "Location permission is required to load nearby assistance.";
+          "No nearby assistance requests found.";
       getOthersCrteatedAssistanceStatus.value = RequestStatus.error;
-      return;
-    }
-
-    final result = await careCircleRepository.getOthersCreatedAssistance(
-      page: page,
-      limit: assistancePageLimit,
-      latitude: activeLocation.latitude,
-      longitude: activeLocation.longitude,
-      radiusKm: assistanceFilterEnabled.value
-          ? assistanceFilterRadiusKm.value
-          : null,
-    );
-    if (result['success'] == true) {
-      List<dynamic> othersCreatedAssistanceList = result['data'] ?? [];
-      List<OthersCreatedAssistance> filteredList = othersCreatedAssistanceList
-          .where((assistancetJson) {
-            final assistance = OthersCreatedAssistance.fromJson(
-              assistancetJson,
-            );
-            return assistance.userId != loggedInUserId;
-          })
-          .map(
-            (assistancetJson) =>
-                OthersCreatedAssistance.fromJson(assistancetJson),
-          )
-          .toList();
-
-      othersCreatedAssistance.value = filteredList;
-      postLoadingStatus.value = List.generate(
-        filteredList.length,
-        (_) => false.obs,
-      );
-      assistanceLocationErrorMessage.value = '';
-      getOthersCrteatedAssistanceStatus.value = RequestStatus.success;
-    } else {
-      getOthersCrteatedAssistanceStatus.value = RequestStatus.error;
-
-      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -695,7 +765,7 @@ class CareCircleController extends GetxController {
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
         ),
-      );
+      ).timeout(const Duration(seconds: 10));
       assistanceFilterLocation.value = LatLng(
         position.latitude,
         position.longitude,
@@ -796,7 +866,9 @@ class CareCircleController extends GetxController {
       appSnackbar("Success", result['message'] ?? "Post created successfully");
 
       // Refresh the posts list
-      await interestBasePost(interestId);
+      if (interestId.trim().isNotEmpty) {
+        await interestBasePost(interestId);
+      }
     } else {
       createPostStatus.value = RequestStatus.error;
       appSnackbar("Error", result['message'] ?? "Failed to create post");

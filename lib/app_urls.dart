@@ -14,6 +14,7 @@ class ApiUrls {
   static const String loginUser = "/user/auth/userLogin";
   static const String createProfile = "/user/auth/createProfile";
   static const String createTask = "/user/task/createUserTask";
+  static const String rescheduleTask = "/user/task/rescheduleTask";
   static const String deleteUserTask = "/user/task/deleteUserTask";
   static const String support = "/user/auth/submitFeedBack";
   static const String deleteAccount = "/user/auth/userDeleteAcccount";
@@ -21,6 +22,13 @@ class ApiUrls {
   static const String getByDateTask = "/user/task/getTaskByDate";
 
   static const String markTaskAsComplete = "/user/task/markAsCompletedTask";
+  static const String getMySupplements = "/user/supplement/getMySupplements";
+  static const String createMySupplement =
+      "/user/supplement/createMySupplement";
+  static const String updateMySupplement =
+      "/user/supplement/updateMySupplement";
+  static const String deleteMySupplement =
+      "/user/supplement/deleteMySupplement";
   static const String getBlogsByCategory = "/user/blog/getBlogByType";
   static const String getBlogsTopics = "/user/blog/getAllTopics";
   static const String getSavePost = "/user/blog/showSaveBlog";
@@ -36,35 +44,54 @@ class ApiUrls {
 
   static const String getCommentsOnBlog = "/user/blog/getCommentsLikeReply";
   static const String getCommentsOnPost = "/user/post/showPostCommentLikeReply";
-  static const String likeAndReplyOnComment = "/user/blog/likeAndReplyOnComment";
-  static const String likeAndReplyOnPostComment = "/user/post/likeAndReplyOnComment";
+  static const String likeAndReplyOnComment =
+      "/user/blog/likeAndReplyOnComment";
+  static const String likeAndReplyOnPostComment =
+      "/user/post/likeAndReplyOnComment";
   static const String saveBlog = "/user/blog/saveBlog";
   static const String getLatestEvent = "/user/event/showLatestEvent";
   static const String markAsGoingOnEvent = "/user/event/markAsGoing";
   static const String getNearesEvent = "/user/event/showAllEventNearBy";
   static const String createAssistance = "/user/postrequest/createPostRequest";
-  static const String getReasonsForAssistance = "/user/postrequest/getPostRequestCaterogy";
-  static const String getcreatedAssistance = "/user/postrequest/getUserPostRequest";
-  static const String getOthersCreatedAssistance = "/user/postrequest/getAllPostRequest";
-  static const String reachOnOthersCreatedAssistance = "/user/postrequest/sendVolunteerRequest";
-  static const String volunterCompletedCreatedAssistance = "/user/postrequest/markAsCompletedByVolunteer";
+  static const String assistanceCategoryFeed = "/user/postrequest/categoryFeed";
+  static const String searchLocation = "/user/postrequest/searchLocation";
+  static const String getReasonsForAssistance =
+      "/user/postrequest/getPostRequestCaterogy";
+  static const String getcreatedAssistance =
+      "/user/postrequest/getUserPostRequest";
+  static const String getOthersCreatedAssistance =
+      "/user/postrequest/getAllPostRequest";
+  static const String reachOnOthersCreatedAssistance =
+      "/user/postrequest/sendVolunteerRequest";
+  static const String volunterCompletedCreatedAssistance =
+      "/user/postrequest/markAsCompletedByVolunteer";
   static const String markTopicAsFavourite = "/user/blog/saveFavouriteTopic";
-  static const String getRequestOfVolunteers = "/user/postrequest/getAllVolenteerRequest";
-  static const String acceptVoluntersRequest = "/user/postrequest/acceptVolunteerRequest";
-  static const String completeAssistanceByOwner = "/user/postrequest/confirmTaskCompletedByOwner";
+  static const String getRequestOfVolunteers =
+      "/user/postrequest/getAllVolenteerRequest";
+  static const String acceptVoluntersRequest =
+      "/user/postrequest/acceptVolunteerRequest";
+  static const String completeAssistanceByOwner =
+      "/user/postrequest/confirmTaskCompletedByOwner";
   static const String reportPost = "/user/post/userReportPost";
   static const String createChatRoom = "/user/chat/createOneToOneChatRoom";
   static const String sendAttachementOnChatRoom = "/user/chat/uplaodAttachment";
   static const String createGroups = "/user/chat/createGroupChatRoom";
   static const String getYoursGroup = "/user/chat/getGroupChatRooms";
   static const String getOthersGroup = "/user/chat/getFeatureGroups";
-  static const String joinGroupChatRoom = "/user/chat/addParticipantinChatRoom";
-  static const String removeParticipantFromGroupChatRoom = "/user/chat/removeParticipantFromChatRoom";
-  static const String postOnYourInteres = "/user/post/showAllPostByUserSelectedInterest";
-  static const String interestBaseMultiplePost = "/user/post/showAllPostByInterest";
+  static const String joinGroupChatRoom = "/user/chat/addparticipantInChatRoom";
+  static const String removeParticipantFromGroupChatRoom =
+      "/user/chat/removeParticipantFromChatRoom";
+  static const String leaveGroupChatRoom = "/user/chat/leaveGroupChatRoom";
+  static const String groupJoinRequests = "/user/chat/groupJoinRequests";
+  static const String groupSharedMedia = "/user/chat/groupSharedMedia";
+  static const String postOnYourInteres =
+      "/user/post/showAllPostByUserSelectedInterest";
+  static const String interestBaseMultiplePost =
+      "/user/post/showAllPostByInterest";
   static const String singleUserPost = "/user/post/showSingleUserPost";
   static const String onlyYourPost = "/user/post/showUserAllPost";
   static const String createUserPost = "/user/post/createUserPost";
   static const String getMe = "/user/auth/getMe";
-  static const String showAllNotification = "/user/notification/showAllNotification";
+  static const String showAllNotification =
+      "/user/notification/showAllNotification";
 }

@@ -53,6 +53,7 @@ class _FilteredBlogsScreenState extends State<FilteredBlogsScreen> {
                 itemCount: widget.controller.blogsByTopicsListOnFilter.length,
                 itemBuilder: (context, index) {
                   final blog = widget.controller.blogsByTopicsListOnFilter[index];
+                  final typeLabel = widget.controller.blogTypeLabel(blog.type);
                   return ListTile(
                     onTap: () {
                       Get.to(() => BlogDetailScreen(controller: widget.controller, blogId: blog.id));
@@ -70,7 +71,17 @@ class _FilteredBlogsScreenState extends State<FilteredBlogsScreen> {
                         Row(
                           children: [
                             Text(widget.controller.timeAgo(blog.createdAt.toString()), style: TextStyle(fontSize: 12, color: Colors.grey)),
-                            const SizedBox(width: 10),
+                            if (typeLabel.isNotEmpty) ...[
+                              const SizedBox(width: 10),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFE08A),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(typeLabel, style: const TextStyle(fontSize: 10)),
+                              ),
+                            ],
                             // const Text(
                             //   "6 min read.",
                             //   style: TextStyle(
