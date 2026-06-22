@@ -28,16 +28,37 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
       Get.find<OneToManyChatController>();
 
   late List<_GroupMemberEntry> members;
+  Worker? _membersRefreshWorker;
 
   @override
   void initState() {
     super.initState();
     members = _buildMembers();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshMembersFromApi();
       if (_canReviewJoinRequests && _isPrivateGroup) {
         groupChatController.fetchGroupJoinRequests(_resolvedChatRoomId);
+        groupChatController.fetchBlockedUsers(_resolvedChatRoomId);
       }
     });
+    _membersRefreshWorker = ever(groupChatController.membersRefreshEvent, (
+      event,
+    ) {
+      if (event == null) return;
+      groupChatController.membersRefreshEvent.value = null;
+      final chatRoomId = event['chatRoomId']?.toString() ?? '';
+      if (!_isCurrentRoom(chatRoomId)) return;
+      _refreshMembersFromApi();
+      if (_canReviewJoinRequests) {
+        groupChatController.fetchBlockedUsers(_resolvedChatRoomId);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _membersRefreshWorker?.dispose();
+    super.dispose();
   }
 
   String get _loggedInUserId => userController.user.value?.id ?? '';
@@ -56,6 +77,15 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   String get _resolvedChatRoomId => widget.chatRoomId?.trim().isNotEmpty == true
       ? widget.chatRoomId!.trim()
       : groupChatController.groupConversationId.value.trim();
+
+  String _rawChatRoomId(String chatRoomId) {
+    final trimmed = chatRoomId.trim();
+    return trimmed.startsWith('chat:') ? trimmed.substring(5) : trimmed;
+  }
+
+  bool _isCurrentRoom(String chatRoomId) {
+    return _rawChatRoomId(chatRoomId) == _rawChatRoomId(_resolvedChatRoomId);
+  }
 
   List<_GroupMemberEntry> _buildMembers() {
     final participantUsers =
@@ -89,6 +119,29 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     ];
 
     return entries;
+  }
+
+  Future<void> _refreshMembersFromApi() async {
+    final chatRoomId = _resolvedChatRoomId;
+    if (chatRoomId.isEmpty) return;
+
+    final apiMembers = await groupChatController.fetchGroupMembers(chatRoomId);
+    if (!mounted || apiMembers.isEmpty) return;
+
+    setState(() {
+      members = apiMembers
+          .map(
+            (member) => _GroupMemberEntry(
+              id: member['id']?.toString() ?? '',
+              firstName: member['firstName']?.toString(),
+              lastName: member['lastName']?.toString(),
+              image: member['image']?.toString(),
+              memberType: member['memberType']?.toString() ?? 'USER',
+            ),
+          )
+          .where((member) => member.id.isNotEmpty)
+          .toList();
+    });
   }
 
   String _memberName(_GroupMemberEntry member) {
@@ -221,6 +274,25 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
         widget.groupDetails.memberCount = members.length;
       }
     });
+  }
+
+  Future<void> _blockMember(_GroupMemberEntry member) async {
+    final chatRoomId = _resolvedChatRoomId;
+    if (chatRoomId.isEmpty || member.id.isEmpty) {
+      appSnackbar("Error", "Unable to block this member right now");
+      return;
+    }
+
+    final blocked = await groupChatController.blockUserFromGroup(
+      chatRoomId,
+      member.id,
+    );
+    if (!blocked || !mounted) return;
+
+    setState(() {
+      members.removeWhere((item) => item.id == member.id);
+    });
+    groupChatController.fetchBlockedUsers(chatRoomId);
   }
 
   Future<void> _leaveGroup() async {
@@ -446,6 +518,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
             const SizedBox(height: 24),
             _buildPendingRequestsSection(),
             _buildSettingsSection(),
+            _buildBlockedUsersSection(),
             const SizedBox(height: 24),
             Container(
               width: 1.sw,
@@ -510,10 +583,6 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
               }
               Get.to(() => GroupSharedMediaScreen(chatRoomId: chatRoomId));
             },
-          ),
-          _buildSettingTile(
-            icon: Icons.notifications_rounded,
-            title: 'Notifications',
           ),
           if (!_isCreator)
             Obx(() {
@@ -629,12 +698,18 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                 onSelected: (value) {
                   if (value == 'remove') {
                     _removeMember(member);
+                  } else if (value == 'block') {
+                    _blockMember(member);
                   }
                 },
                 itemBuilder: (context) => const [
                   PopupMenuItem<String>(
                     value: 'remove',
                     child: Text('Remove member'),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'block',
+                    child: Text('Block user'),
                   ),
                 ],
                 enabled: !isRemoving,
@@ -648,6 +723,67 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
               );
             }),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBlockedUsersSection() {
+    if (!_canReviewJoinRequests) return const SizedBox.shrink();
+
+    return Obx(() {
+      final blockedUsers = groupChatController.blockedUsers;
+      if (blockedUsers.isEmpty) return const SizedBox.shrink();
+
+      return Container(
+        width: 1.sw,
+        margin: const EdgeInsets.only(top: 24),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20.r),
+          color: const Color(0x1E18180D),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 12),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Blocked Users',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+            ),
+            const SizedBox(height: 8),
+            ...blockedUsers.map((blocked) => _buildBlockedUserTile(blocked)),
+            const SizedBox(height: 8),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildBlockedUserTile(Map<String, dynamic> blocked) {
+    final user = blocked['user'];
+    final userMap = user is Map ? user : const {};
+    final userId =
+        blocked['userId']?.toString() ?? userMap['id']?.toString() ?? '';
+    final first = userMap['firstName']?.toString().trim() ?? '';
+    final last = userMap['lastName']?.toString().trim() ?? '';
+    final name = [first, last].where((part) => part.isNotEmpty).join(' ');
+
+    return ListTile(
+      leading: const CircleAvatar(child: Icon(Icons.block_rounded)),
+      title: Text(name.isEmpty ? 'Blocked user' : name),
+      trailing: TextButton(
+        onPressed: userId.isEmpty
+            ? null
+            : () async {
+                final unblocked = await groupChatController
+                    .unblockUserFromGroup(_resolvedChatRoomId, userId);
+                if (unblocked) {
+                  groupChatController.fetchBlockedUsers(_resolvedChatRoomId);
+                }
+              },
+        child: const Text('Unblock'),
       ),
     );
   }

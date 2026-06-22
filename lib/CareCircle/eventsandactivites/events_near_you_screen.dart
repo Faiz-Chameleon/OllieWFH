@@ -7,6 +7,7 @@ import 'package:ollie/Models/nearest_event_model.dart';
 import 'package:ollie/request_status.dart';
 import '../care_circle_controller.dart';
 import 'event_details_screen.dart'; // Update path as needed
+import 'event_gallery_widgets.dart';
 
 class EventsNearYouScreen extends StatefulWidget {
   final CareCircleController controller;
@@ -80,7 +81,8 @@ class _EventsNearYouScreenState extends State<EventsNearYouScreen> {
             // ),
             Expanded(
               child: Obx(() {
-                if (widget.controller.getEventNearYouStatus.value == RequestStatus.loading) {
+                if (widget.controller.getEventNearYouStatus.value ==
+                    RequestStatus.loading) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
@@ -88,7 +90,10 @@ class _EventsNearYouScreenState extends State<EventsNearYouScreen> {
                   return const Center(child: Text("No events found"));
                 }
 
-                List<NearestEventsData> eventsToDisplay = widget.controller.nearestEvents.toList();
+                List<NearestEventsData> eventsToDisplay = widget
+                    .controller
+                    .nearestEvents
+                    .toList();
 
                 return ListView.builder(
                   itemCount: widget.controller.nearestEvents.length,
@@ -96,7 +101,12 @@ class _EventsNearYouScreenState extends State<EventsNearYouScreen> {
                     final event = eventsToDisplay[index];
 
                     return GestureDetector(
-                      onTap: () => Get.to(() => EventDetailsScreen(careCirclecontroller: controller)),
+                      onTap: () => Get.to(
+                        () => EventDetailsScreen(
+                          careCirclecontroller: widget.controller,
+                          event: event,
+                        ),
+                      ),
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 20),
                         child: Column(
@@ -106,19 +116,15 @@ class _EventsNearYouScreenState extends State<EventsNearYouScreen> {
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
-                                  child: Image.network(
-                                    event.image ?? "https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg",
+                                  child: SizedBox(
                                     height: 140.h,
                                     width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        height: 120.h,
-                                        width: double.infinity,
-                                        color: Colors.grey[200],
-                                        child: Icon(Icons.error, color: Colors.red, size: 50),
-                                      );
-                                    },
+                                    child: EventGalleryImageView(
+                                      imageUrls: event.galleryUrls,
+                                      height: 140.h,
+                                      enableSwipe: false,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
                                   ),
                                 ),
                                 Positioned(
@@ -126,11 +132,19 @@ class _EventsNearYouScreenState extends State<EventsNearYouScreen> {
                                   right: 8,
                                   child: Container(
                                     padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(color: const Color(0xFFFFE38E), borderRadius: BorderRadius.circular(10)),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFE38E),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
                                     child: Text(
-                                      widget.controller.formatDate(event.eventDateAndTime.toString()),
+                                      widget.controller.formatDate(
+                                        event.eventDateAndTime.toString(),
+                                      ),
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -139,13 +153,18 @@ class _EventsNearYouScreenState extends State<EventsNearYouScreen> {
                             const SizedBox(height: 10),
                             Text(
                               event.eventName ?? "",
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18.sp,
+                              ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              widget.controller.formatDateAndTime(event.eventDateAndTime.toString()),
+                              widget.controller.formatDateAndTime(
+                                event.eventDateAndTime.toString(),
+                              ),
                               style: TextStyle(fontSize: 16.sp),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -172,7 +191,9 @@ class _EventsNearYouScreenState extends State<EventsNearYouScreen> {
 
   Widget _buildEventCard(Map<String, String> event) {
     return GestureDetector(
-      onTap: () => Get.to(() => EventDetailsScreen(careCirclecontroller: controller)), // Navigate to full detail screen
+      onTap: () => Get.to(
+        () => EventDetailsScreen(careCirclecontroller: controller),
+      ), // Navigate to full detail screen
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
         child: Column(
@@ -182,25 +203,39 @@ class _EventsNearYouScreenState extends State<EventsNearYouScreen> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(event["image"]!, height: 140.h, width: double.infinity, fit: BoxFit.cover),
+                  child: Image.asset(
+                    event["image"]!,
+                    height: 140.h,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
                 Positioned(
                   top: 8,
                   right: 8,
                   child: Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(color: const Color(0xFFFFE38E), borderRadius: BorderRadius.circular(10)),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFE38E),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     child: Text(
                       "${event['day']}\n${event['month']}",
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 10),
-            Text(event["title"]!, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              event["title"]!,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 4),
             Text(event["date"]!, style: const TextStyle(fontSize: 12)),
             Text(event["location"]!, style: const TextStyle(fontSize: 12)),

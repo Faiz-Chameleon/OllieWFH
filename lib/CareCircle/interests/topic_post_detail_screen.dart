@@ -26,6 +26,157 @@ class TopicPostDetailScreen extends StatefulWidget {
   State<TopicPostDetailScreen> createState() => _TopicPostDetailScreenState();
 }
 
+class _PollDetailWidget extends StatelessWidget {
+  const _PollDetailWidget({required this.post, required this.onVote});
+
+  final PostWithInterestData post;
+  final ValueChanged<String> onVote;
+
+  @override
+  Widget build(BuildContext context) {
+    final poll = post.poll;
+    if (poll == null) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF7E9),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFE8D8BB)),
+        ),
+        child: const Text(
+          'Loading poll details...',
+          style: TextStyle(color: txtColor),
+        ),
+      );
+    }
+
+    final options = poll.options ?? const <PostPollOption>[];
+    final totalVotes =
+        poll.totalVotes ??
+        options.fold<int>(0, (sum, option) => sum + option.votes);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF7E9),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE8D8BB)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            poll.question ?? post.title ?? 'Poll',
+            style: const TextStyle(
+              color: txtColor,
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (options.isEmpty)
+            const Text(
+              'Poll options unavailable',
+              style: TextStyle(color: txtColor),
+            ),
+          ...options.map((option) {
+            final percent = option.percentage;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: option.id == null ? null : () => onVote(option.id!),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: option.votedByMe
+                          ? const Color(0xFFF4BD2A)
+                          : const Color(0xFFE8D8BB),
+                      width: option.votedByMe ? 2 : 1,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              option.text ?? '',
+                              style: const TextStyle(color: txtColor),
+                            ),
+                          ),
+                          Text(
+                            '$percent%',
+                            style: const TextStyle(color: txtColor),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          minHeight: 6,
+                          value: percent.clamp(0, 100) / 100,
+                          backgroundColor: const Color(0xFFEDEDED),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            Color(0xFFF4BD2A),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+          Text(
+            '$totalVotes votes',
+            style: const TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailImageGrid extends StatelessWidget {
+  const _DetailImageGrid({required this.urls});
+
+  final List<String> urls;
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: urls.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 6,
+        mainAxisSpacing: 6,
+      ),
+      itemBuilder: (context, index) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.network(
+            urls[index],
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Container(
+              color: Colors.grey[300],
+              child: const Icon(Icons.broken_image, color: Colors.grey),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _TopicPostDetailScreenState extends State<TopicPostDetailScreen> {
   late PostWithInterestData _displayPost;
 
@@ -34,8 +185,7 @@ class _TopicPostDetailScreenState extends State<TopicPostDetailScreen> {
     super.initState();
     _displayPost = widget.post;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (widget.post.source == "user" &&
-          (widget.post.id?.isNotEmpty ?? false)) {
+      if (_isUserPost(widget.post) && (widget.post.id?.isNotEmpty ?? false)) {
         final latestPost = await widget.controller.fetchSingleUserPost(
           widget.post.id!,
         );
@@ -67,7 +217,7 @@ class _TopicPostDetailScreenState extends State<TopicPostDetailScreen> {
         final isLoading =
             widget.controller.singleInterestPostStatus.value ==
                 RequestStatus.loading &&
-            widget.post.source == "user";
+            _isUserPost(widget.post);
 
         if (isLoading) {
           return const Center(child: CircularProgressIndicator());
@@ -103,7 +253,7 @@ class _TopicPostDetailScreenState extends State<TopicPostDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _displayPost.source == "user"
+                          _isUserPost(_displayPost)
                               ? Text(
                                   _displayPost.user?.firstName ?? "",
                                   style: const TextStyle(
@@ -160,25 +310,14 @@ class _TopicPostDetailScreenState extends State<TopicPostDetailScreen> {
                     color: txtColor,
                   ),
                 ),
-                const SizedBox(height: 16),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: _displayPost.image != null
-                      ? _buildMediaWidget(_displayPost.image!)
-                      : Image.asset(
-                          "assets/images/Card.png",
-                          height: 220,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                ),
+                ..._buildPostBody(),
                 const SizedBox(height: 16),
                 Row(
                   children: [
                     GestureDetector(
                       onTap: () {
                         final data = {
-                          "type": _displayPost.source == "user"
+                          "type": _isUserPost(_displayPost)
                               ? "user-posts"
                               : "posts",
                           "postId": _displayPost.id.toString(),
@@ -199,7 +338,7 @@ class _TopicPostDetailScreenState extends State<TopicPostDetailScreen> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      _displayPost.source == "user"
+                      _isUserPost(_displayPost)
                           ? (_displayPost.cCount?.userpostlikes ?? 0).toString()
                           : (_displayPost.cCount?.postLike ?? 0).toString(),
                     ),
@@ -245,6 +384,78 @@ class _TopicPostDetailScreenState extends State<TopicPostDetailScreen> {
           ),
         );
       }),
+    );
+  }
+
+  bool _isUserPost(PostWithInterestData post) {
+    if (post.source == 'user') return true;
+    if (post.source == 'posts') return false;
+    if ((post.userId ?? '').isNotEmpty || post.user != null) return true;
+    final postType = post.postType?.trim().toUpperCase();
+    return postType == 'TEXT' ||
+        postType == 'IMAGE' ||
+        postType == 'VIDEO' ||
+        postType == 'POLL';
+  }
+
+  List<Widget> _buildPostBody() {
+    final media = _buildMediaSection();
+    if (media == null) return const [];
+    return [const SizedBox(height: 16), media];
+  }
+
+  Widget? _buildMediaSection() {
+    final children = <Widget>[];
+    final imageUrls = <String>[
+      ...?_displayPost.images,
+      if ((_displayPost.image ?? '').isNotEmpty) _displayPost.image!,
+    ];
+    if (imageUrls.isNotEmpty) {
+      children.add(
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: imageUrls.length == 1
+              ? _buildMediaWidget(imageUrls.first)
+              : _DetailImageGrid(urls: imageUrls),
+        ),
+      );
+    }
+
+    if ((_displayPost.videoUrl ?? '').isNotEmpty) {
+      children.add(
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: _buildMediaWidget(_displayPost.videoUrl!),
+        ),
+      );
+    }
+
+    final postType = _displayPost.postType?.trim().toUpperCase() ?? '';
+    if (postType == 'POLL' || _displayPost.poll != null) {
+      if (children.isNotEmpty) children.add(const SizedBox(height: 12));
+      children.add(
+        _PollDetailWidget(
+          post: _displayPost,
+          onVote: (optionId) async {
+            await widget.controller.voteOnPoll(
+              postId: _displayPost.id ?? '',
+              optionId: optionId,
+              postIndex: widget.index,
+            );
+            if (!mounted) return;
+            setState(() {
+              _displayPost =
+                  widget.controller.interestBasePostList[widget.index];
+            });
+          },
+        ),
+      );
+    }
+
+    if (children.isEmpty) return null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
     );
   }
 

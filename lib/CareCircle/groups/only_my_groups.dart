@@ -9,6 +9,7 @@ import 'package:ollie/CareCircle/groups/group_chat_screen.dart';
 import 'package:ollie/CareCircle/groups/group_card_widget.dart';
 import 'package:ollie/CareCircle/groups/one_to_many_chat_controller.dart';
 import 'package:ollie/Models/my_groups_model.dart';
+import 'package:ollie/common/common.dart';
 
 class OnlyYourGroups extends StatefulWidget {
   final CareCircleController controller;
@@ -24,9 +25,25 @@ class OnlyYourGroups extends StatefulWidget {
 }
 
 class _OnlyYourGroupsState extends State<OnlyYourGroups> {
-  final OneToManyChatController groupChatcontroller = Get.put(
-    OneToManyChatController(),
-  );
+  final OneToManyChatController groupChatcontroller =
+      Get.find<OneToManyChatController>();
+
+  void _openJoinedGroupChat(MyGroupsData group) {
+    final chatRoomId = group.id?.trim().isNotEmpty == true
+        ? group.id!.trim()
+        : group.lastMessage?.chatRoomId?.trim() ?? '';
+
+    if (chatRoomId.isEmpty) {
+      appSnackbar("Error", "No chat room found for this group.");
+      return;
+    }
+
+    groupChatcontroller.groupConversationId.value = chatRoomId;
+    Get.to(
+      () => GrouoChatScreen(userName: group.name ?? "", groupDetails: group),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,18 +80,7 @@ class _OnlyYourGroupsState extends State<OnlyYourGroups> {
 
             return GestureDetector(
               onTap: () {
-                final group = widget.controller.myGroups[index];
-                groupChatcontroller.joinGroupChatRoom(group.id.toString()).then(
-                  (joined) {
-                    if (!joined) return;
-                    Get.to(
-                      () => GrouoChatScreen(
-                        userName: group.name ?? "",
-                        groupDetails: group,
-                      ),
-                    );
-                  },
-                );
+                _openJoinedGroupChat(group);
               },
               child: Padding(
                 padding: const EdgeInsets.all(5.0),

@@ -17,6 +17,7 @@ import 'package:ollie/request_status.dart';
 import 'package:ollie/Auth/login/login_screen.dart';
 import 'package:ollie/common/common.dart';
 import 'package:ollie/services/firebase_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginController extends GetxController {
   final AuthRepository authRepository = AuthRepository();
@@ -137,6 +138,8 @@ class LoginController extends GetxController {
     print('🔄 Attempting auto-login...');
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'userToken');
+    shouldNavigateToProfile.value = false;
+    shouldNavigateToHome.value = false;
 
     if (token != null && token.isNotEmpty) {
       print('🔑 Token found, attempting API call...');
@@ -162,7 +165,7 @@ class LoginController extends GetxController {
 
             // Set navigation flags instead of navigating immediately
             autoLoginUserData.value = result["data"];
-            if (result["data"]["isCreatedProfile"] == false) {
+            if (userModel.data!.isCreatedProfile == false) {
               print('📱 Setting flag to navigate to CreateProfileScreen...');
               shouldNavigateToProfile.value = true;
             } else {
@@ -282,10 +285,13 @@ class LoginController extends GetxController {
   // Clear all saved data (for logout)
   Future<void> clearAllSavedData() async {
     final storage = FlutterSecureStorage();
-    await storage.delete(key: 'savedEmail');
-    await storage.delete(key: 'savedPassword');
-    await storage.delete(key: 'rememberMe');
-    await storage.delete(key: 'userToken');
+    await storage.deleteAll();
+
+    final prefs = await SharedPreferences.getInstance();
+    const installMarkerKey = 'has_completed_first_launch';
+    final hasCompletedFirstLaunch = prefs.getBool(installMarkerKey) ?? true;
+    await prefs.clear();
+    await prefs.setBool(installMarkerKey, hasCompletedFirstLaunch);
 
     // Clear controllers
     emailController.clear();
@@ -374,7 +380,10 @@ class LoginController extends GetxController {
             ? Get.find<Bottomcontroller>()
             : Get.put(Bottomcontroller());
         bottomController.updateIndex(0);
-        Get.offAll(() => ConvexStyledBarScreen(), transition: Transition.fadeIn);
+        Get.offAll(
+          () => ConvexStyledBarScreen(),
+          transition: Transition.fadeIn,
+        );
 
         appSnackbar("Success", result['message'] ?? "User registered");
       }

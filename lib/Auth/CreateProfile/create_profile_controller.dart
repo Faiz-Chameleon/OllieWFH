@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_print
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -32,7 +34,11 @@ class CreateProfileController extends GetxController {
   Future<DateTime?> pickDate(BuildContext context) async {
     final DateTime today = DateTime.now();
     final initialDate = selectedDate.value != null
-        ? DateTime(selectedDate.value!.year, selectedDate.value!.month, selectedDate.value!.day)
+        ? DateTime(
+            selectedDate.value!.year,
+            selectedDate.value!.month,
+            selectedDate.value!.day,
+          )
         : DateTime(2000, 1, 1);
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -46,14 +52,21 @@ class CreateProfileController extends GetxController {
               labelLarge: TextStyle(fontSize: 18.sp), // Button text size
               bodyLarge: TextStyle(fontSize: 16.sp), // Date text size
             ),
-            colorScheme: ColorScheme.light(primary: kprimaryColor, onPrimary: Colors.white, onSurface: Colors.black),
+            colorScheme: ColorScheme.light(
+              primary: kprimaryColor,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
 
             // ignore: deprecated_member_use
             dialogBackgroundColor: Colors.white,
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
                 foregroundColor: kprimaryColor,
-                textStyle: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),
+                textStyle: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
@@ -78,6 +91,54 @@ class CreateProfileController extends GetxController {
   }
 
   var createProfileStatus = RequestStatus.idle.obs;
+
+  String _cleanCountryName(String value) {
+    final withoutEmoji = value.replaceAll(
+      RegExp(
+        r'[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]',
+        unicode: true,
+      ),
+      '',
+    );
+    return withoutEmoji.replaceAll(RegExp(r'\s+'), ' ').trim();
+  }
+
+  Map<String, dynamic> buildCreateProfilePayload({
+    required Map<String, dynamic> deviceRegistrationPayload,
+    required List<String> interestIds,
+    required String emergencyContactNumber,
+    required bool wantDailyActivities,
+    required bool wantDailySupplement,
+  }) {
+    final devicePayload = Map<String, dynamic>.from(deviceRegistrationPayload);
+    final deviceToken = devicePayload['userDeviceToken']?.toString().trim();
+    final resolvedDeviceType =
+        devicePayload['userDeviceType']?.toString().trim().isNotEmpty == true
+        ? devicePayload['userDeviceType'].toString().trim()
+        : Platform.isAndroid
+        ? "ANDROID"
+        : "IOS";
+    final resolvedDeviceToken = deviceToken != null && deviceToken.isNotEmpty
+        ? deviceToken
+        : "${resolvedDeviceType.toLowerCase()}-simulator-token";
+
+    return {
+      "userPhoneNumber": fullPhoneNumber.value.trim(),
+      "userFirstName": firstNameController.text.trim(),
+      "userLastName": lastNameController.text.trim(),
+      "userDateOfBirth": formattedDateString.value.trim(),
+      "userGender": selectedGender.value.trim().toUpperCase(),
+      "interest": interestIds,
+      "userDeviceToken": resolvedDeviceToken,
+      "userDeviceType": resolvedDeviceType,
+      "emergencyContactNumber": emergencyContactNumber.trim(),
+      "wantDailyActivities": wantDailyActivities,
+      "wantDailySupplement": wantDailySupplement,
+      "userCity": cityValue.value.trim(),
+      "userStates": stateValue.value.trim(),
+      "userCountry": _cleanCountryName(countryValue.value),
+    };
+  }
 
   clearFields() {
     final interestController = Get.isRegistered<InterestController>()

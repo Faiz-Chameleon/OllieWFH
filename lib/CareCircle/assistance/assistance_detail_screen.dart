@@ -41,6 +41,11 @@ class _AssistanceDetailScreenState extends State<AssistanceDetailScreen> {
   }
 
   Future<String> _loadAddress() async {
+    final displayLocation = widget.assistance.resolvedLocationText;
+    if (displayLocation != null) {
+      return displayLocation;
+    }
+
     final lat = widget.assistance.latitude;
     final lng = widget.assistance.longitude;
     if (lat == null || lng == null) {

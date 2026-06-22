@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,7 +19,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   late final CareCircleController controller;
   late final TextEditingController postTitleController;
   late final TextEditingController postContentController;
+  late final TextEditingController pollQuestionController;
+  final List<TextEditingController> pollOptionControllers = [TextEditingController(), TextEditingController()];
   final ImagePicker picker = ImagePicker();
+  String postType = 'TEXT';
 
   @override
   void initState() {
@@ -28,43 +30,103 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     controller = Get.isRegistered<CareCircleController>() ? Get.find<CareCircleController>() : Get.put(CareCircleController());
     postTitleController = TextEditingController();
     postContentController = TextEditingController();
+    pollQuestionController = TextEditingController();
   }
 
   @override
   void dispose() {
     postTitleController.dispose();
     postContentController.dispose();
+    pollQuestionController.dispose();
+    for (final optionController in pollOptionControllers) {
+      optionController.dispose();
+    }
     super.dispose();
   }
 
   Future<void> _pickImage(ImageSource source) async {
+    if (_hasPollInput()) {
+      appSnackbar("Error", "Remove poll details before adding images");
+      return;
+    }
     final picked = await picker.pickImage(source: source);
     if (picked != null) {
       controller.setImageFile(File(picked.path));
+      controller.postImages.assignAll([XFile(picked.path)]);
+      setState(() => postType = 'IMAGE');
     }
+  }
+
+  Future<void> _pickImages() async {
+    if (_hasPollInput()) {
+      appSnackbar("Error", "Remove poll details before adding images");
+      return;
+    }
+    final picked = await picker.pickMultiImage(limit: 5);
+    if (picked.isEmpty) return;
+    controller.postImages.assignAll(picked.take(5));
+    controller.imageFile.value = File(picked.first.path);
+    setState(() => postType = 'IMAGE');
   }
 
   Future<void> _pickVideo(ImageSource source) async {
+    if (_hasPollInput()) {
+      appSnackbar("Error", "Remove poll details before adding video");
+      return;
+    }
     final picked = await picker.pickVideo(source: source);
     if (picked != null) {
       controller.setVideoFile(XFile(picked.path));
+      setState(() => postType = 'VIDEO');
     }
   }
 
-  Future<void> _pickDocument() async {
-    final picked = await FilePicker.platform.pickFiles(type: FileType.any);
-    if (picked != null && picked.files.single.path != null) {
-      controller.setDocumentFile(XFile(picked.files.single.path!));
+  void _setPostType(String type) {
+    if (type == 'POLL' && _hasMediaAttachment()) {
+      appSnackbar("Error", "Remove images or video before adding a poll");
+      return;
     }
+    setState(() => postType = type);
+  }
+
+  void _addPollOption() {
+    if (pollOptionControllers.length >= 10) return;
+    setState(() => pollOptionControllers.add(TextEditingController()));
+  }
+
+  void _removePollOption(int index) {
+    if (pollOptionControllers.length <= 2) return;
+    final removed = pollOptionControllers.removeAt(index);
+    removed.dispose();
+    setState(() {});
   }
 
   Future<void> _createPost() async {
     FocusScope.of(context).unfocus();
     final title = postTitleController.text.trim();
     final content = postContentController.text.trim();
+    final pollQuestion = pollQuestionController.text.trim();
+    final pollOptions = pollOptionControllers.map((controller) => controller.text.trim()).where((option) => option.isNotEmpty).toList();
+    final hasPollInput = pollQuestion.isNotEmpty || pollOptions.isNotEmpty;
 
-    if (title.isEmpty || content.isEmpty) {
-      appSnackbar("Error", "Please fill in both title and content");
+    if (title.isEmpty) {
+      appSnackbar("Error", "Please enter post title");
+      return;
+    }
+    if (hasPollInput && _hasMediaAttachment()) {
+      appSnackbar("Error", "Poll cannot be added with images or video");
+      return;
+    }
+    if (postType == 'POLL' && pollQuestion.isEmpty) {
+      appSnackbar("Error", "Please enter poll question");
+      return;
+    }
+    if (hasPollInput && pollQuestion.isEmpty) {
+      appSnackbar("Error", "Please enter poll question");
+      return;
+    }
+    if (hasPollInput && pollOptions.length < 2) {
+      appSnackbar("Error", "Poll needs at least 2 options");
       return;
     }
 
@@ -72,15 +134,23 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       widget.topicId,
       title,
       content,
-      controller.imageFile.value,
+      _effectivePostType(hasPollInput),
+      controller.postImages.toList(),
       controller.videoFile.value,
-      controller.documentFile.value,
+      pollQuestion,
+      pollOptions,
+      null,
     );
 
     if (controller.createPostStatus.value == RequestStatus.success) {
       postTitleController.clear();
       postContentController.clear();
+      pollQuestionController.clear();
+      for (final optionController in pollOptionControllers) {
+        optionController.clear();
+      }
       controller.imageFile.value = null;
+      controller.postImages.clear();
       controller.videoFile.value = null;
       controller.documentFile.value = null;
 
@@ -147,6 +217,18 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Wrap(
+                          spacing: 8,
+                          children: [
+                            _postTypeChip('TEXT', Icons.notes_rounded),
+                            _postTypeChip('IMAGE', Icons.photo_rounded),
+                            _postTypeChip('VIDEO', Icons.videocam_rounded),
+                            _postTypeChip('POLL', Icons.poll_rounded),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: TextField(
                           controller: postTitleController,
                           maxLines: 2,
@@ -172,28 +254,48 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         ),
                       ),
                       Obx(
-                        () => controller.imageFile.value != null
+                        () => controller.postImages.isNotEmpty
                             ? Padding(
                                 padding: const EdgeInsets.all(16),
-                                child: Stack(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Image.file(controller.imageFile.value!, height: 160, width: double.infinity, fit: BoxFit.cover),
-                                    ),
-                                    Positioned(
-                                      top: 8,
-                                      right: 8,
-                                      child: GestureDetector(
-                                        onTap: () => controller.clearImageFile(),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                                          child: const Icon(Icons.close, color: Colors.white, size: 16),
+                                child: GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: controller.postImages.length,
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3,
+                                    crossAxisSpacing: 8,
+                                    mainAxisSpacing: 8,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    final image = controller.postImages[index];
+                                    return Stack(
+                                      children: [
+                                        Positioned.fill(
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(12),
+                                            child: Image.file(File(image.path), fit: BoxFit.cover),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  ],
+                                        Positioned(
+                                          top: 6,
+                                          right: 6,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              controller.postImages.removeAt(index);
+                                              controller.imageFile.value = controller.postImages.isEmpty
+                                                  ? null
+                                                  : File(controller.postImages.first.path);
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.all(4),
+                                              decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                                              child: const Icon(Icons.close, color: Colors.white, size: 14),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 ),
                               )
                             : const SizedBox.shrink(),
@@ -227,24 +329,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                               )
                             : const SizedBox.shrink(),
                       ),
-                      Obx(
-                        () => controller.documentFile.value != null
-                            ? Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.insert_drive_file, color: Colors.black),
-                                    const SizedBox(width: 8),
-                                    Expanded(child: Text(controller.documentFile.value!.path.split('/').last)),
-                                    GestureDetector(
-                                      onTap: () => controller.clearDocumentFile(),
-                                      child: const Icon(Icons.close, color: Colors.red),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      ),
+                      if (postType == 'POLL' || hasPollDraft) _buildPollFields(),
                     ],
                   ),
                 ),
@@ -255,6 +340,25 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         ),
       ),
     );
+  }
+
+  bool get hasPollDraft {
+    return _hasPollInput();
+  }
+
+  bool _hasPollInput() {
+    return pollQuestionController.text.trim().isNotEmpty || pollOptionControllers.any((controller) => controller.text.trim().isNotEmpty);
+  }
+
+  bool _hasMediaAttachment() {
+    return controller.postImages.isNotEmpty || controller.videoFile.value != null;
+  }
+
+  String _effectivePostType(bool hasPollInput) {
+    if (controller.videoFile.value != null) return 'VIDEO';
+    if (controller.postImages.isNotEmpty) return 'IMAGE';
+    if (hasPollInput) return 'POLL';
+    return 'TEXT';
   }
 
   Widget _buildBottomOptions() {
@@ -268,9 +372,73 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           IconButton(icon: const Icon(Icons.camera_alt_outlined), onPressed: () => _pickImage(ImageSource.camera)),
-          IconButton(icon: const Icon(Icons.photo_outlined), onPressed: () => _pickImage(ImageSource.gallery)),
+          IconButton(icon: const Icon(Icons.photo_outlined), onPressed: _pickImages),
           IconButton(icon: const Icon(Icons.videocam_outlined), onPressed: () => _pickVideo(ImageSource.gallery)),
-          IconButton(icon: const Icon(Icons.insert_drive_file_outlined), onPressed: _pickDocument),
+        ],
+      ),
+    );
+  }
+
+  Widget _postTypeChip(String type, IconData icon) {
+    final selected = postType == type;
+    return ChoiceChip(
+      selected: selected,
+      avatar: Icon(icon, size: 18, color: selected ? Colors.black : Colors.grey.shade700),
+      label: Text(type),
+      onSelected: (_) => _setPostType(type),
+      selectedColor: const Color(0xFFFFC766),
+      backgroundColor: Colors.white,
+    );
+  }
+
+  Widget _buildPollFields() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        children: [
+          TextField(
+            controller: pollQuestionController,
+            decoration: InputDecoration(
+              hintText: "Poll question",
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+            ),
+          ),
+          const SizedBox(height: 10),
+          ...List.generate(pollOptionControllers.length, (index) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: pollOptionControllers[index],
+                      decoration: InputDecoration(
+                        hintText: "Option ${index + 1}",
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                      ),
+                    ),
+                  ),
+                  if (pollOptionControllers.length > 2)
+                    IconButton(
+                      onPressed: () => _removePollOption(index),
+                      icon: const Icon(Icons.close, color: Colors.red),
+                    ),
+                ],
+              ),
+            );
+          }),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: pollOptionControllers.length >= 10 ? null : _addPollOption,
+              icon: const Icon(Icons.add),
+              label: const Text('Add option'),
+            ),
+          ),
         ],
       ),
     );

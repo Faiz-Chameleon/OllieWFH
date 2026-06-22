@@ -292,7 +292,13 @@ class PostWithInterest {
   int? totalPostCount;
   int? totalUserPostCount;
 
-  PostWithInterest({this.success, this.message, this.data, this.totalPostCount, this.totalUserPostCount});
+  PostWithInterest({
+    this.success,
+    this.message,
+    this.data,
+    this.totalPostCount,
+    this.totalUserPostCount,
+  });
 
   PostWithInterest.fromJson(Map<String, dynamic> json) {
     success = json['success'];
@@ -324,7 +330,11 @@ class PostWithInterestData {
   String? id;
   String? title;
   String? content;
+  String? postType;
   String? image;
+  List<String>? images;
+  String? videoUrl;
+  PostPoll? poll;
   String? categoryId;
   String? adminId;
   Null? type;
@@ -348,7 +358,11 @@ class PostWithInterestData {
     this.id,
     this.title,
     this.content,
+    this.postType,
     this.image,
+    this.images,
+    this.videoUrl,
+    this.poll,
     this.categoryId,
     this.adminId,
     this.type,
@@ -372,8 +386,34 @@ class PostWithInterestData {
   PostWithInterestData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     title = json['title'];
-    content = json['content'];
+    content = json['content'] ?? json['postContent'];
+    postType = (json['postType'] ?? json['type'])?.toString();
     image = json['image'];
+    if (json['images'] is List) {
+      images = (json['images'] as List)
+          .map((item) => item?.toString() ?? '')
+          .where((item) => item.isNotEmpty)
+          .toList();
+    }
+    videoUrl = (json['videoUrl'] ?? json['video'])?.toString();
+    final rawPoll =
+        json['poll'] ??
+        json['Poll'] ??
+        json['userPostPoll'] ??
+        json['UserPostPoll'] ??
+        json['postPoll'];
+    if (rawPoll is Map) {
+      poll = PostPoll.fromJson(rawPoll);
+      postType ??= 'POLL';
+    } else if (json['pollQuestion'] != null || json['pollOptions'] is List) {
+      poll = PostPoll.fromJson({
+        'id': json['pollId'],
+        'question': json['pollQuestion'],
+        'options': json['pollOptions'],
+        'totalVotes': json['totalVotes'],
+      });
+      postType ??= 'POLL';
+    }
     categoryId = json['categoryId'];
     adminId = json['adminId'];
     type = json['type'];
@@ -381,7 +421,9 @@ class PostWithInterestData {
     isReport = json['isReport'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
-    category = json['category'] != null ? new Category.fromJson(json['category']) : null;
+    category = json['category'] != null
+        ? new Category.fromJson(json['category'])
+        : null;
     admin = json['admin'] != null ? new Admin.fromJson(json['admin']) : null;
     cCount = json['_count'] != null ? new Count.fromJson(json['_count']) : null;
     if (json['savedByUsers'] != null) {
@@ -398,9 +440,10 @@ class PostWithInterestData {
     }
     isSavePost = json['isSavePost'];
     isLikePost = json['isLikePost'];
-    source = json['source'];
+    source = json['source']?.toString();
     userId = json['userId'];
     user = json['user'] != null ? new User.fromJson(json['user']) : null;
+    source ??= _inferSource();
     if (json['userpostlikes'] != null) {
       userpostlikes = <dynamic>[];
       json['userpostlikes'].forEach((v) {
@@ -409,12 +452,31 @@ class PostWithInterestData {
     }
   }
 
+  String? _inferSource() {
+    if ((userId ?? '').isNotEmpty || user != null) return 'user';
+    final normalizedPostType = postType?.trim().toUpperCase();
+    if (normalizedPostType == 'TEXT' ||
+        normalizedPostType == 'IMAGE' ||
+        normalizedPostType == 'VIDEO' ||
+        normalizedPostType == 'POLL') {
+      return 'user';
+    }
+    if ((adminId ?? '').isNotEmpty || admin != null) return 'posts';
+    return null;
+  }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
     data['title'] = this.title;
     data['content'] = this.content;
+    data['postType'] = this.postType;
     data['image'] = this.image;
+    data['images'] = this.images;
+    data['videoUrl'] = this.videoUrl;
+    if (this.poll != null) {
+      data['poll'] = this.poll!.toJson();
+    }
     data['categoryId'] = this.categoryId;
     data['adminId'] = this.adminId;
     data['type'] = this.type;
@@ -445,9 +507,102 @@ class PostWithInterestData {
       data['user'] = this.user!.toJson();
     }
     if (this.userpostlikes != null) {
-      data['userpostlikes'] = this.userpostlikes!.map((v) => v.toJson()).toList();
+      data['userpostlikes'] = this.userpostlikes!
+          .map((v) => v.toJson())
+          .toList();
     }
     return data;
+  }
+}
+
+class PostPoll {
+  String? id;
+  String? question;
+  String? endsAt;
+  int? totalVotes;
+  List<PostPollOption>? options;
+  List<PostPollOption>? results;
+
+  PostPoll({
+    this.id,
+    this.question,
+    this.endsAt,
+    this.totalVotes,
+    this.options,
+    this.results,
+  });
+
+  PostPoll.fromJson(Map<dynamic, dynamic> json) {
+    id = json['id']?.toString() ?? json['pollId']?.toString();
+    question = json['question']?.toString();
+    endsAt = json['endsAt']?.toString();
+    totalVotes = json['totalVotes'] is int
+        ? json['totalVotes']
+        : int.tryParse(json['totalVotes']?.toString() ?? '');
+    final rawOptions = json['results'] is List
+        ? json['results'] as List
+        : json['options'] is List
+        ? json['options'] as List
+        : const [];
+    options = rawOptions
+        .whereType<Map>()
+        .map((item) => PostPollOption.fromJson(item))
+        .toList();
+    results = options;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'question': question,
+      'endsAt': endsAt,
+      'totalVotes': totalVotes,
+      'options': options?.map((item) => item.toJson()).toList(),
+    };
+  }
+}
+
+class PostPollOption {
+  String? id;
+  String? text;
+  int votes = 0;
+  int percentage = 0;
+  bool votedByMe = false;
+
+  PostPollOption({
+    this.id,
+    this.text,
+    this.votes = 0,
+    this.percentage = 0,
+    this.votedByMe = false,
+  });
+
+  PostPollOption.fromJson(Map<dynamic, dynamic> json) {
+    id = json['id']?.toString();
+    text = json['text']?.toString();
+    votes = json['votes'] is int
+        ? json['votes']
+        : json['_count'] is Map && (json['_count'] as Map)['votes'] is int
+        ? (json['_count'] as Map)['votes'] as int
+        : json['votes'] is List
+        ? (json['votes'] as List).length
+        : int.tryParse(json['votes']?.toString() ?? '') ?? 0;
+    percentage = json['percentage'] is int
+        ? json['percentage']
+        : int.tryParse(json['percentage']?.toString() ?? '') ?? 0;
+    votedByMe =
+        json['votedByMe'] == true ||
+        (json['votes'] is List && (json['votes'] as List).isNotEmpty);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'text': text,
+      'votes': votes,
+      'percentage': percentage,
+      'votedByMe': votedByMe,
+    };
   }
 }
 
@@ -485,7 +640,18 @@ class Admin {
   String? createdAt;
   String? updatedAt;
 
-  Admin({this.id, this.email, this.password, this.name, this.deviceToken, this.otp, this.userType, this.image, this.createdAt, this.updatedAt});
+  Admin({
+    this.id,
+    this.email,
+    this.password,
+    this.name,
+    this.deviceToken,
+    this.otp,
+    this.userType,
+    this.image,
+    this.createdAt,
+    this.updatedAt,
+  });
 
   Admin.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -522,7 +688,12 @@ class Count {
   int? userpostlikes;
   int? userpostcomments;
 
-  Count({this.postLike, this.postcomments, this.userpostlikes, this.userpostcomments});
+  Count({
+    this.postLike,
+    this.postcomments,
+    this.userpostlikes,
+    this.userpostcomments,
+  });
 
   Count.fromJson(Map<String, dynamic> json) {
     postLike = json['PostLike'];

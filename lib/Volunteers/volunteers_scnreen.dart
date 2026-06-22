@@ -10,11 +10,7 @@ import 'volunteers_contoller.dart';
 class VolunteersScreen extends StatefulWidget {
   final CareCircleController controller;
   final String assistanceId;
-  const VolunteersScreen({
-    super.key,
-    required this.controller,
-    required this.assistanceId,
-  });
+  const VolunteersScreen({super.key, required this.controller, required this.assistanceId});
 
   @override
   State<VolunteersScreen> createState() => _VolunteersScreenState();
@@ -22,15 +18,12 @@ class VolunteersScreen extends StatefulWidget {
 
 class _VolunteersScreenState extends State<VolunteersScreen> {
   final VolunteerController controller = Get.put(VolunteerController());
-  final OneToOneChatController chatController =
-      Get.find<OneToOneChatController>();
+  final OneToOneChatController chatController = Get.find<OneToOneChatController>();
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.controller.getVoluntersRequestOnEachAssistance(
-        widget.assistanceId.toString(),
-      );
+      widget.controller.getVoluntersRequestOnEachAssistance(widget.assistanceId.toString());
     });
   }
 
@@ -50,8 +43,7 @@ class _VolunteersScreenState extends State<VolunteersScreen> {
           children: [
             const SizedBox(height: 12),
             Obx(() {
-              if (widget.controller.getVoluntersRequesttatus.value ==
-                  RequestStatus.loading) {
+              if (widget.controller.getVoluntersRequesttatus.value == RequestStatus.loading) {
                 return const Center(child: CircularProgressIndicator());
               }
               if (widget.controller.voluntersRequestsList.isEmpty) {
@@ -60,32 +52,20 @@ class _VolunteersScreenState extends State<VolunteersScreen> {
               return Container(
                 height: 400,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xff1e18180d),
-                  borderRadius: BorderRadius.circular(16),
-                ),
+                decoration: BoxDecoration(color: const Color(0xff1e18180d), borderRadius: BorderRadius.circular(16)),
                 child: ListView.separated(
                   itemCount: widget.controller.voluntersRequestsList.length,
-                  separatorBuilder: (_, __) =>
-                      const Divider(color: Colors.transparent),
+                  separatorBuilder: (_, __) => const Divider(color: Colors.transparent),
                   itemBuilder: (context, index) {
                     return Obx(() {
-                      final volunteerRequest =
-                          widget.controller.voluntersRequestsList[index];
+                      final volunteerRequest = widget.controller.voluntersRequestsList[index];
                       final status = volunteerRequest.status;
                       return ListTile(
                         leading: CircleAvatar(
                           radius: 16,
-                          backgroundImage:
-                              (volunteerRequest.volunteer?.image?.isNotEmpty ??
-                                  false)
-                              ? NetworkImage(
-                                  volunteerRequest.volunteer?.image ?? "",
-                                )
-                              : AssetImage(
-                                      'assets/icons/Group 1000000907 (1).png',
-                                    )
-                                    as ImageProvider,
+                          backgroundImage: (volunteerRequest.volunteer?.image?.isNotEmpty ?? false)
+                              ? NetworkImage(volunteerRequest.volunteer?.image ?? "")
+                              : AssetImage('assets/icons/Group 1000000907 (1).png') as ImageProvider,
                         ),
                         title: Text(
                           " ${volunteerRequest.volunteer?.firstName} ${volunteerRequest.volunteer?.lastName} ",
@@ -95,79 +75,34 @@ class _VolunteersScreenState extends State<VolunteersScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             GestureDetector(
-                              onTap:
-                                  !widget.controller.canTapVolunteerAction(
-                                    status,
-                                  )
+                              onTap: !widget.controller.canTapVolunteerAction(status)
                                   ? null
                                   : () async {
-                                      widget
-                                              .controller
-                                              .voluntersRequestLoadingStatus[index]
-                                              .value =
-                                          true;
-                                      if (widget.controller
-                                          .canOwnerConfirmCompletion(status)) {
-                                        await widget.controller
-                                            .completeTaskByOwner(
-                                              volunteerRequest.id ?? "",
-                                              postId: volunteerRequest.postId,
-                                            );
+                                      widget.controller.voluntersRequestLoadingStatus[index].value = true;
+                                      if (widget.controller.canOwnerConfirmCompletion(status)) {
+                                        await widget.controller.completeTaskByOwner(volunteerRequest.id ?? "", postId: volunteerRequest.postId);
                                       } else {
-                                        final data = {
-                                          "action":
-                                              status == "VolunteerRequestSent"
-                                              ? "accept"
-                                              : "reject",
-                                        };
-                                        await widget.controller
-                                            .acceptrequestOnAssistance(
-                                              volunteerRequest.id ?? "",
-                                              data,
-                                              index,
-                                            );
+                                        final data = {"action": status == "VolunteerRequestSent" ? "accept" : "reject"};
+                                        await widget.controller.acceptrequestOnAssistance(volunteerRequest.id ?? "", data, index);
                                       }
-                                      if (index <
-                                          widget
-                                              .controller
-                                              .voluntersRequestLoadingStatus
-                                              .length) {
-                                        widget
-                                                .controller
-                                                .voluntersRequestLoadingStatus[index]
-                                                .value =
-                                            false;
+                                      if (index < widget.controller.voluntersRequestLoadingStatus.length) {
+                                        widget.controller.voluntersRequestLoadingStatus[index].value = false;
                                       }
                                     },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: widget.controller
-                                      .volunteerActionBackgroundColor(status),
-                                  border: Border.all(
-                                    color: const Color(0xFFF4BD2A),
-                                  ),
+                                  color: widget.controller.volunteerActionBackgroundColor(status),
+                                  border: Border.all(color: const Color(0xFFF4BD2A)),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Obx(() {
-                                  if (widget
-                                      .controller
-                                      .voluntersRequestLoadingStatus[index]
-                                      .value) {
+                                  if (widget.controller.voluntersRequestLoadingStatus[index].value) {
                                     return const CircularProgressIndicator();
                                   }
                                   return Text(
-                                    widget.controller.volunteerActionLabel(
-                                      status,
-                                    ),
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: widget.controller
-                                          .volunteerActionTextColor(status),
-                                    ),
+                                    widget.controller.volunteerActionLabel(status),
+                                    style: TextStyle(fontSize: 14, color: widget.controller.volunteerActionTextColor(status)),
                                   );
                                 }),
                               ),
@@ -175,33 +110,17 @@ class _VolunteersScreenState extends State<VolunteersScreen> {
                             const SizedBox(width: 12),
                             GestureDetector(
                               onTap: () async {
-                                var data = {
-                                  "userId": volunteerRequest.volunteerId
-                                      .toString(),
-                                };
-                                await chatController
-                                    .createOneOnOneChat(data)
-                                    .then((value) {
-                                      Get.to(
-                                        () => ChatScreen(
-                                          userName:
-                                              volunteerRequest
-                                                  .volunteer
-                                                  ?.firstName ??
-                                              "",
-                                          userImage:
-                                              volunteerRequest
-                                                  .volunteer
-                                                  ?.image ??
-                                              "",
-                                        ),
-                                      );
-                                    });
+                                var data = {"userId": volunteerRequest.volunteerId.toString()};
+                                await chatController.createOneOnOneChat(data).then((value) {
+                                  Get.to(
+                                    () => ChatScreen(
+                                      userName: volunteerRequest.volunteer?.firstName ?? "",
+                                      userImage: volunteerRequest.volunteer?.image ?? "",
+                                    ),
+                                  );
+                                });
                               },
-                              child: const Icon(
-                                Icons.chat,
-                                color: Colors.black,
-                              ),
+                              child: const Icon(Icons.chat, color: Colors.black),
                             ),
                           ],
                         ),

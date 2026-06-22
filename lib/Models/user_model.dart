@@ -97,7 +97,9 @@ class UserData {
       gender: json['gender'],
       deviceType: json['deviceType'],
       deviceToken: json['deviceToken'],
-      isCreatedProfile: json['isCreatedProfile'],
+      isCreatedProfile: _readBool(
+        json['isCreatedProfile'] ?? json['isProfileCreated'],
+      ),
       image: json['image'],
       city: json['city'],
       country: json['country'],
@@ -125,6 +127,15 @@ class UserData {
           : null,
       userToken: json['userToken'],
     );
+  }
+
+  static bool? _readBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    final normalized = value?.toString().trim().toLowerCase();
+    if (normalized == 'true' || normalized == '1') return true;
+    if (normalized == 'false' || normalized == '0') return false;
+    return null;
   }
 
   Map<String, dynamic> toJson() {

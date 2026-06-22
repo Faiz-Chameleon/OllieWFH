@@ -98,6 +98,7 @@ class AddLocationScreen extends StatelessWidget {
                   ],
                 ),
               ),
+
               12.verticalSpace,
               Obx(() {
                 if (controller.selectedAddress.isNotEmpty) {
@@ -166,19 +167,11 @@ class _LocationPredictionsList extends StatelessWidget {
               dense: true,
               leading: const Icon(Icons.location_on_outlined, color: Colors.black),
               title: Text(
-                prediction.mainText,
-                maxLines: 1,
+                prediction.displayName,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.darkerGrotesque(fontSize: 18.sp, fontWeight: FontWeight.w600),
               ),
-              subtitle: prediction.secondaryText.isEmpty
-                  ? null
-                  : Text(
-                      prediction.secondaryText,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.darkerGrotesque(fontSize: 15.sp, color: Colors.grey.shade600),
-                    ),
               onTap: () async {
                 FocusScope.of(context).unfocus();
                 await controller.selectLocationSearchResult(prediction);

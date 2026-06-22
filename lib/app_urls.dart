@@ -75,15 +75,25 @@ class ApiUrls {
   static const String reportPost = "/user/post/userReportPost";
   static const String createChatRoom = "/user/chat/createOneToOneChatRoom";
   static const String sendAttachementOnChatRoom = "/user/chat/uplaodAttachment";
+  static const String chatMessages = "/user/chat/messages";
   static const String createGroups = "/user/chat/createGroupChatRoom";
   static const String getYoursGroup = "/user/chat/getGroupChatRooms";
   static const String getOthersGroup = "/user/chat/getFeatureGroups";
-  static const String joinGroupChatRoom = "/user/chat/addparticipantInChatRoom";
+  static const String joinGroupChatRoom = "/user/chat/addParticipantinChatRoom";
   static const String removeParticipantFromGroupChatRoom =
       "/user/chat/removeParticipantFromChatRoom";
   static const String leaveGroupChatRoom = "/user/chat/leaveGroupChatRoom";
   static const String groupJoinRequests = "/user/chat/groupJoinRequests";
   static const String groupSharedMedia = "/user/chat/groupSharedMedia";
+  static const String groupMembers = "/user/chat/groupMembers";
+  static const String blockUserFromGroup = "/user/chat/blockUserFromGroup";
+  static const String unblockUserFromGroup = "/user/chat/unblockUserFromGroup";
+  static const String blockedUsers = "/user/chat/blockedUsers";
+  static const String reactToMessage = "/user/chat/reactToMessage";
+  static const String messageReactions = "/user/chat/messageReactions";
+  static const String replyToMessage = "/user/chat/replyToMessage";
+  static const String messageReplies = "/user/chat/messageReplies";
+  static const String deleteMessage = "/user/chat/deleteMessage";
   static const String postOnYourInteres =
       "/user/post/showAllPostByUserSelectedInterest";
   static const String interestBaseMultiplePost =
@@ -91,6 +101,9 @@ class ApiUrls {
   static const String singleUserPost = "/user/post/showSingleUserPost";
   static const String onlyYourPost = "/user/post/showUserAllPost";
   static const String createUserPost = "/user/post/createUserPost";
+  static const String deleteUserPost = "/user/post/deleteUserPost";
+  static const String voteOnPoll = "/user/post/voteOnPoll";
+  static const String getPollResults = "/user/post/getPollResults";
   static const String getMe = "/user/auth/getMe";
   static const String showAllNotification =
       "/user/notification/showAllNotification";

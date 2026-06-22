@@ -21,9 +21,8 @@ class GroupListScreen extends StatefulWidget {
 }
 
 class _GroupListScreenState extends State<GroupListScreen> {
-  final OneToManyChatController groupChatcontroller = Get.put(
-    OneToManyChatController(),
-  );
+  final OneToManyChatController groupChatcontroller =
+      Get.find<OneToManyChatController>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(

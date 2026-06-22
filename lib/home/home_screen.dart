@@ -31,7 +31,7 @@ class Home_Screen extends StatefulWidget {
 
 class _Home_ScreenState extends State<Home_Screen> {
   final HomeController controller = Get.put(HomeController());
-  final SocketController socketController = Get.put(SocketController());
+  final SocketController socketController = Get.find<SocketController>();
   final UserController userController = Get.find<UserController>();
   final EasyDatePickerController taskController = Get.put(
     EasyDatePickerController(),

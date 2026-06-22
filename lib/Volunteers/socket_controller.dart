@@ -8,22 +8,63 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketController extends GetxController {
   late IO.Socket socket;
+  bool _socketInitialized = false;
+  bool _pollingFallbackStarted = false;
+  String? _authToken;
+  final Map<String, List<void Function(dynamic)>> _socketListeners = {};
   var isConnected = false.obs;
   var userToken = "".obs;
   var messages = <String>[].obs;
 
+  bool get canEmit => _socketInitialized && socket.connected;
+
   Future<void> connectSocket() async {
+    if (_socketInitialized) {
+      if (!socket.connected) {
+        print('Socket already initialized; reconnecting');
+        socket.connect();
+      }
+      return;
+    }
+
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    socket = IO.io(
-      'https://api.theollie.app/',
-      IO.OptionBuilder().setTransports(['websocket']).setExtraHeaders({'Authorization': 'Bearer $requiredToken'}).build(),
-    );
+    _authToken = requiredToken;
+    _createSocket(usePolling: false);
+  }
+
+  void _createSocket({required bool usePolling}) {
+    if (_socketInitialized) {
+      socket.dispose();
+    }
+
+    final transports = usePolling ? ['polling'] : ['websocket'];
+    socket = IO.io('https://api.theollie.app', {
+      'transports': transports,
+      'extraHeaders': {
+        if (_authToken != null && _authToken!.isNotEmpty)
+          'Authorization': 'Bearer $_authToken',
+        if (_authToken != null && _authToken!.isNotEmpty)
+          'x-access-token': _authToken!,
+      },
+      'forceNew': true,
+      'reconnection': true,
+      if (usePolling) 'upgrade': false,
+    });
+    _socketInitialized = true;
 
     socket.on('connect', (_) {
       print('Connected to the socket server');
       isConnected.value = true;
       // receivedMessages();
+    });
+
+    socket.on('connect_error', (error) {
+      print('Socket connect_error: $error');
+      isConnected.value = false;
+      if (!usePolling) {
+        _startPollingFallback();
+      }
     });
 
     socket.on('disconnect', (_) {
@@ -33,6 +74,46 @@ class SocketController extends GetxController {
 
     socket.on('error', (error) {
       print('Socket error: $error');
+    });
+
+    _bindStoredListeners();
+  }
+
+  void onEvent(String event, void Function(dynamic) callback) {
+    _socketListeners.putIfAbsent(event, () => []).add(callback);
+    if (_socketInitialized) {
+      socket.on(event, callback);
+    }
+  }
+
+  void offEvent(String event) {
+    _socketListeners.remove(event);
+    if (_socketInitialized) {
+      socket.off(event);
+    }
+  }
+
+  void emitEvent(String event, dynamic data) {
+    if (canEmit) {
+      socket.emit(event, data);
+      return;
+    }
+    print('Socket emit skipped, not connected: event=$event');
+  }
+
+  Future<void> _startPollingFallback() async {
+    if (_pollingFallbackStarted) return;
+    _pollingFallbackStarted = true;
+    print('Retrying socket connection via polling fallback');
+    _createSocket(usePolling: true);
+  }
+
+  void _bindStoredListeners() {
+    _socketListeners.forEach((event, callbacks) {
+      socket.off(event);
+      for (final callback in callbacks) {
+        socket.on(event, callback);
+      }
     });
   }
 

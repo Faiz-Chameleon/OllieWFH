@@ -60,36 +60,18 @@ class FinalScreen extends StatelessWidget {
                           final deviceRegistrationPayload =
                               await FirebaseService.instance
                                   .getDeviceRegistrationPayload();
-                          var data = {
-                            "userPhoneNumber": controller.fullPhoneNumber.value,
-                            "userFirstName":
-                                controller.firstNameController.value.text,
-                            "userLastName":
-                                controller.lastNameController.value.text,
-                            "userDateOfBirth": controller
-                                .formattedDateString
-                                .value
-                                .toString(),
-                            "userGender": controller.selectedGender.value
-                                .toUpperCase(),
-                            "interest": interestController.selectedInterestIds
+                          final data = controller.buildCreateProfilePayload(
+                            deviceRegistrationPayload:
+                                deviceRegistrationPayload,
+                            interestIds: interestController.selectedInterestIds
                                 .toList(),
-                            "selectedInterestIds": interestController
-                                .selectedInterestIds
-                                .toList(),
-                            "newInterests": interestController.customInterests
-                                .toList(),
-                            ...deviceRegistrationPayload,
-                            "emergencyContactNumber":
+                            emergencyContactNumber:
                                 interestController.selectedPhoneNumber.value,
-                            "wantDailyActivities":
+                            wantDailyActivities:
                                 interestController.selectedAnswer.value,
-                            "wantDailySupplement":
+                            wantDailySupplement:
                                 interestController.dailyActivityAnswer.value,
-                            "userCity": controller.cityValue.value,
-                            "userStates": controller.stateValue.value,
-                            "userCountry": controller.countryValue.value,
-                          };
+                          );
                           print(data);
                           controller.userProfile(data);
                           // Get.to(() => Login_Screen(), transition: Transition.fadeIn);

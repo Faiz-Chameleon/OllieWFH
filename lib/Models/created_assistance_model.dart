@@ -37,6 +37,10 @@ class CreatedAssistanceData {
   String? description;
   double? latitude;
   double? longitude;
+  String? locationDisplay;
+  String? locationCity;
+  String? locationState;
+  String? locationCountry;
   String? status;
   String? userId;
   User? user;
@@ -50,6 +54,10 @@ class CreatedAssistanceData {
     this.description,
     this.latitude,
     this.longitude,
+    this.locationDisplay,
+    this.locationCity,
+    this.locationState,
+    this.locationCountry,
     this.status,
     this.userId,
     this.user,
@@ -64,6 +72,10 @@ class CreatedAssistanceData {
     description = json['description'];
     latitude = (json['latitude'] as num?)?.toDouble();
     longitude = (json['longitude'] as num?)?.toDouble();
+    locationDisplay = json['locationDisplay']?.toString();
+    locationCity = json['locationCity']?.toString();
+    locationState = json['locationState']?.toString();
+    locationCountry = json['locationCountry']?.toString();
     status = json['status'];
     userId = json['userId'];
     user = json['user'] != null ? new User.fromJson(json['user']) : null;
@@ -94,6 +106,10 @@ class CreatedAssistanceData {
     data['description'] = this.description;
     data['latitude'] = this.latitude;
     data['longitude'] = this.longitude;
+    data['locationDisplay'] = this.locationDisplay;
+    data['locationCity'] = this.locationCity;
+    data['locationState'] = this.locationState;
+    data['locationCountry'] = this.locationCountry;
     data['status'] = this.status;
     data['userId'] = this.userId;
     if (this.user != null) {
@@ -112,6 +128,22 @@ class CreatedAssistanceData {
     }
     return data;
   }
+
+  String? get resolvedLocationText {
+    final preferred = locationDisplay?.trim();
+    if (preferred != null && preferred.isNotEmpty) return preferred;
+
+    final parts = [locationCity, locationState, locationCountry]
+        .where((part) => part != null && part.trim().isNotEmpty)
+        .cast<String>()
+        .map((part) => part.trim())
+        .toList();
+
+    return parts.isNotEmpty ? parts.join(", ") : null;
+  }
+
+  String get displayLocation =>
+      resolvedLocationText ?? "Location not available";
 }
 
 class User {

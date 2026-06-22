@@ -2,7 +2,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ollie/api_service.dart';
 import 'package:ollie/app_urls.dart';
-import 'dart:io';
 import 'dart:core';
 
 class CareCircleRepository {
@@ -44,6 +43,25 @@ class CareCircleRepository {
 
     return ApiService.getMethod(
       "${ApiUrls.singleUserPost}/$postId",
+      token: requiredToken,
+    );
+  }
+
+  Future<Map<String, dynamic>> voteOnPoll(String pollOptionId) async {
+    final storage = FlutterSecureStorage();
+    final requiredToken = await storage.read(key: 'userToken');
+    return ApiService.postMethod(
+      "${ApiUrls.voteOnPoll}/$pollOptionId",
+      {},
+      token: requiredToken,
+    );
+  }
+
+  Future<Map<String, dynamic>> getPollResults(String postId) async {
+    final storage = FlutterSecureStorage();
+    final requiredToken = await storage.read(key: 'userToken');
+    return ApiService.getMethod(
+      "${ApiUrls.getPollResults}/$postId",
       token: requiredToken,
     );
   }
@@ -245,26 +263,28 @@ class CareCircleRepository {
     );
   }
 
+  Future<Map<String, dynamic>> deleteUserPost(String postId) async {
+    final storage = FlutterSecureStorage();
+    final requiredToken = await storage.read(key: 'userToken');
+    return ApiService.deleteMethod(
+      "${ApiUrls.deleteUserPost}/$postId",
+      token: requiredToken,
+    );
+  }
+
   Future<Map<String, dynamic>> createUserPost(
-    String interestId,
     Map<String, dynamic> data,
-    File? imageFile,
+    List<XFile> images,
     XFile? videoFile,
-    XFile? documentFile,
   ) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
-    final normalizedInterestId = interestId.trim();
-    final endpoint = normalizedInterestId.isEmpty
-        ? ApiUrls.createUserPost
-        : "${ApiUrls.createUserPost}/$normalizedInterestId";
 
-    return ApiService.postMultipartWithFiles(
-      endpoint,
+    return ApiService.postMultipartCreateUserPost(
+      ApiUrls.createUserPost,
       data,
-      imageFile,
-      videoFile,
-      documentFile,
+      images: images,
+      video: videoFile,
       token: requiredToken,
     );
   }

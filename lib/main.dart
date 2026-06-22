@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:ollie/CareCircle/groups/one_to_many_chat_controller.dart';
@@ -18,6 +19,7 @@ import 'package:ollie/Volunteers/socket_controller.dart';
 import 'package:ollie/Auth/login/login_controller.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/services/firebase_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 SharedPreferencesService? sharedPrefs;
 
@@ -28,10 +30,23 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await FirebaseService.instance.showIncomingNotification(message);
 }
 
+Future<void> _clearSecureStorageAfterFreshInstall() async {
+  final prefs = await SharedPreferences.getInstance();
+  const installMarkerKey = 'has_completed_first_launch';
+
+  if (prefs.getBool(installMarkerKey) == true) {
+    return;
+  }
+
+  await const FlutterSecureStorage().deleteAll();
+  await prefs.setBool(installMarkerKey, true);
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await FirebaseService.instance.initialize();
+  await _clearSecureStorageAfterFreshInstall();
   Get.put(Bottomcontroller());
   Get.put(SocketController());
   Get.put(OneToOneChatController());

@@ -9,6 +9,7 @@ import 'package:ollie/Models/nearest_event_model.dart';
 import 'package:ollie/request_status.dart';
 
 import 'event_details_screen.dart';
+import 'event_gallery_widgets.dart';
 import 'events_near_you_screen.dart';
 
 class EventsAndActivitiesScreen extends StatefulWidget {
@@ -16,7 +17,8 @@ class EventsAndActivitiesScreen extends StatefulWidget {
   const EventsAndActivitiesScreen({super.key, required this.controller});
 
   @override
-  State<EventsAndActivitiesScreen> createState() => _EventsAndActivitiesScreenState();
+  State<EventsAndActivitiesScreen> createState() =>
+      _EventsAndActivitiesScreenState();
 }
 
 class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
@@ -24,7 +26,9 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.sizeOf(context).height;
     final bottomInset = MediaQuery.of(context).padding.bottom;
-    final eventsLaneHeight = (screenHeight * 0.31).clamp(236.0, 270.0).toDouble();
+    final eventsLaneHeight = (screenHeight * 0.31)
+        .clamp(236.0, 270.0)
+        .toDouble();
     final bottomSpacing = (bottomInset + 80).clamp(80.0, 120.0).toDouble();
 
     return Scaffold(
@@ -48,15 +52,26 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
 
               // 20.verticalSpace,
               Obx(() {
-                if (widget.controller.getLatestEventStatus.value == RequestStatus.loading) {
+                if (widget.controller.getLatestEventStatus.value ==
+                    RequestStatus.loading) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                if (widget.controller.latestEvent.value.eventName == null || widget.controller.latestEvent.value.eventName == "") {
-                  return const Center(child: Text("No event available or you're not marked as participating."));
+                if (widget.controller.latestEvent.value.eventName == null ||
+                    widget.controller.latestEvent.value.eventName == "") {
+                  return const Center(
+                    child: Text(
+                      "No event available or you're not marked as participating.",
+                    ),
+                  );
                 }
                 return GestureDetector(
                   onTap: () {
-                    Get.to(() => EventDetailsScreen(careCirclecontroller: widget.controller), transition: Transition.fadeIn);
+                    Get.to(
+                      () => EventDetailsScreen(
+                        careCirclecontroller: widget.controller,
+                      ),
+                      transition: Transition.fadeIn,
+                    );
                   },
                   child: Stack(
                     children: [
@@ -64,15 +79,12 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
                         height: 260.h,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
-                          image: DecorationImage(
-                            image: NetworkImage(
-                              widget.controller.latestEvent.value.image ?? "https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg",
-                            ),
-                            fit: BoxFit.cover,
-                            onError: (exception, stackTrace) {
-                              widget.controller.latestEvent.value.image = "https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg";
-                            },
-                          ),
+                        ),
+                        child: EventGalleryImageView(
+                          imageUrls:
+                              widget.controller.latestEvent.value.galleryUrls,
+                          height: 260.h,
+                          borderRadius: BorderRadius.circular(16),
                         ),
                       ),
 
@@ -104,10 +116,24 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text("TALENT SHOW", style: TextStyle(fontSize: 12, color: Colors.black54)),
                                     Text(
-                                      widget.controller.latestEvent.value.eventName ?? "",
-                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                      "TALENT SHOW",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                    Text(
+                                      widget
+                                              .controller
+                                              .latestEvent
+                                              .value
+                                              .eventName ??
+                                          "",
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                     Text(
                                       "${widget.controller.latestEvent.value.eventParticipant} Participants Going",
@@ -119,14 +145,29 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.all(6),
-                                      decoration: BoxDecoration(color: const Color(0xFFFFE38E), borderRadius: BorderRadius.circular(10)),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFE38E),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
                                       child: Text(
-                                        widget.controller.formatDate(widget.controller.latestEvent.value.eventDateAndTime.toString()),
+                                        widget.controller.formatDate(
+                                          widget
+                                              .controller
+                                              .latestEvent
+                                              .value
+                                              .eventDateAndTime
+                                              .toString(),
+                                        ),
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
-                                    Text("${widget.controller.latestEvent.value.eventParticipant}", style: TextStyle(fontWeight: FontWeight.w600)),
+                                    Text(
+                                      "${widget.controller.latestEvent.value.eventParticipant}",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ],
@@ -145,13 +186,23 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Events Near You", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(
+                    "Events Near You",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                   GestureDetector(
                     onTap: () {
-                      Get.to(() => EventsNearYouScreen(controller: widget.controller), transition: Transition.fadeIn);
+                      Get.to(
+                        () =>
+                            EventsNearYouScreen(controller: widget.controller),
+                        transition: Transition.fadeIn,
+                      );
                     },
 
-                    child: Text("See All", style: TextStyle(color: Colors.grey)),
+                    child: Text(
+                      "See All",
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ),
                 ],
               ),
@@ -159,7 +210,8 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
               SizedBox(
                 height: (eventsLaneHeight + 8).clamp(228.0, 258.0).toDouble(),
                 child: Obx(() {
-                  if (widget.controller.getEventNearYouStatus.value == RequestStatus.loading) {
+                  if (widget.controller.getEventNearYouStatus.value ==
+                      RequestStatus.loading) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
@@ -167,7 +219,11 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
                     return const Center(child: Text("No events found"));
                   }
 
-                  List<NearestEventsData> eventsToDisplay = widget.controller.nearestEvents.take(2).toList();
+                  List<NearestEventsData> eventsToDisplay = widget
+                      .controller
+                      .nearestEvents
+                      .take(2)
+                      .toList();
 
                   return ListView.builder(
                     scrollDirection: Axis.horizontal,
@@ -180,12 +236,18 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
                       return Padding(
                         padding: EdgeInsets.only(right: 14.w),
                         child: eventCard(
-                          image: event.image ?? "https://skala.or.id/wp-content/uploads/2024/01/dummy-post-square-1-1.jpg",
+                          event: event,
+                          imageUrls: event.galleryUrls,
                           title: event.eventName ?? "",
-                          day: widget.controller.formatDate(event.eventDateAndTime.toString()),
+                          day: widget.controller.formatDate(
+                            event.eventDateAndTime.toString(),
+                          ),
                           month: '',
-                          dateTime: widget.controller.formatDateAndTime(event.eventDateAndTime.toString()),
-                          location: "${event.eventAddress} ${event.eventCity} ${event.eventCountry}",
+                          dateTime: widget.controller.formatDateAndTime(
+                            event.eventDateAndTime.toString(),
+                          ),
+                          location:
+                              "${event.eventAddress} ${event.eventCity} ${event.eventCountry}",
                         ),
                       );
                     },
@@ -202,7 +264,8 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
   }
 
   Widget eventCard({
-    required String image,
+    required NearestEventsData event,
+    required List<String> imageUrls,
     required String title,
     required String day,
     required String month,
@@ -211,7 +274,13 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
   }) {
     return GestureDetector(
       onTap: () {
-        Get.to(() => EventDetailsScreen(careCirclecontroller: widget.controller), transition: Transition.fadeIn); // Navigate on tap
+        Get.to(
+          () => EventDetailsScreen(
+            careCirclecontroller: widget.controller,
+            event: event,
+          ),
+          transition: Transition.fadeIn,
+        ); // Navigate on tap
       },
       child: Container(
         width: 220.w,
@@ -219,7 +288,13 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
           color: Colors.white,
-          boxShadow: const [BoxShadow(color: Color(0x14000000), blurRadius: 18, offset: Offset(0, 10))],
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x14000000),
+              blurRadius: 18,
+              offset: Offset(0, 10),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,32 +302,42 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                  child: Image.network(
-                    image,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24),
+                  ),
+                  child: SizedBox(
                     height: 140.h,
                     width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        height: 104.h,
-                        width: double.infinity,
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.error, color: Colors.red, size: 50),
-                      );
-                    },
+                    child: EventGalleryImageView(
+                      imageUrls: imageUrls,
+                      height: 140.h,
+                      enableSwipe: false,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(24),
+                      ),
+                    ),
                   ),
                 ),
                 Positioned(
                   top: 7,
                   right: 7,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-                    decoration: BoxDecoration(color: const Color(0xFFFFE38E), borderRadius: BorderRadius.circular(14)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFE38E),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                     child: Text(
                       month.isEmpty ? day : '$day\n$month',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700, height: 1.0),
+                      style: const TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w700,
+                        height: 1.0,
+                      ),
                     ),
                   ),
                 ),
@@ -267,22 +352,40 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
                   10.verticalSpace,
                   Text(
                     title,
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5, height: 1.1),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13.5,
+                      height: 1.1,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 10),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                    decoration: BoxDecoration(color: const Color(0xFFFFF6E5), borderRadius: BorderRadius.circular(14)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF6E5),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                     child: Row(
                       children: [
-                        const Icon(Icons.schedule_rounded, size: 13, color: Color(0xFF8A6A2A)),
+                        const Icon(
+                          Icons.schedule_rounded,
+                          size: 13,
+                          color: Color(0xFF8A6A2A),
+                        ),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             dateTime,
-                            style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF5D4A22)),
+                            style: const TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF5D4A22),
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -296,13 +399,21 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
                     children: [
                       const Padding(
                         padding: EdgeInsets.only(top: 0),
-                        child: Icon(Icons.location_on_outlined, size: 13, color: Color(0xFF7A7A7A)),
+                        child: Icon(
+                          Icons.location_on_outlined,
+                          size: 13,
+                          color: Color(0xFF7A7A7A),
+                        ),
                       ),
                       const SizedBox(width: 5),
                       Expanded(
                         child: Text(
                           location,
-                          style: const TextStyle(fontSize: 10.5, height: 1.1, color: Color(0xFF6A6A6A)),
+                          style: const TextStyle(
+                            fontSize: 10.5,
+                            height: 1.1,
+                            color: Color(0xFF6A6A6A),
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),

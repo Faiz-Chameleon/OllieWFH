@@ -773,15 +773,16 @@ class FirebaseService {
     bool waitForApnsToken = true,
   }) async {
     final token = await getRealDeviceToken(waitForApnsToken: waitForApnsToken);
+    final deviceType = defaultTargetPlatform == TargetPlatform.android
+        ? 'ANDROID'
+        : 'IOS';
     if (token == null || token.isEmpty) {
-      return const {};
+      return {
+        'userDeviceToken': '${deviceType.toLowerCase()}-simulator-token',
+        'userDeviceType': deviceType,
+      };
     }
 
-    return {
-      'userDeviceToken': token,
-      'userDeviceType': defaultTargetPlatform == TargetPlatform.android
-          ? 'ANDROID'
-          : 'IOS',
-    };
+    return {'userDeviceToken': token, 'userDeviceType': deviceType};
   }
 }

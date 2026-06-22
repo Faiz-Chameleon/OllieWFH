@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:ollie/Volunteers/chat_repository.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:video_player/video_player.dart';
 
 class GroupSharedMediaScreen extends StatefulWidget {
   final String chatRoomId;
@@ -130,6 +131,37 @@ class _GroupSharedMediaScreenState extends State<GroupSharedMediaScreen> {
     }
   }
 
+  void _openImagePreview(Map<String, dynamic> item) {
+    final imageItems = _items.where(_isImage).toList();
+    final urls = imageItems
+        .map((imageItem) => imageItem['attachmentUrl']?.toString() ?? '')
+        .where((url) => url.isNotEmpty)
+        .toList();
+    if (urls.isEmpty) return;
+
+    final tappedUrl = item['attachmentUrl']?.toString() ?? '';
+    final initialIndex = urls.indexOf(tappedUrl);
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => _SharedMediaImagePreviewScreen(
+          urls: urls,
+          initialIndex: initialIndex == -1 ? 0 : initialIndex,
+        ),
+      ),
+    );
+  }
+
+  void _openVideoPreview(Map<String, dynamic> item) {
+    final url = item['attachmentUrl']?.toString() ?? '';
+    if (url.isEmpty) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => _SharedMediaVideoPreviewScreen(url: url),
+      ),
+    );
+  }
+
   bool _isImage(Map<String, dynamic> item) {
     final type = item['attachmentType']?.toString().toLowerCase() ?? '';
     final url = item['attachmentUrl']?.toString().toLowerCase() ?? '';
@@ -138,6 +170,17 @@ class _GroupSharedMediaScreenState extends State<GroupSharedMediaScreen> {
         url.endsWith('.jpeg') ||
         url.endsWith('.png') ||
         url.endsWith('.webp');
+  }
+
+  bool _isVideo(Map<String, dynamic> item) {
+    final type = item['attachmentType']?.toString().toLowerCase() ?? '';
+    final url = item['attachmentUrl']?.toString().toLowerCase() ?? '';
+    return type.contains('video') ||
+        url.endsWith('.mp4') ||
+        url.endsWith('.mov') ||
+        url.endsWith('.m4v') ||
+        url.endsWith('.webm') ||
+        url.endsWith('.avi');
   }
 
   IconData _iconFor(Map<String, dynamic> item) {
@@ -252,9 +295,17 @@ class _GroupSharedMediaScreenState extends State<GroupSharedMediaScreen> {
 
   Widget _buildMediaCard(Map<String, dynamic> item) {
     final url = item['attachmentUrl']?.toString() ?? '';
+    final isImage = _isImage(item);
+    final isVideo = _isVideo(item);
     return InkWell(
       borderRadius: BorderRadius.circular(14),
-      onTap: url.isEmpty ? null : () => _openUrl(url),
+      onTap: url.isEmpty
+          ? null
+          : () => isImage
+                ? _openImagePreview(item)
+                : isVideo
+                ? _openVideoPreview(item)
+                : _openUrl(url),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -268,7 +319,7 @@ class _GroupSharedMediaScreenState extends State<GroupSharedMediaScreen> {
             Expanded(
               child: SizedBox(
                 width: double.infinity,
-                child: _isImage(item) && url.isNotEmpty
+                child: isImage && url.isNotEmpty
                     ? Image.network(
                         url,
                         fit: BoxFit.cover,
@@ -308,6 +359,372 @@ class _GroupSharedMediaScreenState extends State<GroupSharedMediaScreen> {
       color: const Color(0xFFF4E4C3),
       alignment: Alignment.center,
       child: Icon(_iconFor(item), size: 46, color: Colors.brown.shade500),
+    );
+  }
+}
+
+class _SharedMediaImagePreviewScreen extends StatefulWidget {
+  const _SharedMediaImagePreviewScreen({
+    required this.urls,
+    required this.initialIndex,
+  });
+
+  final List<String> urls;
+  final int initialIndex;
+
+  @override
+  State<_SharedMediaImagePreviewScreen> createState() =>
+      _SharedMediaImagePreviewScreenState();
+}
+
+class _SharedMediaImagePreviewScreenState
+    extends State<_SharedMediaImagePreviewScreen> {
+  late final PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex.clamp(0, widget.urls.length - 1);
+    _pageController = PageController(initialPage: _currentIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: widget.urls.length > 1
+            ? Text('${_currentIndex + 1}/${widget.urls.length}')
+            : null,
+      ),
+      body: PageView.builder(
+        controller: _pageController,
+        itemCount: widget.urls.length,
+        onPageChanged: (index) => setState(() => _currentIndex = index),
+        itemBuilder: (context, index) {
+          return InteractiveViewer(
+            minScale: 1,
+            maxScale: 4,
+            child: Center(
+              child: Image.network(
+                widget.urls[index],
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.broken_image_rounded,
+                  color: Colors.white,
+                  size: 56,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SharedMediaVideoPreviewScreen extends StatefulWidget {
+  const _SharedMediaVideoPreviewScreen({required this.url});
+
+  final String url;
+
+  @override
+  State<_SharedMediaVideoPreviewScreen> createState() =>
+      _SharedMediaVideoPreviewScreenState();
+}
+
+class _SharedMediaVideoPreviewScreenState
+    extends State<_SharedMediaVideoPreviewScreen> {
+  VideoPlayerController? _controller;
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    try {
+      final controller = VideoPlayerController.networkUrl(
+        Uri.parse(widget.url),
+      );
+      await controller.initialize();
+      await controller.play();
+      if (!mounted) {
+        await controller.dispose();
+        return;
+      }
+      setState(() {
+        _controller = controller;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = _controller;
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      body: Center(
+        child: _isLoading
+            ? const CircularProgressIndicator(color: Colors.white)
+            : _error != null || controller == null
+            ? const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.error_outline, color: Colors.white, size: 48),
+                  SizedBox(height: 12),
+                  Text(
+                    'Unable to play video',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
+              )
+            : AspectRatio(
+                aspectRatio: controller.value.aspectRatio,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    VideoPlayer(controller),
+                    _SharedMediaVideoControls(controller: controller),
+                  ],
+                ),
+              ),
+      ),
+    );
+  }
+}
+
+class _SharedMediaVideoControls extends StatefulWidget {
+  const _SharedMediaVideoControls({required this.controller});
+
+  final VideoPlayerController controller;
+
+  @override
+  State<_SharedMediaVideoControls> createState() =>
+      _SharedMediaVideoControlsState();
+}
+
+class _SharedMediaVideoControlsState extends State<_SharedMediaVideoControls> {
+  bool _isSeeking = false;
+  double? _dragValue;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onControllerChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChanged);
+    super.dispose();
+  }
+
+  void _onControllerChanged() {
+    if (mounted) setState(() {});
+  }
+
+  String _formatDuration(Duration duration) {
+    final totalSeconds = duration.inSeconds;
+    final seconds = (totalSeconds % 60).toString().padLeft(2, '0');
+    final minutes = ((totalSeconds ~/ 60) % 60).toString().padLeft(2, '0');
+    final hours = totalSeconds ~/ 3600;
+    if (hours > 0) return '$hours:$minutes:$seconds';
+    return '$minutes:$seconds';
+  }
+
+  Future<void> _seekBy(Duration offset) async {
+    final value = widget.controller.value;
+    final duration = value.duration;
+    final target = value.position + offset;
+    final safeTarget = target < Duration.zero
+        ? Duration.zero
+        : target > duration
+        ? duration
+        : target;
+    await widget.controller.seekTo(safeTarget);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final value = widget.controller.value;
+    final isPlaying = value.isPlaying;
+    final duration = value.duration;
+    final position = value.position > duration ? duration : value.position;
+    final maxMilliseconds = duration.inMilliseconds.toDouble();
+    final sliderValue =
+        _dragValue ??
+        position.inMilliseconds.toDouble().clamp(0, maxMilliseconds);
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        if (isPlaying) {
+          widget.controller.pause();
+        } else {
+          widget.controller.play();
+        }
+      },
+      child: Stack(
+        children: [
+          Center(
+            child: AnimatedOpacity(
+              opacity: isPlaying ? 0 : 1,
+              duration: const Duration(milliseconds: 150),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.black45,
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(12),
+                child: const Icon(
+                  Icons.play_arrow_rounded,
+                  color: Colors.white,
+                  size: 56,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 24,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      trackHeight: 3,
+                      thumbShape: const RoundSliderThumbShape(
+                        enabledThumbRadius: 7,
+                      ),
+                      overlayShape: const RoundSliderOverlayShape(
+                        overlayRadius: 14,
+                      ),
+                      activeTrackColor: const Color(0xFFF4BD2A),
+                      inactiveTrackColor: Colors.white30,
+                      thumbColor: Colors.white,
+                    ),
+                    child: Slider(
+                      min: 0,
+                      max: maxMilliseconds <= 0 ? 1 : maxMilliseconds,
+                      value: sliderValue.toDouble(),
+                      onChangeStart: (_) => setState(() => _isSeeking = true),
+                      onChanged: (value) => setState(() => _dragValue = value),
+                      onChangeEnd: (value) async {
+                        await widget.controller.seekTo(
+                          Duration(milliseconds: value.round()),
+                        );
+                        if (mounted) {
+                          setState(() {
+                            _isSeeking = false;
+                            _dragValue = null;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        _formatDuration(
+                          Duration(
+                            milliseconds:
+                                (_isSeeking
+                                        ? sliderValue
+                                        : position.inMilliseconds)
+                                    .round(),
+                          ),
+                        ),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () => _seekBy(const Duration(seconds: -10)),
+                        icon: const Icon(
+                          Icons.replay_10_rounded,
+                          color: Colors.white,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          if (isPlaying) {
+                            widget.controller.pause();
+                          } else {
+                            widget.controller.play();
+                          }
+                        },
+                        icon: Icon(
+                          isPlaying
+                              ? Icons.pause_circle_filled_rounded
+                              : Icons.play_circle_fill_rounded,
+                          color: Colors.white,
+                          size: 34,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => _seekBy(const Duration(seconds: 10)),
+                        icon: const Icon(
+                          Icons.forward_10_rounded,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        _formatDuration(duration),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -72,6 +72,18 @@ class _Assistance_screenState extends State<Assistance_screen> {
     return "Errands";
   }
 
+  String _activeFilterLocationLabel(LatLng? location) {
+    if (Get.isRegistered<Assistance_Controller>()) {
+      final selectedAddress = Get.find<Assistance_Controller>()
+          .selectedAddress
+          .value
+          .trim();
+      if (selectedAddress.isNotEmpty) return selectedAddress;
+    }
+
+    return location == null ? "selected location" : "your current location";
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -212,7 +224,7 @@ class _Assistance_screenState extends State<Assistance_screen> {
               child: Text(
                 location == null
                     ? "Nearby filter active"
-                    : "Showing requests within ${widget.controller.assistanceFilterRadiusKm.value.toStringAsFixed(0)} km of ${location.latitude.toStringAsFixed(4)}, ${location.longitude.toStringAsFixed(4)}",
+                    : "Showing requests within ${widget.controller.assistanceFilterRadiusKm.value.toStringAsFixed(0)} km of ${_activeFilterLocationLabel(location)}",
                 style: GoogleFonts.darkerGrotesque(
                   fontSize: responsiveFontSize(17, min: 15, max: 20),
                   fontWeight: FontWeight.w500,
@@ -262,7 +274,7 @@ class _Assistance_screenState extends State<Assistance_screen> {
               return emptyNearbyMessage("No nearby assistance requests found.");
             }
             return SizedBox(
-              height: 270,
+              height: 340,
               child: PageView.builder(
                 itemCount: widget.controller.othersCreatedAssistance.length,
                 onPageChanged: widget.controller.changePage,
@@ -291,21 +303,98 @@ class _Assistance_screenState extends State<Assistance_screen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 12,
-                                    backgroundColor: grey,
-                                  ),
-                                  SizedBox(width: 8.w),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Posted by ${otherAssistanceData.user?.firstName ?? ""}",
+                              Expanded(
+                                flex: 6,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 12,
+                                      backgroundColor: grey,
+                                    ),
+                                    SizedBox(width: 8.w),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Posted by ${otherAssistanceData.user?.firstName ?? ""}",
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: GoogleFonts.darkerGrotesque(
+                                              fontSize: responsiveFontSize(
+                                                19,
+                                                min: 17,
+                                                max: 24,
+                                              ),
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text(
+                                            widget.controller.formatDateAndTime(
+                                              otherAssistanceData.scheduledAt
+                                                  .toString(),
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: GoogleFonts.darkerGrotesque(
+                                              fontSize: responsiveFontSize(
+                                                17,
+                                                min: 15,
+                                                max: 20,
+                                              ),
+                                              color: grey,
+                                            ),
+                                          ),
+                                          if (otherAssistanceData.distanceKm !=
+                                              null)
+                                            Text(
+                                              "${otherAssistanceData.distanceKm!.toStringAsFixed(1)} km away",
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style:
+                                                  GoogleFonts.darkerGrotesque(
+                                                    fontSize:
+                                                        responsiveFontSize(
+                                                          17,
+                                                          min: 15,
+                                                          max: 20,
+                                                        ),
+                                                    color: const Color(
+                                                      0xFF9C7D4A,
+                                                    ),
+                                                  ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 8.w),
+                              Flexible(
+                                flex: 4,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.shopping_bag_outlined,
+                                      size: 16,
+                                      color: Black,
+                                    ),
+                                    SizedBox(width: 4.w),
+                                    Flexible(
+                                      child: Text(
+                                        _categoryLabel(
+                                          otherAssistanceData.categories,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.right,
                                         style: GoogleFonts.darkerGrotesque(
                                           fontSize: responsiveFontSize(
                                             19,
@@ -315,59 +404,9 @@ class _Assistance_screenState extends State<Assistance_screen> {
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
-                                      Text(
-                                        widget.controller.formatDateAndTime(
-                                          otherAssistanceData.scheduledAt
-                                              .toString(),
-                                        ),
-                                        style: GoogleFonts.darkerGrotesque(
-                                          fontSize: responsiveFontSize(
-                                            17,
-                                            min: 15,
-                                            max: 20,
-                                          ),
-                                          color: grey,
-                                        ),
-                                      ),
-                                      if (otherAssistanceData.distanceKm !=
-                                          null)
-                                        Text(
-                                          "${otherAssistanceData.distanceKm!.toStringAsFixed(1)} km away",
-                                          style: GoogleFonts.darkerGrotesque(
-                                            fontSize: responsiveFontSize(
-                                              17,
-                                              min: 15,
-                                              max: 20,
-                                            ),
-                                            color: const Color(0xFF9C7D4A),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.shopping_bag_outlined,
-                                    size: 16,
-                                    color: Black,
-                                  ),
-                                  SizedBox(width: 4.w),
-                                  Text(
-                                    _categoryLabel(
-                                      otherAssistanceData.categories,
                                     ),
-                                    style: GoogleFonts.darkerGrotesque(
-                                      fontSize: responsiveFontSize(
-                                        19,
-                                        min: 17,
-                                        max: 24,
-                                      ),
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -385,8 +424,36 @@ class _Assistance_screenState extends State<Assistance_screen> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.location_on_outlined,
+                                size: 16,
+                                color: Color(0xFF9C7D4A),
+                              ),
+                              SizedBox(width: 4.w),
+                              Expanded(
+                                child: Text(
+                                  otherAssistanceData.displayLocation,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.darkerGrotesque(
+                                    fontSize: responsiveFontSize(
+                                      17,
+                                      min: 15,
+                                      max: 20,
+                                    ),
+                                    fontWeight: FontWeight.w500,
+                                    color: const Color(0xFF9C7D4A),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                           const SizedBox(height: 10),
-                          Expanded(
+                          SizedBox(
+                            height: 52,
                             child: GoogleMapPreview(
                               latitude:
                                   otherAssistanceData.latitude ?? 40.712776,
@@ -737,6 +804,33 @@ class _Assistance_screenState extends State<Assistance_screen> {
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on_outlined,
+                              size: 16,
+                              color: Color(0xFF9C7D4A),
+                            ),
+                            SizedBox(width: 4.w),
+                            Expanded(
+                              child: Text(
+                                createdAssistanceRequest.displayLocation,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.darkerGrotesque(
+                                  fontSize: responsiveFontSize(
+                                    17,
+                                    min: 15,
+                                    max: 20,
+                                  ),
+                                  fontWeight: FontWeight.w500,
+                                  color: const Color(0xFF9C7D4A),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 10),
                         Expanded(

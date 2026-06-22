@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:ollie/CareCircle/assistance/assistance_controller.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/CareCircle/care_circle_repository.dart';
 import 'package:ollie/Models/blog_topics_model.dart';
@@ -113,6 +114,12 @@ class CareCircleController extends GetxController {
     }
   }
 
+  Future<void> refreshInterestsTab() async {
+    await fetchPostAsPerYourInterest();
+    await getInterestForPost();
+    await getYourSavedPost();
+  }
+
   RxList<BlogData> blogsTopicNames = <BlogData>[].obs;
   var getBlogTopicsStatus = RequestStatus.idle.obs;
   Future<void> getInterestForPost() async {
@@ -197,6 +204,12 @@ class CareCircleController extends GetxController {
       final parsed = PostWithInterest.fromJson(result);
       if (parsed.data != null) {
         interestBasePostList.addAll(parsed.data!);
+        for (final post in parsed.data!.take(5)) {
+          debugPrint(
+            '[InterestPost] id=${post.id} postType=${post.postType} hasPoll=${post.poll != null} pollOptions=${post.poll?.options?.length ?? 0} title=${post.title}',
+          );
+        }
+        await _hydrateMissingPolls();
       }
       interestBastePostStatus.value = RequestStatus.success;
     } else if (result['success'] == false &&
@@ -212,11 +225,56 @@ class CareCircleController extends GetxController {
     }
   }
 
+  Future<void> _hydrateMissingPolls() async {
+    for (var index = 0; index < interestBasePostList.length; index++) {
+      final post = interestBasePostList[index];
+      final isPoll = post.postType?.trim().toUpperCase() == 'POLL';
+      final hasOptions = (post.poll?.options?.isNotEmpty ?? false);
+      final isUserPost =
+          post.source == 'user' || (post.userId ?? '').isNotEmpty;
+      if ((!isPoll && !isUserPost) || hasOptions || (post.id ?? '').isEmpty) {
+        continue;
+      }
+
+      final result = await careCircleRepository.getPollResults(post.id!);
+      if (result['success'] != true || result['data'] is! Map) {
+        debugPrint(
+          '[InterestPost] poll hydrate failed postId=${post.id} '
+          'success=${result['success']} message=${result['message']}',
+        );
+        continue;
+      }
+
+      final data = result['data'] as Map;
+      post.poll = PostPoll.fromJson(data);
+      if (isPoll) post.postType = 'POLL';
+      interestBasePostList[index] = post;
+      debugPrint(
+        '[InterestPost] hydrated poll postId=${post.id} pollOptions=${post.poll?.options?.length ?? 0}',
+      );
+    }
+    interestBasePostList.refresh();
+  }
+
   Future<PostWithInterestData?> fetchSingleUserPost(String postId) async {
     singleInterestPostStatus.value = RequestStatus.loading;
     final result = await careCircleRepository.getSingleUserPost(postId);
     if (result['success'] == true && result['data'] != null) {
       final parsed = PostWithInterestData.fromJson(result['data']);
+      if (!(parsed.poll?.options?.isNotEmpty ?? false)) {
+        final pollResult = await careCircleRepository.getPollResults(postId);
+        if (pollResult['success'] == true && pollResult['data'] is Map) {
+          parsed.poll = PostPoll.fromJson(pollResult['data'] as Map);
+          debugPrint(
+            '[InterestPost] hydrated single poll postId=$postId pollOptions=${parsed.poll?.options?.length ?? 0}',
+          );
+        } else {
+          debugPrint(
+            '[InterestPost] single poll hydrate failed postId=$postId '
+            'success=${pollResult['success']} message=${pollResult['message']}',
+          );
+        }
+      }
       selectedInterestPost.value = parsed;
       singleInterestPostStatus.value = RequestStatus.success;
       return parsed;
@@ -227,7 +285,67 @@ class CareCircleController extends GetxController {
     }
   }
 
+  Future<void> voteOnPoll({
+    required String postId,
+    required String optionId,
+    required int postIndex,
+  }) async {
+    final result = await careCircleRepository.voteOnPoll(optionId);
+    if (result['success'] != true) {
+      appSnackbar("Error", result['message'] ?? "Unable to vote");
+      return;
+    }
+
+    final data = result['data'];
+    if (data is! Map ||
+        postIndex < 0 ||
+        postIndex >= interestBasePostList.length) {
+      return;
+    }
+
+    final post = interestBasePostList[postIndex];
+    final results = data['results'] is List
+        ? (data['results'] as List)
+              .whereType<Map>()
+              .map((item) => PostPollOption.fromJson(item))
+              .toList()
+        : <PostPollOption>[];
+
+    post.poll ??= PostPoll(id: data['pollId']?.toString());
+    post.poll!.id = data['pollId']?.toString() ?? post.poll!.id;
+    post.poll!.totalVotes = data['totalVotes'] is int
+        ? data['totalVotes']
+        : int.tryParse(data['totalVotes']?.toString() ?? '');
+    if (results.isNotEmpty) {
+      post.poll!.options = results;
+      post.poll!.results = results;
+    }
+    interestBasePostList[postIndex] = post;
+    interestBasePostList.refresh();
+  }
+
   var likeOrUnlikePostStatus = RequestStatus.idle.obs;
+
+  String? get currentUserId {
+    if (!Get.isRegistered<UserController>()) return null;
+    return Get.find<UserController>().user.value?.id;
+  }
+
+  bool isOwnUserPost(PostWithInterestData post) {
+    final loggedInUserId = currentUserId;
+    if (loggedInUserId != null &&
+        loggedInUserId.isNotEmpty &&
+        post.userId == loggedInUserId) {
+      return true;
+    }
+    if (loggedInUserId != null &&
+        loggedInUserId.isNotEmpty &&
+        post.user?.id == loggedInUserId) {
+      return true;
+    }
+    return false;
+  }
+
   Future<void> likeOrUnlikePost(data, int index) async {
     likeOrUnlikePostStatus.value = RequestStatus.loading;
 
@@ -293,7 +411,9 @@ class CareCircleController extends GetxController {
 
       final parsed = PostWithInterest.fromJson(result);
       if (parsed.data != null) {
-        postAccordingToMyInterest.addAll(parsed.data!);
+        postAccordingToMyInterest.addAll(
+          parsed.data!.where(_hasRenderablePostContent),
+        );
       }
       getYourPostAsInteresStatus.value = RequestStatus.success;
     } else if (result['success'] == false &&
@@ -312,6 +432,19 @@ class CareCircleController extends GetxController {
 
       appSnackbar("Error", result['message'] ?? "message required frontend");
     }
+  }
+
+  bool _hasRenderablePostContent(PostWithInterestData post) {
+    final hasMedia =
+        (post.image ?? '').trim().isNotEmpty ||
+        (post.images?.isNotEmpty ?? false) ||
+        (post.videoUrl ?? '').trim().isNotEmpty;
+    final hasPoll = post.poll?.options?.isNotEmpty ?? false;
+    final hasText =
+        (post.title ?? '').trim().isNotEmpty &&
+        ((post.content ?? '').trim().isNotEmpty ||
+            post.postType?.trim().toUpperCase() == 'TEXT');
+    return hasMedia || hasPoll || hasText;
   }
 
   var myGroups = <MyGroupsData>[].obs;
@@ -685,7 +818,10 @@ class CareCircleController extends GetxController {
           )
           .timeout(const Duration(seconds: 15));
       if (result['success'] == true) {
-        List<dynamic> othersCreatedAssistanceList = result['data'] ?? [];
+        final rawData = result['data'];
+        final List<dynamic> othersCreatedAssistanceList = rawData is List
+            ? rawData
+            : [];
         List<OthersCreatedAssistance> filteredList = othersCreatedAssistanceList
             .where((assistancetJson) {
               final assistance = OthersCreatedAssistance.fromJson(
@@ -730,6 +866,16 @@ class CareCircleController extends GetxController {
   }) async {
     assistanceFilterLoading.value = true;
     try {
+      if (Get.isRegistered<Assistance_Controller>()) {
+        final selectedLocation =
+            Get.find<Assistance_Controller>().selectedLatLng.value;
+        if (selectedLocation != null) {
+          assistanceFilterLocation.value = selectedLocation;
+          assistanceLocationErrorMessage.value = '';
+          return true;
+        }
+      }
+
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         assistanceLocationErrorMessage.value =
@@ -812,6 +958,7 @@ class CareCircleController extends GetxController {
 
   // File management variables
   var imageFile = Rx<File?>(null);
+  var postImages = <XFile>[].obs;
   var videoFile = Rx<XFile?>(null);
   var documentFile = Rx<XFile?>(null);
 
@@ -830,6 +977,7 @@ class CareCircleController extends GetxController {
 
   void clearImageFile() {
     imageFile.value = null;
+    postImages.clear();
   }
 
   void clearVideoFile() {
@@ -841,24 +989,70 @@ class CareCircleController extends GetxController {
   }
 
   var createPostStatus = RequestStatus.idle.obs;
+
+  bool _hasHashtag(String value) {
+    return RegExp(r'(^|\s)#[A-Za-z0-9_]+').hasMatch(value);
+  }
+
+  String _hashtagFromTitle(String title) {
+    final words = RegExp(r'[A-Za-z0-9]+')
+        .allMatches(title)
+        .map((match) => match.group(0) ?? '')
+        .where((word) => word.isNotEmpty);
+    final firstWord = words.isEmpty ? 'post' : words.first;
+    return '#$firstWord';
+  }
+
   Future<void> createUserPost(
     String interestId,
     String postTitle,
-    String postContent,
-    File? imageFile,
+    String? postContent,
+    String postType,
+    List<XFile> images,
     XFile? videoFile,
-    XFile? documentFile,
+    String? pollQuestion,
+    List<String> pollOptions,
+    DateTime? pollEndsAt,
   ) async {
     createPostStatus.value = RequestStatus.loading;
 
-    final data = {'postTitle': postTitle, 'postContent': postContent};
+    final normalizedInterestId = interestId.trim();
+    final title = postTitle.trim();
+    final rawContent = postContent?.trim() ?? '';
+    var content = rawContent;
+    var titleForRequest = title;
+    final hasCategory = normalizedInterestId.isNotEmpty;
+    final hasHashtag =
+        _hasHashtag(title) ||
+        _hasHashtag(rawContent) ||
+        (pollQuestion != null && _hasHashtag(pollQuestion));
+
+    if (!hasHashtag) {
+      final fallbackHashtag = _hashtagFromTitle(title);
+      content = content.isEmpty ? fallbackHashtag : '$content $fallbackHashtag';
+      titleForRequest = '$title $fallbackHashtag';
+    }
+    final normalizedPollQuestion = pollQuestion?.trim() ?? '';
+    final hasPoll =
+        normalizedPollQuestion.isNotEmpty && pollOptions.length >= 2;
+
+    final data = <String, dynamic>{
+      'postTitle': titleForRequest,
+      'postType': postType,
+      if (content.isNotEmpty) 'postContent': content,
+      if (hasCategory) 'categoryId': normalizedInterestId,
+      if (hasPoll) ...{
+        'pollQuestion': normalizedPollQuestion,
+        'pollOptions': pollOptions,
+        if (pollEndsAt != null)
+          'pollEndsAt': pollEndsAt.toUtc().toIso8601String(),
+      },
+    };
 
     final result = await careCircleRepository.createUserPost(
-      interestId,
       data,
-      imageFile,
+      images,
       videoFile,
-      documentFile,
     );
 
     if (result['success'] == true) {
@@ -1041,6 +1235,37 @@ class CareCircleController extends GetxController {
       appSnackbar("Error", result['message'] ?? "Something went wrong");
     }
     taskCompleted.value = true;
+  }
+
+  var deleteUserPostStatus = RequestStatus.idle.obs;
+  Future<bool> deleteUserPost(String postId, {int? index}) async {
+    if (postId.trim().isEmpty) return false;
+    deleteUserPostStatus.value = RequestStatus.loading;
+
+    final result = await careCircleRepository.deleteUserPost(postId);
+    if (result['success'] == true) {
+      if (index != null &&
+          index >= 0 &&
+          index < interestBasePostList.length &&
+          interestBasePostList[index].id == postId) {
+        interestBasePostList.removeAt(index);
+      } else {
+        interestBasePostList.removeWhere((post) => post.id == postId);
+      }
+      yourSavePostList.removeWhere((item) {
+        if (item is! Map) return false;
+        return item['id'] == postId ||
+            (item['userPost'] is Map && item['userPost']['id'] == postId);
+      });
+      yourPostList.removeWhere((post) => post.id == postId);
+      deleteUserPostStatus.value = RequestStatus.success;
+      appSnackbar("Success", result['message'] ?? "Post deleted successfully");
+      return true;
+    }
+
+    deleteUserPostStatus.value = RequestStatus.error;
+    appSnackbar("Error", result['message'] ?? "Something went wrong");
+    return false;
   }
 }
 //likePost
