@@ -56,7 +56,7 @@ class CreateProfileScreen extends StatelessWidget {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     child: Column(
                       children: [
-                        60.verticalSpace,
+                        110.verticalSpace,
                         Row(
                           children: [
                             SizedBox(
@@ -342,6 +342,8 @@ class CreateProfileScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              // Back navigation (hides itself when there is nothing to pop)
+              const AuthBackButton(),
             ],
           ),
         ),

@@ -281,6 +281,8 @@ class Interests_screen extends StatelessWidget {
               ),
             ),
           ),
+          // Back navigation (hides itself when there is nothing to pop)
+          const AuthBackButton(),
         ],
       ),
     );

@@ -20,76 +20,82 @@ class FinalScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/images/2094.png"),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              const Spacer(), // Pushes content to bottom
-
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      "That’s it! Ollie’s\ngot your back.\nLet’s begin!",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.darkerGrotesque(
-                        fontSize: 55.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
-                      ),
-                    ),
-                    30.verticalSpace,
-                    Obx(() {
-                      if (controller.createProfileStatus.value ==
-                          RequestStatus.loading) {
-                        return CircularProgressIndicator();
-                      }
-                      return CustomButton(
-                        text: "Next",
-                        onPressed: () async {
-                          final deviceRegistrationPayload =
-                              await FirebaseService.instance
-                                  .getDeviceRegistrationPayload();
-                          final data = controller.buildCreateProfilePayload(
-                            deviceRegistrationPayload:
-                                deviceRegistrationPayload,
-                            interestIds: interestController.selectedInterestIds
-                                .toList(),
-                            emergencyContactNumber:
-                                interestController.selectedPhoneNumber.value,
-                            wantDailyActivities:
-                                interestController.selectedAnswer.value,
-                            wantDailySupplement:
-                                interestController.dailyActivityAnswer.value,
-                          );
-                          print(data);
-                          controller.userProfile(data);
-                          // Get.to(() => Login_Screen(), transition: Transition.fadeIn);
-                        },
-                        width: 390.w,
-                        // height: 50.h,
-                        color: buttonColor,
-                        textColor: Colors.white,
-                        fontSize: 18,
-                      );
-                    }),
-                    60.verticalSpace,
-                  ],
-                ),
+      body: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/images/2094.png"),
+                fit: BoxFit.cover,
               ),
-            ],
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  const Spacer(), // Pushes content to bottom
+
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "That’s it! Ollie’s\ngot your back.\nLet’s begin!",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.darkerGrotesque(
+                            fontSize: 55.sp,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black,
+                          ),
+                        ),
+                        30.verticalSpace,
+                        Obx(() {
+                          if (controller.createProfileStatus.value ==
+                              RequestStatus.loading) {
+                            return CircularProgressIndicator();
+                          }
+                          return CustomButton(
+                            text: "Next",
+                            onPressed: () async {
+                              final deviceRegistrationPayload =
+                                  await FirebaseService.instance
+                                      .getDeviceRegistrationPayload();
+                              final data = controller.buildCreateProfilePayload(
+                                deviceRegistrationPayload:
+                                    deviceRegistrationPayload,
+                                interestIds: interestController.selectedInterestIds
+                                    .toList(),
+                                emergencyContactNumber:
+                                    interestController.selectedPhoneNumber.value,
+                                wantDailyActivities:
+                                    interestController.selectedAnswer.value,
+                                wantDailySupplement:
+                                    interestController.dailyActivityAnswer.value,
+                              );
+                              print(data);
+                              controller.userProfile(data);
+                              // Get.to(() => Login_Screen(), transition: Transition.fadeIn);
+                            },
+                            width: 390.w,
+                            // height: 50.h,
+                            color: buttonColor,
+                            textColor: Colors.white,
+                            fontSize: 18,
+                          );
+                        }),
+                        60.verticalSpace,
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
+          // Back navigation (hides itself when there is nothing to pop)
+          const AuthBackButton(),
+        ],
       ),
     );
   }

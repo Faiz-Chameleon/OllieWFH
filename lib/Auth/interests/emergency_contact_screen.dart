@@ -238,6 +238,8 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
               ),
             ),
           ),
+          // Back navigation (hides itself when there is nothing to pop)
+          const AuthBackButton(),
         ],
       ),
     );

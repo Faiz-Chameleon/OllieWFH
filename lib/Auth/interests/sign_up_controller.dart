@@ -18,6 +18,17 @@ class SignUpController extends GetxController {
   RxString selectedGender = ''.obs;
   Rx<DateTime?> selectedDate = Rx<DateTime?>(null);
 
+  RxBool isPasswordVisible = false.obs;
+  RxBool isConfirmPasswordVisible = false.obs;
+
+  void togglePasswordVisibility() {
+    isPasswordVisible.value = !isPasswordVisible.value;
+  }
+
+  void toggleConfirmPasswordVisibility() {
+    isConfirmPasswordVisible.value = !isConfirmPasswordVisible.value;
+  }
+
   final RxString selectedRole = ''.obs;
 
   final List<String> roleOptions = ['Mom', 'Dad', 'Auntie', 'Uncle', 'Grandma', 'Grandpa', 'Nanny', 'Other'];

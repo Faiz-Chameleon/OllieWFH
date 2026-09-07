@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/Auth/interests/sign_up_controller.dart';
+import 'package:ollie/Auth/login/login_screen.dart';
 import 'package:ollie/common/common.dart';
 
 import 'package:ollie/request_status.dart';
@@ -48,7 +49,7 @@ class Sign_Up_Screen extends StatelessWidget {
                   key: _formKey,
                   child: Column(
                     children: [
-                      60.verticalSpace,
+                      110.verticalSpace,
                       Row(
                         children: [
                           SizedBox(
@@ -84,37 +85,47 @@ class Sign_Up_Screen extends StatelessWidget {
                       ),
                       20.verticalSpace,
 
-                      CustomTextField(
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Please enter your password";
-                          }
-                          if (value.length < 6) {
-                            return "Password must be at least 6 characters";
-                          }
-                          return null; // validation passed
-                        },
-                        controller: controller.passwordController,
-                        hintText: "Enter Confirm Password",
-                        labelText: "Password",
-                        keyboardType: TextInputType.name,
+                      Obx(
+                        () => CustomTextField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Please enter your password";
+                            }
+                            if (value.length < 6) {
+                              return "Password must be at least 6 characters";
+                            }
+                            return null; // validation passed
+                          },
+                          controller: controller.passwordController,
+                          hintText: "Enter your password",
+                          labelText: "Password",
+                          obscureText: !controller.isPasswordVisible.value,
+                          keyboardType: TextInputType.text,
+                          suffixIcon: controller.isPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
+                          onSuffixTap: controller.togglePasswordVisibility,
+                        ),
                       ),
                       20.verticalSpace,
 
-                      CustomTextField(
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Please confirm your password";
-                          }
-                          if (value != controller.passwordController.text) {
-                            return "Passwords do not match";
-                          }
-                          return null; // means validation passed
-                        },
-                        controller: controller.confirmPasswordController,
-                        hintText: "Enter Confirm Password",
-                        labelText: "Confirm Password",
-                        keyboardType: TextInputType.name,
+                      Obx(
+                        () => CustomTextField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Please confirm your password";
+                            }
+                            if (value != controller.passwordController.text) {
+                              return "Passwords do not match";
+                            }
+                            return null; // means validation passed
+                          },
+                          controller: controller.confirmPasswordController,
+                          hintText: "Enter Confirm Password",
+                          labelText: "Confirm Password",
+                          obscureText: !controller.isConfirmPasswordVisible.value,
+                          keyboardType: TextInputType.text,
+                          suffixIcon: controller.isConfirmPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
+                          onSuffixTap: controller.toggleConfirmPasswordVisibility,
+                        ),
                       ),
 
                       50.verticalSpace,
@@ -139,12 +150,49 @@ class Sign_Up_Screen extends StatelessWidget {
                         );
                       }),
 
+                      20.verticalSpace,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Already have an account? ",
+                            style: GoogleFonts.darkerGrotesque(
+                              fontSize: responsiveFontSize(18, min: 16, max: 22),
+                              color: buttonColor,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              // Sign Up is pushed from Login, so pop back to it when we can
+                              // and only build a fresh Login route if this is the root screen.
+                              if (Navigator.of(context).canPop()) {
+                                Get.back();
+                              } else {
+                                Get.off(() => Login_Screen(), transition: Transition.fadeIn);
+                              }
+                            },
+                            child: Text(
+                              "Login",
+                              style: GoogleFonts.darkerGrotesque(
+                                fontSize: responsiveFontSize(16, min: 15, max: 20),
+                                color: txtColor,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
                       80.verticalSpace,
                     ],
                   ),
                 ),
               ),
             ),
+            // Back navigation (hides itself when there is nothing to pop)
+            const AuthBackButton(),
           ],
         ),
       ),

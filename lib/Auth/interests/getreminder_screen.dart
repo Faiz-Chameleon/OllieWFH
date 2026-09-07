@@ -87,6 +87,8 @@ class Reminder_Screen extends StatelessWidget {
               ),
             ),
           ),
+          // Back navigation (hides itself when there is nothing to pop)
+          const AuthBackButton(),
         ],
       ),
     );

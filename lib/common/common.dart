@@ -347,6 +347,47 @@ class CustomButton extends StatelessWidget {
   }
 }
 
+/// Circular back button used across the Auth flow screens.
+///
+/// The Auth screens have no AppBar, so this is dropped in as the last child of
+/// their Stack and floats over the content in the top-left corner. It hides
+/// itself when there is no route to pop, so screens reachable by both `Get.to`
+/// and `Get.offAll` (Create Profile, for example) never show a dead button.
+class AuthBackButton extends StatelessWidget {
+  final VoidCallback? onTap;
+
+  const AuthBackButton({super.key, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    if (onTap == null && !Navigator.of(context).canPop()) {
+      return const SizedBox.shrink();
+    }
+
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: Padding(
+          padding: EdgeInsets.only(left: 12.w, top: 8.h),
+          child: Material(
+            color: Colors.white,
+            shape: const CircleBorder(),
+            elevation: 1,
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: onTap ?? Get.back,
+              child: Padding(
+                padding: EdgeInsets.all(8.w),
+                child: Icon(Icons.arrow_back, color: HeadingColor, size: 24.sp),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 InputDecoration customInputDecoration({
   required String labelText,
   String? hintText,
