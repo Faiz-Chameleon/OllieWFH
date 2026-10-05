@@ -81,16 +81,31 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: GridView.builder(
-          itemCount: gameWidgets.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: .9,
-          ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // The tiles are sized to fit between the app bar and the floating bottom
+          // bar (HomeMain draws it over this screen: 8% of the height plus 6%
+          // padding below it), so the grid never needs to scroll and can't be
+          // dragged up to leave empty space.
+          const padding = 16.0;
+          const spacing = 16.0;
+          final rows = (gameWidgets.length / 2).ceil();
+          final tileWidth = (constraints.maxWidth - 2 * padding - spacing) / 2;
+          final usableHeight = constraints.maxHeight - 2 * padding - 0.15.sh;
+          final fitHeight = (usableHeight - (rows - 1) * spacing) / rows;
+          final tileHeight = (tileWidth / .9).clamp(0.0, fitHeight).toDouble();
+
+          return Padding(
+            padding: const EdgeInsets.all(padding),
+            child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: gameWidgets.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: spacing,
+                mainAxisSpacing: spacing,
+                childAspectRatio: tileHeight > 0 ? tileWidth / tileHeight : .9,
+              ),
           itemBuilder: (context, index) {
             final item = gameWidgets[index];
             return GestureDetector(
@@ -116,7 +131,9 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
               ),
             );
           },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

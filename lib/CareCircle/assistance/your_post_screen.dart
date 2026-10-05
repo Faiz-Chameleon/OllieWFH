@@ -133,10 +133,18 @@ class _YourPostsScreenState extends State<YourPostsScreen> {
           ),
 
           // --- Board ---
+          // The largest square that fits the space left. It never scrolls, so a
+          // swipe can't drag the board off screen or leave a gap below it.
           Expanded(
             flex: 4,
-            child: GridView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
               itemCount: 9,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
               itemBuilder: (BuildContext context, int index) {
@@ -152,6 +160,9 @@ class _YourPostsScreenState extends State<YourPostsScreen> {
                   ),
                 );
               },
+                  ),
+                ),
+              ),
             ),
           ),
 
