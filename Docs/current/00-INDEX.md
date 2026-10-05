@@ -1,6 +1,6 @@
 # Docs Index — trust this first
 
-**Last updated:** 2026-09-08
+**Last updated:** 2026-10-06
 
 This index points at what is current. When two documents disagree, the one listed
 here wins. Superseded docs are moved to `Docs/archive/` — never deleted.
@@ -11,7 +11,9 @@ here wins. Superseded docs are moved to `Docs/archive/` — never deleted.
 
 | Doc | What it covers | Status |
 |---|---|---|
-| [`../SESSION_2026-09-08.md`](../SESSION_2026-09-08.md) | **Most recent session.** Auth-flow back buttons + signup password toggles, disk-full build fix, and the live `api.theollie.app` DNS outage. Has a "Resume Here" list. | ✅ Current |
+| [`../SESSION_2026-10-06.md`](../SESSION_2026-10-06.md) | **Most recent session.** Games tab no longer slides up when swiped; **Care Circle location + explore map** (app side, uncommitted; backend on `feature/care-circle-location`). | ✅ Current |
+| [`../SESSION_2026-10-05.md`](../SESSION_2026-10-05.md) | Removed the duplicate `Ollie-frontend-main/` copy; **recurring supplements** and the **rebuilt to-do list** (recurring tasks, checklist, priority, new home widget) on `feature/recurring-supplements`, not committed. Has a "Resume here" list. | ✅ Current |
+| [`../SESSION_2026-09-08.md`](../SESSION_2026-09-08.md) | Auth-flow back buttons + signup password toggles, disk-full build fix, and the live `api.theollie.app` DNS outage. Has a "Resume Here" list. | ✅ Current |
 
 ## Open items requiring action
 
@@ -22,7 +24,7 @@ here wins. Superseded docs are moved to `Docs/archive/` — never deleted.
 | `lib/CareCircle/groups/group_chat_screen.dart` — ~809 lines uncommitted, undocumented, predates this session | `SESSION_2026-09-08.md` working-tree section | 🟡 Needs a decision |
 | `mime` used but not declared in root `pubspec.yaml` | `SESSION_2026-09-08.md` Resume Here #4 | 🟢 One-line fix |
 | AGP 9 / `android.newDsl` migration | `SESSION_2026-09-08.md` Resume Here #4 | 🟢 Pre-emptive |
-| Nested `Ollie-frontend-main/` duplicate copy — did not receive this session's changes | `SESSION_2026-09-08.md` Resume Here #4 | 🟢 Needs a decision |
+| Backend for recurring supplements and tasks is live (2026-10-05); the app build still needs committing and shipping | `SESSION_2026-10-05.md` last section | 🟡 Ship app |
 
 ---
 
