@@ -9,6 +9,8 @@ import 'package:ollie/CareCircle/assistance/assistance_screen.dart';
 import 'package:ollie/CareCircle/eventsandactivites/event_and_activities_screen.dart';
 import 'package:ollie/CareCircle/groups/groups_screen.dart';
 import 'package:ollie/CareCircle/interests/interests_screen.dart';
+import 'package:ollie/CareCircle/location/care_explore_screen.dart';
+import 'package:ollie/CareCircle/location/care_location_bar.dart';
 import 'package:ollie/Constants/constants.dart';
 import 'package:ollie/Subscription/credits/credits_sreen.dart';
 import 'package:ollie/home/notifications/notificatins_screen.dart';
@@ -52,7 +54,14 @@ class _Care_Circle_screenState extends State<Care_Circle_screen> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                Image.asset("assets/icons/MagnifyingGlass.png", scale: 4),
+                GestureDetector(
+                  onTap: () => Get.to(() => const CareExploreScreen(), transition: Transition.downToUp),
+                  child: Semantics(
+                    button: true,
+                    label: 'Explore nearby on a map',
+                    child: Image.asset("assets/icons/MagnifyingGlass.png", scale: 4),
+                  ),
+                ),
                 const SizedBox(width: 10),
                 GestureDetector(
                   onTap: () {
@@ -116,7 +125,12 @@ class _Care_Circle_screenState extends State<Care_Circle_screen> {
             }),
           ),
 
-          SizedBox(height: 20.h),
+          // Where the nearby lists are centred (not used by Interests).
+          Obx(
+            () => careControllercontroller.selectedTabIndex.value == 2
+                ? SizedBox(height: 12.h)
+                : CareLocationBar(location: careControllercontroller.careLocation),
+          ),
 
           Expanded(
             child: Obx(() {

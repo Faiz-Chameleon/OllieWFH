@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ollie/Constants/constants.dart';
 import 'package:get/get.dart';
 import 'package:ollie/CareCircle/care_circle_controller.dart';
 import 'package:ollie/CareCircle/groups/group_chat_screen.dart';
@@ -60,46 +61,60 @@ class _GroupListScreenState extends State<GroupListScreen> {
             return const Center(child: Text("No nearby groups found"));
           }
 
-          return GridView.count(
-            crossAxisCount: 2,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 0.96,
-            children: List.generate(widget.controller.othersGroups.length, (
-              index,
-            ) {
-              final group = widget.controller.othersGroups[index];
+          return RefreshIndicator(
+            color: buttonColor,
+            onRefresh: () => widget.controller.fetchOthersGroups(),
+            // Load the next page as the end of the grid comes into view.
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification.metrics.extentAfter < 400) {
+                  widget.controller.fetchOthersGroups(loadMore: true);
+                }
+                return false;
+              },
+              child: GridView.count(
+                physics: const AlwaysScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.96,
+                children: List.generate(widget.controller.othersGroups.length, (
+                  index,
+                ) {
+                  final group = widget.controller.othersGroups[index];
 
-              return GestureDetector(
-                onTap: () {
-                  groupChatcontroller
-                      .joinGroupChatRoom(group.id.toString())
-                      .then((joined) {
-                        if (!joined) return;
-                        Get.to(
-                          () => GrouoChatScreen(
-                            userName: group.name ?? "",
-                            groupDetails: group,
-                          ),
-                        );
-                      });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: GroupCardWidget(
-                    title: group.name ?? "",
-                    members: "${group.memberCount.toString()}+",
-                    action: group.groupPrivacy?.toUpperCase() == "PRIVATE"
-                        ? "Request"
-                        : "Join",
-                    imagePath: group.image ?? "",
-                    membersImages: group.participants?.users ?? [],
-                    joined: false,
-                    distanceKm: group.distanceKm,
-                  ),
-                ),
-              );
-            }),
+                  return GestureDetector(
+                    onTap: () {
+                      groupChatcontroller
+                          .joinGroupChatRoom(group.id.toString())
+                          .then((joined) {
+                            if (!joined) return;
+                            Get.to(
+                              () => GrouoChatScreen(
+                                userName: group.name ?? "",
+                                groupDetails: group,
+                              ),
+                            );
+                          });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: GroupCardWidget(
+                        title: group.name ?? "",
+                        members: "${group.memberCount.toString()}+",
+                        action: group.groupPrivacy?.toUpperCase() == "PRIVATE"
+                            ? "Request"
+                            : "Join",
+                        imagePath: group.image ?? "",
+                        membersImages: group.participants?.users ?? [],
+                        joined: false,
+                        distanceKm: group.distanceKm,
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
           );
         }),
       ),

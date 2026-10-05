@@ -242,7 +242,12 @@ class EventDetailsScreen extends StatelessWidget {
                     onPressed: () {
                       final eventId = _eventId;
                       if (eventId == null || eventId.isEmpty) return;
-                      careCirclecontroller.markAsGoingOnEvents(eventId);
+                      // Going is a toggle: tap again to cancel.
+                      if (_isMarked) {
+                        careCirclecontroller.unmarkGoingOnEvent(eventId);
+                      } else {
+                        careCirclecontroller.markAsGoingOnEvents(eventId);
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: !_isMarked
@@ -259,7 +264,7 @@ class EventDetailsScreen extends StatelessWidget {
                       minimumSize: const Size.fromHeight(50),
                     ),
                     child: Text(
-                      _isMarked ? "Marked as Going" : "Mark as Going",
+                      _isMarked ? "Going ✓  ·  Tap to cancel" : "Mark as Going",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.black,

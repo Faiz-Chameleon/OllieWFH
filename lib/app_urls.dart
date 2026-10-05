@@ -55,6 +55,8 @@ class ApiUrls {
   static const String getLatestEvent = "/user/event/showLatestEvent";
   static const String markAsGoingOnEvent = "/user/event/markAsGoing";
   static const String getNearesEvent = "/user/event/showAllEventNearBy";
+  static const String unmarkGoingOnEvent = "/user/event/unmarkGoing";
+  static const String careCircleExplore = "/user/careCircle/explore";
   static const String createAssistance = "/user/postrequest/createPostRequest";
   static const String assistanceCategoryFeed = "/user/postrequest/categoryFeed";
   static const String searchLocation = "/user/postrequest/searchLocation";

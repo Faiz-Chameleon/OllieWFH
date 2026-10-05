@@ -104,18 +104,21 @@ class CareCircleRepository {
     );
   }
 
+  /// Groups near [location] (CareLocationController.queryParameters) that the
+  /// user hasn't joined.
   Future<Map<String, dynamic>> getOthersGroups({
-    required double latitude,
-    required double longitude,
-    double? radiusKm,
+    required Map<String, String> location,
+    int page = 1,
+    int limit = 20,
   }) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
 
     final queryParameters = <String, String>{
-      'latitude': latitude.toString(),
-      'longitude': longitude.toString(),
-      if (radiusKm != null) 'radiusKm': radiusKm.toString(),
+      ...location,
+      'page': '$page',
+      'limit': '$limit',
+      'excludeJoined': 'true',
     };
 
     final endpoint =
@@ -131,11 +134,41 @@ class CareCircleRepository {
     return ApiService.getMethod(ApiUrls.getYoursGroup, token: requiredToken);
   }
 
-  Future<Map<String, dynamic>> getLatesEvent() async {
+  /// The next upcoming event near [location].
+  Future<Map<String, dynamic>> getLatesEvent({
+    Map<String, String>? location,
+  }) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
+    final query = location == null
+        ? ''
+        : '?${Uri(queryParameters: location).query}';
 
-    return ApiService.getMethod(ApiUrls.getLatestEvent, token: requiredToken);
+    return ApiService.getMethod(
+      '${ApiUrls.getLatestEvent}$query',
+      token: requiredToken,
+    );
+  }
+
+  Future<Map<String, dynamic>> unmarkGoingOnEvent(String eventId) async {
+    final storage = FlutterSecureStorage();
+    final requiredToken = await storage.read(key: 'userToken');
+    return ApiService.deleteMethod(
+      "${ApiUrls.unmarkGoingOnEvent}/$eventId",
+      token: requiredToken,
+    );
+  }
+
+  /// Pins for the explore map around [location].
+  Future<Map<String, dynamic>> exploreCareCircle({
+    required Map<String, String> location,
+  }) async {
+    final storage = FlutterSecureStorage();
+    final requiredToken = await storage.read(key: 'userToken');
+    return ApiService.getMethod(
+      '${ApiUrls.careCircleExplore}?${Uri(queryParameters: location).query}',
+      token: requiredToken,
+    );
   }
 
   Future<Map<String, dynamic>> onEventMarkAsGoing(eventId) async {
@@ -148,11 +181,22 @@ class CareCircleRepository {
     );
   }
 
-  Future<Map<String, dynamic>> getNearesEvent() async {
+  /// Upcoming events near [location], soonest first.
+  Future<Map<String, dynamic>> getNearesEvent({
+    Map<String, String>? location,
+    int page = 1,
+    int limit = 20,
+  }) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
+    final query = Uri(
+      queryParameters: {...?location, 'page': '$page', 'limit': '$limit'},
+    ).query;
 
-    return ApiService.getMethod(ApiUrls.getNearesEvent, token: requiredToken);
+    return ApiService.getMethod(
+      '${ApiUrls.getNearesEvent}?$query',
+      token: requiredToken,
+    );
   }
 
   Future<Map<String, dynamic>> getCreatedAssistance() async {
@@ -165,22 +209,19 @@ class CareCircleRepository {
     );
   }
 
+  /// Help requests near [location], nearest first.
   Future<Map<String, dynamic>> getOthersCreatedAssistance({
-    required double latitude,
-    required double longitude,
+    required Map<String, String> location,
     int page = 1,
     int limit = 20,
-    double? radiusKm,
   }) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
 
     final queryParameters = <String, String>{
+      ...location,
       'page': page.toString(),
       'limit': limit.toString(),
-      'latitude': latitude.toString(),
-      'longitude': longitude.toString(),
-      if (radiusKm != null) 'radiusKm': radiusKm.toString(),
     };
 
     final endpoint =

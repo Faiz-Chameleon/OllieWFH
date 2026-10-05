@@ -40,6 +40,10 @@ class NearestEventsData {
   String? eventStates;
   String? eventCity;
   String? eventCountry;
+  // Map pin (null when the admin hasn't set one) and distance from the searched place.
+  double? eventLatitude;
+  double? eventLongitude;
+  double? distanceKm;
   int? eventParticipant;
   String? image;
   List<EventGalleryImage>? imageGallery;
@@ -77,6 +81,9 @@ class NearestEventsData {
     eventStates = json['eventStates'];
     eventCity = json['eventCity'];
     eventCountry = json['eventCountry'];
+    eventLatitude = (json['eventLatitude'] as num?)?.toDouble();
+    eventLongitude = (json['eventLongitude'] as num?)?.toDouble();
+    distanceKm = (json['distanceKm'] as num?)?.toDouble();
     eventParticipant = json['eventParticipant'];
     image = json['image']?.toString();
     if (json['imageGallery'] is List) {

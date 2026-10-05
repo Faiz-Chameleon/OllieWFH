@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:get/get.dart';
+import 'package:ollie/CareCircle/location/care_location_controller.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -634,34 +635,13 @@ class Assistance_Controller extends GetxController {
     }
   }
 
+  /// The new request's picked location, else Care Circle's shared location.
   Future<LatLng?> _getCurrentCategoryFeedLocation() async {
     if (selectedLatLng.value != null) {
       return selectedLatLng.value;
     }
-
-    try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) return null;
-
-      var permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        return null;
-      }
-
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-        ),
-      );
-      return LatLng(position.latitude, position.longitude);
-    } catch (_) {
-      return null;
-    }
+    final shared = await findCareLocation().ensureLocation();
+    return shared == null ? null : LatLng(shared.latitude, shared.longitude);
   }
 
   Future<void> searchCategoriesForAssistance(String query) async {

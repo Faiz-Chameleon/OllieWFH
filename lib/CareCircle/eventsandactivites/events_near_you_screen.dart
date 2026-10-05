@@ -1,6 +1,7 @@
 // ignore_for_file: unused_element
 
 import 'package:flutter/material.dart';
+import 'package:ollie/Constants/constants.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:ollie/Models/nearest_event_model.dart';
@@ -86,8 +87,18 @@ class _EventsNearYouScreenState extends State<EventsNearYouScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
 
+                if (widget.controller.getEventNearYouStatus.value ==
+                    RequestStatus.error) {
+                  return const Center(
+                    child: Text(
+                      "Couldn't load events. Pull down to try again.",
+                    ),
+                  );
+                }
                 if (widget.controller.nearestEvents.isEmpty) {
-                  return const Center(child: Text("No events found"));
+                  return const Center(
+                    child: Text("No upcoming events within this distance."),
+                  );
                 }
 
                 List<NearestEventsData> eventsToDisplay = widget
@@ -95,91 +106,116 @@ class _EventsNearYouScreenState extends State<EventsNearYouScreen> {
                     .nearestEvents
                     .toList();
 
-                return ListView.builder(
-                  itemCount: widget.controller.nearestEvents.length,
-                  itemBuilder: (context, index) {
-                    final event = eventsToDisplay[index];
+                return RefreshIndicator(
+                  color: buttonColor,
+                  onRefresh: () => widget.controller.userFetchNearestEvents(),
+                  // Load the next page as the end of the list comes into view.
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (notification) {
+                      if (notification.metrics.extentAfter < 400) {
+                        widget.controller.userFetchNearestEvents(
+                          loadMore: true,
+                        );
+                      }
+                      return false;
+                    },
+                    child: ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: widget.controller.nearestEvents.length,
+                      itemBuilder: (context, index) {
+                        final event = eventsToDisplay[index];
 
-                    return GestureDetector(
-                      onTap: () => Get.to(
-                        () => EventDetailsScreen(
-                          careCirclecontroller: widget.controller,
-                          event: event,
-                        ),
-                      ),
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Stack(
+                        return GestureDetector(
+                          onTap: () => Get.to(
+                            () => EventDetailsScreen(
+                              careCirclecontroller: widget.controller,
+                              event: event,
+                            ),
+                          ),
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: SizedBox(
-                                    height: 140.h,
-                                    width: double.infinity,
-                                    child: EventGalleryImageView(
-                                      imageUrls: event.galleryUrls,
-                                      height: 140.h,
-                                      enableSwipe: false,
+                                Stack(
+                                  children: [
+                                    ClipRRect(
                                       borderRadius: BorderRadius.circular(12),
+                                      child: SizedBox(
+                                        height: 140.h,
+                                        width: double.infinity,
+                                        child: EventGalleryImageView(
+                                          imageUrls: event.galleryUrls,
+                                          height: 140.h,
+                                          enableSwipe: false,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    Positioned(
+                                      top: 8,
+                                      right: 8,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFFE38E),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          widget.controller.formatDate(
+                                            event.eventDateAndTime.toString(),
+                                          ),
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFFE38E),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text(
-                                      widget.controller.formatDate(
-                                        event.eventDateAndTime.toString(),
-                                      ),
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 14.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  event.eventName ?? "",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18.sp,
                                   ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  widget.controller.formatDateAndTime(
+                                    event.eventDateAndTime.toString(),
+                                  ),
+                                  style: TextStyle(fontSize: 16.sp),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  widget.controller.eventLocationLabel(
+                                    address: event.eventAddress,
+                                    city: event.eventCity,
+                                    country: event.eventCountry,
+                                    distanceKm: event.distanceKm,
+                                  ),
+                                  style: TextStyle(fontSize: 16.sp),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 10),
-                            Text(
-                              event.eventName ?? "",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18.sp,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              widget.controller.formatDateAndTime(
-                                event.eventDateAndTime.toString(),
-                              ),
-                              style: TextStyle(fontSize: 16.sp),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              "${event.eventAddress} ${event.eventCity} ${event.eventCountry}",
-                              style: TextStyle(fontSize: 16.sp),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 );
               }),
             ),

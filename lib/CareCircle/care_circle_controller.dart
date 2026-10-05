@@ -1,13 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:ollie/CareCircle/assistance/assistance_controller.dart';
 import 'package:ollie/Auth/login/user_controller.dart';
 import 'package:ollie/CareCircle/care_circle_repository.dart';
+import 'package:ollie/CareCircle/location/care_location_controller.dart';
 import 'package:ollie/Models/blog_topics_model.dart';
 import 'package:ollie/Models/created_assistance_model.dart';
 import 'package:ollie/Models/latest_events_model.dart';
@@ -39,7 +37,10 @@ class PostModel {
 }
 
 class CareCircleController extends GetxController {
-  final CareCircleRepository careCircleRepository = CareCircleRepository();
+  CareCircleController({CareCircleRepository? repository})
+    : careCircleRepository = repository ?? CareCircleRepository();
+
+  final CareCircleRepository careCircleRepository;
   static int? pendingInitialTab;
   final ScrollController interestsScrollController = ScrollController();
   var selectedTabIndex = 0.obs;
@@ -47,15 +48,23 @@ class CareCircleController extends GetxController {
   var currentPage = 0.obs;
   var taskCompleted = false.obs;
   var currentYourRequestPage = 0.obs;
-  var assistanceFilterEnabled = false.obs;
-  var assistanceFilterRadiusKm = 3.0.obs;
-  var assistanceFilterLoading = false.obs;
-  var assistanceFilterLocation = Rxn<LatLng>();
   var assistanceLocationErrorMessage = ''.obs;
-  var groupDiscoveryRadiusKm = 5.0.obs;
-  var groupDiscoveryLocation = Rxn<LatLng>();
   var groupLocationErrorMessage = ''.obs;
   static const int assistancePageLimit = 20;
+  static const int groupsPageLimit = 20;
+  static const int eventsPageLimit = 20;
+
+  /// The place and radius every "nearby" list here is centred on.
+  final CareLocationController careLocation = findCareLocation();
+
+  // Paging for the location-based lists.
+  int _assistancePage = 1;
+  int _groupsPage = 1;
+  int _eventsPage = 1;
+  final assistanceHasMore = false.obs;
+  final groupsHasMore = false.obs;
+  final eventsHasMore = false.obs;
+  final loadingMore = false.obs;
 
   @override
   void onInit() {
@@ -64,6 +73,69 @@ class CareCircleController extends GetxController {
       selectedTabIndex.value = pendingInitialTab!;
       pendingInitialTab = null;
     }
+    // A new place or radius reloads the nearby lists on the open tab. The first
+    // time the location resolves, a fetch is already waiting for it, so that
+    // only reloads if an earlier load failed for lack of a location.
+    _lastLocationKey = careLocation.queryParameters?.toString();
+    ever(careLocation.version, (_) {
+      final key = careLocation.queryParameters?.toString();
+      final wasMissing = _lastLocationKey == null;
+      final changed = key != _lastLocationKey;
+      _lastLocationKey = key;
+      if (changed && (!wasMissing || _loadFailedForLocation)) {
+        _loadFailedForLocation = false;
+        reloadNearbyLists();
+      }
+    });
+  }
+
+  String? _lastLocationKey;
+  bool _loadFailedForLocation = false;
+
+  /// Reloads the location-based lists for the open tab.
+  Future<void> reloadNearbyLists() async {
+    switch (selectedTabIndex.value) {
+      case 0:
+        await userFetchOthersCreatedAssitance();
+      case 1:
+        await fetchOthersGroups();
+      case 3:
+        await Future.wait([userFetchLatestEvents(), userFetchNearestEvents()]);
+    }
+  }
+
+  /// Pull-to-refresh for a tab.
+  Future<void> refreshTab(int index) async {
+    switch (index) {
+      case 0:
+        await Future.wait([
+          userFetchOthersCreatedAssitance(),
+          userFetchCreatedAssitance(),
+        ]);
+      case 1:
+        await Future.wait([fetchOthersGroups(), fetchYourGroups()]);
+      case 2:
+        await refreshInterestsTab();
+      case 3:
+        await Future.wait([userFetchLatestEvents(), userFetchNearestEvents()]);
+    }
+  }
+
+  /// The shared location's query parameters, or null (with [setMessage] told why).
+  Future<Map<String, String>?> _nearbyQuery(
+    void Function(String) setMessage,
+  ) async {
+    await careLocation.ensureLocation();
+    final query = careLocation.queryParameters;
+    if (query == null) {
+      _loadFailedForLocation = true;
+      setMessage(
+        careLocation.errorMessage.value.isNotEmpty
+            ? careLocation.errorMessage.value
+            : "Choose a location to see what's nearby.",
+      );
+    }
+    return query;
   }
 
   @override
@@ -94,13 +166,11 @@ class CareCircleController extends GetxController {
   void changeTab(int index) {
     selectedTabIndex.value = index;
     if (selectedTabIndex.value == 0) {
-      userFetchOthersCreatedAssitance().then((value) {
-        userFetchCreatedAssitance();
-      });
+      userFetchOthersCreatedAssitance();
+      userFetchCreatedAssitance();
     } else if (selectedTabIndex.value == 1) {
-      fetchOthersGroups().then((value) {
-        fetchYourGroups();
-      });
+      fetchOthersGroups();
+      fetchYourGroups();
     } else if (selectedTabIndex.value == 2) {
       fetchPostAsPerYourInterest().then((value) {
         getInterestForPost().then((value) {
@@ -108,9 +178,8 @@ class CareCircleController extends GetxController {
         });
       });
     } else if (selectedTabIndex.value == 3) {
-      userFetchLatestEvents().then((value) {
-        userFetchNearestEvents();
-      });
+      userFetchLatestEvents();
+      userFetchNearestEvents();
     }
   }
 
@@ -407,7 +476,6 @@ class CareCircleController extends GetxController {
     final result = await careCircleRepository.getYourPostAsPerYourInterest();
     if (result['success'] == true && result['data'] != null) {
       postAccordingToMyInterest.clear();
-      myGroups.clear();
 
       final parsed = PostWithInterest.fromJson(result);
       if (parsed.data != null) {
@@ -475,90 +543,57 @@ class CareCircleController extends GetxController {
   var othersGroups = <MyGroupsData>[].obs;
 
   var getOthersGroupsStatus = RequestStatus.idle.obs;
-  Future<void> fetchOthersGroups() async {
-    final UserController userController = Get.find<UserController>();
-    getOthersGroupsStatus.value = RequestStatus.loading;
-    groupLocationErrorMessage.value = '';
 
-    final location = await _getGroupDiscoveryLocation();
-    if (location == null) {
-      othersGroups.clear();
-      groupLocationErrorMessage.value = "Unable to load nearby groups";
-      getOthersGroupsStatus.value = RequestStatus.error;
-      return;
-    }
-
-    final result = await careCircleRepository.getOthersGroups(
-      latitude: location.latitude,
-      longitude: location.longitude,
-      radiusKm: groupDiscoveryRadiusKm.value,
-    );
-    if (result['success'] == true && result['data'] != null) {
-      othersGroups.clear();
-
-      final parsed = MyGroupsModel.fromJson(result);
-      if (parsed.data != null) {
-        for (final group in parsed.data!) {
-          bool isParticipant = false;
-
-          for (var user in group.participants?.users ?? []) {
-            if (user.id == userController.user.value?.id) {
-              isParticipant = true;
-              break;
-            }
-          }
-
-          if (!isParticipant) {
-            othersGroups.add(group);
-          }
-        }
-        othersGroups.sort((a, b) {
-          final aDistance = a.distanceKm ?? double.infinity;
-          final bDistance = b.distanceKm ?? double.infinity;
-          return aDistance.compareTo(bDistance);
-        });
-      }
-      getOthersGroupsStatus.value = RequestStatus.success;
-    } else if (result['success'] == false &&
-        result["message"] == 'No featured groups found') {
-      othersGroups.clear();
-      getOthersGroupsStatus.value = RequestStatus.success;
+  /// Groups near the shared location that the user hasn't joined, nearest first.
+  /// [loadMore] appends the next page.
+  Future<void> fetchOthersGroups({bool loadMore = false}) async {
+    if (loadMore && (!groupsHasMore.value || loadingMore.value)) return;
+    if (loadMore) {
+      loadingMore.value = true;
     } else {
-      getOthersGroupsStatus.value = RequestStatus.error;
-      groupLocationErrorMessage.value =
-          result['message'] ?? "Unable to load nearby groups";
-
-      appSnackbar("Error", result['message'] ?? "message required frontend");
-    }
-  }
-
-  Future<LatLng?> _getGroupDiscoveryLocation() async {
-    final cachedLocation = groupDiscoveryLocation.value;
-    if (cachedLocation != null) {
-      return cachedLocation;
+      getOthersGroupsStatus.value = RequestStatus.loading;
+      groupLocationErrorMessage.value = '';
     }
 
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return null;
-    }
+    try {
+      final query = await _nearbyQuery(
+        (m) => groupLocationErrorMessage.value = m,
+      );
+      if (query == null) {
+        othersGroups.clear();
+        groupsHasMore.value = false;
+        getOthersGroupsStatus.value = RequestStatus.error;
+        return;
+      }
 
-    var permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+      final page = loadMore ? _groupsPage + 1 : 1;
+      final result = await careCircleRepository.getOthersGroups(
+        location: query,
+        page: page,
+        limit: groupsPageLimit,
+      );
+      if (result['success'] == true) {
+        final groups = result['data'] == null
+            ? <MyGroupsData>[]
+            : (MyGroupsModel.fromJson(result).data ?? <MyGroupsData>[]);
+        if (loadMore) {
+          othersGroups.addAll(groups);
+        } else {
+          othersGroups.assignAll(groups);
+        }
+        _groupsPage = page;
+        groupsHasMore.value = groups.length == groupsPageLimit;
+        getOthersGroupsStatus.value = RequestStatus.success;
+      } else if (!loadMore) {
+        othersGroups.clear();
+        groupsHasMore.value = false;
+        groupLocationErrorMessage.value =
+            result['message']?.toString() ?? "Unable to load nearby groups";
+        getOthersGroupsStatus.value = RequestStatus.error;
+      }
+    } finally {
+      loadingMore.value = false;
     }
-
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      return null;
-    }
-
-    final position = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
-    );
-    final location = LatLng(position.latitude, position.longitude);
-    groupDiscoveryLocation.value = location;
-    return location;
   }
 
   var postLoadingStatus = <RxBool>[].obs;
@@ -686,22 +721,23 @@ class CareCircleController extends GetxController {
   var latestEvent = LatestEventsData().obs;
 
   var getLatestEventStatus = RequestStatus.idle.obs;
+
+  /// The next upcoming event near the shared location.
   Future<void> userFetchLatestEvents() async {
     getLatestEventStatus.value = RequestStatus.loading;
-    final result = await careCircleRepository.getLatesEvent();
+    await careLocation.ensureLocation();
+    final result = await careCircleRepository.getLatesEvent(
+      location: careLocation.queryParameters,
+    );
     if (result['success'] == true) {
-      latestEvent.value = LatestEventsData.fromJson(result['data']);
+      final data = result['data'];
+      latestEvent.value = data is Map<String, dynamic>
+          ? LatestEventsData.fromJson(data)
+          : LatestEventsData();
       getLatestEventStatus.value = RequestStatus.success;
-    } else if (result['success'] == false &&
-        result["message"] ==
-            "Latest event not found or user is not marked as participating") {
-      getLatestEventStatus.value = RequestStatus
-          .success; // You can set it to success because there is no event but not an error.
-      latestEvent.value = LatestEventsData();
     } else {
+      latestEvent.value = LatestEventsData();
       getLatestEventStatus.value = RequestStatus.error;
-
-      appSnackbar("Error", result['message'] ?? "message required frontend");
     }
   }
 
@@ -718,6 +754,22 @@ class CareCircleController extends GetxController {
     }
   }
 
+  /// "Address, City, Country · 3.2 km away" (distance only when known).
+  String eventLocationLabel({
+    String? address,
+    String? city,
+    String? country,
+    double? distanceKm,
+  }) {
+    final place = [address, city, country]
+        .map((part) => part?.trim() ?? '')
+        .where((part) => part.isNotEmpty)
+        .join(', ');
+    if (distanceKm == null) return place;
+    final distance = '${distanceKm.toStringAsFixed(1)} km away';
+    return place.isEmpty ? distance : '$place · $distance';
+  }
+
   String formatDateAndTime(String dateString) {
     DateTime dateTime = DateTime.parse(dateString);
 
@@ -729,9 +781,7 @@ class CareCircleController extends GetxController {
     markAsGoingOnEventStatus.value = RequestStatus.loading;
     final result = await careCircleRepository.onEventMarkAsGoing(eventId);
     if (result['success'] == true) {
-      latestEvent.update((val) {
-        val?.isMark = true;
-      });
+      _setGoing(eventId, true);
       markAsGoingOnEventStatus.value = RequestStatus.success;
       appSnackbar("Success", result["message"]);
     } else {
@@ -741,22 +791,82 @@ class CareCircleController extends GetxController {
     }
   }
 
+  /// Undoes "going" for an event.
+  Future<void> unmarkGoingOnEvent(String eventId) async {
+    markAsGoingOnEventStatus.value = RequestStatus.loading;
+    final result = await careCircleRepository.unmarkGoingOnEvent(eventId);
+    if (result['success'] == true) {
+      _setGoing(eventId, false);
+      markAsGoingOnEventStatus.value = RequestStatus.success;
+      appSnackbar("Done", result["message"] ?? "You're no longer going.");
+    } else {
+      markAsGoingOnEventStatus.value = RequestStatus.error;
+      appSnackbar("Error", result['message'] ?? "Something went wrong");
+    }
+  }
+
+  void _setGoing(String eventId, bool going) {
+    if (latestEvent.value.id == eventId) {
+      latestEvent.update((val) {
+        val?.isMark = going;
+        final count = val?.eventParticipant ?? 0;
+        val?.eventParticipant = going ? count + 1 : (count > 0 ? count - 1 : 0);
+      });
+    }
+    final index = nearestEvents.indexWhere((event) => event.id == eventId);
+    if (index != -1) {
+      final event = nearestEvents[index];
+      event.isMark = going;
+      final count = event.eventParticipant ?? 0;
+      event.eventParticipant = going ? count + 1 : (count > 0 ? count - 1 : 0);
+      nearestEvents[index] = event;
+      nearestEvents.refresh();
+    }
+  }
+
   var nearestEvents = <NearestEventsData>[].obs;
 
   var getEventNearYouStatus = RequestStatus.idle.obs;
-  Future<void> userFetchNearestEvents() async {
-    getEventNearYouStatus.value = RequestStatus.loading;
-    final result = await careCircleRepository.getNearesEvent();
-    if (result['success'] == true) {
-      List<dynamic> eventList = result['data'] ?? [];
-      nearestEvents.value = eventList
-          .map((eventJson) => NearestEventsData.fromJson(eventJson))
-          .toList();
-      getEventNearYouStatus.value = RequestStatus.success;
-    } else {
-      getEventNearYouStatus.value = RequestStatus.error;
 
-      appSnackbar("Error", result['message'] ?? "message required frontend");
+  /// Upcoming events near the shared location, soonest first. [loadMore]
+  /// appends the next page.
+  Future<void> userFetchNearestEvents({bool loadMore = false}) async {
+    if (loadMore && (!eventsHasMore.value || loadingMore.value)) return;
+    if (loadMore) {
+      loadingMore.value = true;
+    } else {
+      getEventNearYouStatus.value = RequestStatus.loading;
+    }
+    try {
+      await careLocation.ensureLocation();
+      final page = loadMore ? _eventsPage + 1 : 1;
+      final result = await careCircleRepository.getNearesEvent(
+        location: careLocation.queryParameters,
+        page: page,
+        limit: eventsPageLimit,
+      );
+      if (result['success'] == true) {
+        final List<dynamic> eventList = result['data'] is List
+            ? result['data']
+            : [];
+        final events = eventList
+            .map((eventJson) => NearestEventsData.fromJson(eventJson))
+            .toList();
+        if (loadMore) {
+          nearestEvents.addAll(events);
+        } else {
+          nearestEvents.assignAll(events);
+        }
+        _eventsPage = page;
+        eventsHasMore.value = events.length == eventsPageLimit;
+        getEventNearYouStatus.value = RequestStatus.success;
+      } else if (!loadMore) {
+        nearestEvents.clear();
+        eventsHasMore.value = false;
+        getEventNearYouStatus.value = RequestStatus.error;
+      }
+    } finally {
+      loadingMore.value = false;
     }
   }
 
@@ -785,171 +895,80 @@ class CareCircleController extends GetxController {
   var othersCreatedAssistance = <OthersCreatedAssistance>[].obs;
 
   var getOthersCrteatedAssistanceStatus = RequestStatus.idle.obs;
-  Future<void> userFetchOthersCreatedAssitance({int page = 1}) async {
+
+  /// Help requests from others near the shared location, nearest first.
+  /// [loadMore] appends the next page.
+  Future<void> userFetchOthersCreatedAssitance({bool loadMore = false}) async {
+    if (loadMore && (!assistanceHasMore.value || loadingMore.value)) return;
     final userController = Get.put(UserController());
     final String loggedInUserId = userController.user.value?.id ?? '';
-    getOthersCrteatedAssistanceStatus.value = RequestStatus.loading;
+    if (loadMore) {
+      loadingMore.value = true;
+    } else {
+      getOthersCrteatedAssistanceStatus.value = RequestStatus.loading;
+      assistanceLocationErrorMessage.value = '';
+    }
 
     try {
-      final hasLocation = await loadAssistanceFilterCurrentLocation(
-        showSnackbars: false,
-      ).timeout(const Duration(seconds: 12));
-      final LatLng? activeLocation = assistanceFilterLocation.value;
-      if (!hasLocation || activeLocation == null) {
+      final query = await _nearbyQuery(
+        (m) => assistanceLocationErrorMessage.value = m,
+      );
+      if (query == null) {
         othersCreatedAssistance.clear();
         postLoadingStatus.clear();
-        assistanceLocationErrorMessage.value =
-            assistanceLocationErrorMessage.value.isNotEmpty
-            ? assistanceLocationErrorMessage.value
-            : "Location permission is required to load nearby assistance.";
+        assistanceHasMore.value = false;
         getOthersCrteatedAssistanceStatus.value = RequestStatus.error;
         return;
       }
 
+      final page = loadMore ? _assistancePage + 1 : 1;
       final result = await careCircleRepository
           .getOthersCreatedAssistance(
+            location: query,
             page: page,
             limit: assistancePageLimit,
-            latitude: activeLocation.latitude,
-            longitude: activeLocation.longitude,
-            radiusKm: assistanceFilterEnabled.value
-                ? assistanceFilterRadiusKm.value
-                : null,
           )
           .timeout(const Duration(seconds: 15));
       if (result['success'] == true) {
-        final rawData = result['data'];
-        final List<dynamic> othersCreatedAssistanceList = rawData is List
-            ? rawData
-            : [];
-        List<OthersCreatedAssistance> filteredList = othersCreatedAssistanceList
-            .where((assistancetJson) {
-              final assistance = OthersCreatedAssistance.fromJson(
-                assistancetJson,
-              );
-              return assistance.userId != loggedInUserId;
-            })
-            .map(
-              (assistancetJson) =>
-                  OthersCreatedAssistance.fromJson(assistancetJson),
-            )
+        final List<dynamic> rows = result['data'] is List ? result['data'] : [];
+        // The list includes the user's own requests; they're shown separately.
+        final requests = rows
+            .map((json) => OthersCreatedAssistance.fromJson(json))
+            .where((request) => request.userId != loggedInUserId)
             .toList();
 
-        othersCreatedAssistance.value = filteredList;
-        postLoadingStatus.value = List.generate(
-          filteredList.length,
-          (_) => false.obs,
-        );
-        assistanceLocationErrorMessage.value = filteredList.isEmpty
-            ? "No nearby assistance requests found."
-            : '';
+        if (loadMore) {
+          othersCreatedAssistance.addAll(requests);
+          postLoadingStatus.addAll(requests.map((_) => false.obs));
+        } else {
+          othersCreatedAssistance.assignAll(requests);
+          postLoadingStatus.value = List.generate(
+            requests.length,
+            (_) => false.obs,
+          );
+        }
+        _assistancePage = page;
+        assistanceHasMore.value = rows.length == assistancePageLimit;
         getOthersCrteatedAssistanceStatus.value = RequestStatus.success;
-      } else {
+      } else if (!loadMore) {
         othersCreatedAssistance.clear();
         postLoadingStatus.clear();
+        assistanceHasMore.value = false;
         assistanceLocationErrorMessage.value =
-            result['message']?.toString() ??
-            "No nearby assistance requests found.";
+            result['message']?.toString() ?? "Unable to load nearby requests.";
         getOthersCrteatedAssistanceStatus.value = RequestStatus.error;
       }
     } catch (_) {
-      othersCreatedAssistance.clear();
-      postLoadingStatus.clear();
-      assistanceLocationErrorMessage.value =
-          "No nearby assistance requests found.";
-      getOthersCrteatedAssistanceStatus.value = RequestStatus.error;
-    }
-  }
-
-  Future<bool> loadAssistanceFilterCurrentLocation({
-    bool showSnackbars = true,
-  }) async {
-    assistanceFilterLoading.value = true;
-    try {
-      if (Get.isRegistered<Assistance_Controller>()) {
-        final selectedLocation =
-            Get.find<Assistance_Controller>().selectedLatLng.value;
-        if (selectedLocation != null) {
-          assistanceFilterLocation.value = selectedLocation;
-          assistanceLocationErrorMessage.value = '';
-          return true;
-        }
-      }
-
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
+      if (!loadMore) {
+        othersCreatedAssistance.clear();
+        postLoadingStatus.clear();
         assistanceLocationErrorMessage.value =
-            "Turn on location services to load nearby assistance.";
-        if (showSnackbars) {
-          appSnackbar(
-            "Location Disabled",
-            "Please enable location services to load nearby assistance.",
-          );
-        }
-        return false;
+            "Unable to load nearby requests. Pull down to try again.";
+        getOthersCrteatedAssistanceStatus.value = RequestStatus.error;
       }
-
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        assistanceLocationErrorMessage.value =
-            "Location permission is required to load nearby assistance.";
-        if (showSnackbars) {
-          appSnackbar(
-            "Permission Required",
-            "Location permission is needed to load nearby assistance.",
-          );
-        }
-        return false;
-      }
-
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-        ),
-      ).timeout(const Duration(seconds: 10));
-      assistanceFilterLocation.value = LatLng(
-        position.latitude,
-        position.longitude,
-      );
-      assistanceLocationErrorMessage.value = '';
-      return true;
-    } catch (e) {
-      assistanceLocationErrorMessage.value =
-          "Unable to get your current location. Nearby assistance cannot be loaded.";
-      if (showSnackbars) {
-        appSnackbar("Error", "Unable to fetch current location.");
-      }
-      return false;
     } finally {
-      assistanceFilterLoading.value = false;
+      loadingMore.value = false;
     }
-  }
-
-  Future<void> applyAssistanceNearbyFilter({double? radiusKm}) async {
-    if (radiusKm != null) {
-      assistanceFilterRadiusKm.value = radiusKm;
-    }
-
-    if (assistanceFilterLocation.value == null) {
-      await loadAssistanceFilterCurrentLocation();
-    }
-
-    if (assistanceFilterLocation.value == null) {
-      return;
-    }
-
-    assistanceFilterEnabled.value = true;
-    await userFetchOthersCreatedAssitance();
-  }
-
-  Future<void> clearAssistanceNearbyFilter() async {
-    assistanceFilterEnabled.value = false;
-    await userFetchOthersCreatedAssitance();
   }
 
   var voluntersRequestLoadingStatus = <RxBool>[].obs;

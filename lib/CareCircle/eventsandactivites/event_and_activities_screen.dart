@@ -35,228 +35,253 @@ class _EventsAndActivitiesScreenState extends State<EventsAndActivitiesScreen> {
       backgroundColor: const Color(0xFFFDF3DD),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(15, 0, 15, bottomSpacing),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              10.verticalSpace,
+        child: RefreshIndicator(
+          color: buttonColor,
+          onRefresh: () => widget.controller.refreshTab(3),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.fromLTRB(15, 0, 15, bottomSpacing),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                10.verticalSpace,
 
-              /// Advertisement
-              // Container(
-              //   height: 80.h,
-              //   decoration: BoxDecoration(color: Color(0xff1e18180d), borderRadius: BorderRadius.circular(10)),
-              //   alignment: Alignment.center,
-              //   child: const Text("ADVERTISEMENT", style: TextStyle(color: Colors.grey)),
-              // ),
+                /// Advertisement
+                // Container(
+                //   height: 80.h,
+                //   decoration: BoxDecoration(color: Color(0xff1e18180d), borderRadius: BorderRadius.circular(10)),
+                //   alignment: Alignment.center,
+                //   child: const Text("ADVERTISEMENT", style: TextStyle(color: Colors.grey)),
+                // ),
 
-              // 20.verticalSpace,
-              Obx(() {
-                if (widget.controller.getLatestEventStatus.value ==
-                    RequestStatus.loading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (widget.controller.latestEvent.value.eventName == null ||
-                    widget.controller.latestEvent.value.eventName == "") {
-                  return const Center(
-                    child: Text(
-                      "No event available or you're not marked as participating.",
-                    ),
-                  );
-                }
-                return GestureDetector(
-                  onTap: () {
-                    Get.to(
-                      () => EventDetailsScreen(
-                        careCirclecontroller: widget.controller,
-                      ),
-                      transition: Transition.fadeIn,
-                    );
-                  },
-                  child: Stack(
-                    children: [
-                      Container(
-                        height: 260.h,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: EventGalleryImageView(
-                          imageUrls:
-                              widget.controller.latestEvent.value.galleryUrls,
-                          height: 260.h,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-
-                      // Gradient Overlay
-                      Container(
-                        height: 260.h,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          gradient: const LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [white, white, Colors.transparent],
-                            stops: [0.0, 0.3, 0.6],
-                          ),
-                        ),
-                      ),
-
-                      // Content Layer
-                      Container(
-                        height: 260.h,
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Spacer(),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "TALENT SHOW",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                    Text(
-                                      widget
-                                              .controller
-                                              .latestEvent
-                                              .value
-                                              .eventName ??
-                                          "",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      "${widget.controller.latestEvent.value.eventParticipant} Participants Going",
-                                      style: TextStyle(color: Colors.black54),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(6),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFFFE38E),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Text(
-                                        widget.controller.formatDate(
-                                          widget
-                                              .controller
-                                              .latestEvent
-                                              .value
-                                              .eventDateAndTime
-                                              .toString(),
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      "${widget.controller.latestEvent.value.eventParticipant}",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-
-              30.verticalSpace,
-
-              /// Events Near You
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Events Near You",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Get.to(
-                        () =>
-                            EventsNearYouScreen(controller: widget.controller),
-                        transition: Transition.fadeIn,
-                      );
-                    },
-
-                    child: Text(
-                      "See All",
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ),
-                ],
-              ),
-              10.verticalSpace,
-              SizedBox(
-                height: (eventsLaneHeight + 8).clamp(228.0, 258.0).toDouble(),
-                child: Obx(() {
-                  if (widget.controller.getEventNearYouStatus.value ==
+                // 20.verticalSpace,
+                Obx(() {
+                  if (widget.controller.getLatestEventStatus.value ==
                       RequestStatus.loading) {
                     return const Center(child: CircularProgressIndicator());
                   }
-
-                  if (widget.controller.nearestEvents.isEmpty) {
-                    return const Center(child: Text("No events found"));
+                  if (widget.controller.latestEvent.value.eventName == null ||
+                      widget.controller.latestEvent.value.eventName == "") {
+                    return const Center(
+                      child: Text("No upcoming events near this place yet."),
+                    );
                   }
-
-                  List<NearestEventsData> eventsToDisplay = widget
-                      .controller
-                      .nearestEvents
-                      .take(2)
-                      .toList();
-
-                  return ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.only(right: 20.w),
-                    itemCount: eventsToDisplay.length,
-                    itemBuilder: (context, index) {
-                      final event = eventsToDisplay[index];
-
-                      return Padding(
-                        padding: EdgeInsets.only(right: 14.w),
-                        child: eventCard(
-                          event: event,
-                          imageUrls: event.galleryUrls,
-                          title: event.eventName ?? "",
-                          day: widget.controller.formatDate(
-                            event.eventDateAndTime.toString(),
-                          ),
-                          month: '',
-                          dateTime: widget.controller.formatDateAndTime(
-                            event.eventDateAndTime.toString(),
-                          ),
-                          location:
-                              "${event.eventAddress} ${event.eventCity} ${event.eventCountry}",
+                  return GestureDetector(
+                    onTap: () {
+                      Get.to(
+                        () => EventDetailsScreen(
+                          careCirclecontroller: widget.controller,
                         ),
+                        transition: Transition.fadeIn,
                       );
                     },
+                    child: Stack(
+                      children: [
+                        Container(
+                          height: 260.h,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: EventGalleryImageView(
+                            imageUrls:
+                                widget.controller.latestEvent.value.galleryUrls,
+                            height: 260.h,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+
+                        // Gradient Overlay
+                        Container(
+                          height: 260.h,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            gradient: const LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [white, white, Colors.transparent],
+                              stops: [0.0, 0.3, 0.6],
+                            ),
+                          ),
+                        ),
+
+                        // Content Layer
+                        Container(
+                          height: 260.h,
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Spacer(),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "TALENT SHOW",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                      Text(
+                                        widget
+                                                .controller
+                                                .latestEvent
+                                                .value
+                                                .eventName ??
+                                            "",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        "${widget.controller.latestEvent.value.eventParticipant} Participants Going",
+                                        style: TextStyle(color: Colors.black54),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFFE38E),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          widget.controller.formatDate(
+                                            widget
+                                                .controller
+                                                .latestEvent
+                                                .value
+                                                .eventDateAndTime
+                                                .toString(),
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        "${widget.controller.latestEvent.value.eventParticipant}",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 }),
-              ),
 
-              110.verticalSpace,
-            ],
+                30.verticalSpace,
+
+                /// Events Near You
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Events Near You",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Get.to(
+                          () => EventsNearYouScreen(
+                            controller: widget.controller,
+                          ),
+                          transition: Transition.fadeIn,
+                        );
+                      },
+
+                      child: Text(
+                        "See All",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  ],
+                ),
+                10.verticalSpace,
+                SizedBox(
+                  height: (eventsLaneHeight + 8).clamp(228.0, 258.0).toDouble(),
+                  child: Obx(() {
+                    if (widget.controller.getEventNearYouStatus.value ==
+                        RequestStatus.loading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (widget.controller.getEventNearYouStatus.value ==
+                        RequestStatus.error) {
+                      return const Center(
+                        child: Text(
+                          "Couldn't load events. Pull down to try again.",
+                        ),
+                      );
+                    }
+                    if (widget.controller.nearestEvents.isEmpty) {
+                      return const Center(
+                        child: Text("No upcoming events within this distance."),
+                      );
+                    }
+
+                    List<NearestEventsData> eventsToDisplay = widget
+                        .controller
+                        .nearestEvents
+                        .take(2)
+                        .toList();
+
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.only(right: 20.w),
+                      itemCount: eventsToDisplay.length,
+                      itemBuilder: (context, index) {
+                        final event = eventsToDisplay[index];
+
+                        return Padding(
+                          padding: EdgeInsets.only(right: 14.w),
+                          child: eventCard(
+                            event: event,
+                            imageUrls: event.galleryUrls,
+                            title: event.eventName ?? "",
+                            day: widget.controller.formatDate(
+                              event.eventDateAndTime.toString(),
+                            ),
+                            month: '',
+                            dateTime: widget.controller.formatDateAndTime(
+                              event.eventDateAndTime.toString(),
+                            ),
+                            location: widget.controller.eventLocationLabel(
+                              address: event.eventAddress,
+                              city: event.eventCity,
+                              country: event.eventCountry,
+                              distanceKm: event.distanceKm,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }),
+                ),
+
+                110.verticalSpace,
+              ],
+            ),
           ),
         ),
       ),

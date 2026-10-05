@@ -51,178 +51,184 @@ class Group_Screen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF6E8),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _sectionHeader("Nearby Groups", () {
-              Get.to(
-                () => GroupListScreen(
-                  title: "Nearby Groups",
-                  controller: controller,
-                  // groups: [
-                  //   {'title': 'Tea & Tales', 'image': 'assets/images/Frame 1686560577.png', 'joined': true},
-                  //   {'title': 'Memory Lane', 'image': 'assets/images/Frame 73 (2).png', 'joined': false},
-                  // ],
-                ),
-              );
-            }),
-            SizedBox(height: 10.h),
-            Obx(() {
-              if (controller.getOthersGroupsStatus.value ==
-                  RequestStatus.loading) {
-                return Center(child: CircularProgressIndicator());
-              } else if (controller.getOthersGroupsStatus.value ==
-                  RequestStatus.error) {
-                return Center(
-                  child: Text(
-                    controller.groupLocationErrorMessage.value.isEmpty
-                        ? "Unable to load nearby groups"
-                        : controller.groupLocationErrorMessage.value,
+      body: RefreshIndicator(
+        color: buttonColor,
+        onRefresh: () => controller.refreshTab(1),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _sectionHeader("Nearby Groups", () {
+                Get.to(
+                  () => GroupListScreen(
+                    title: "Nearby Groups",
+                    controller: controller,
+                    // groups: [
+                    //   {'title': 'Tea & Tales', 'image': 'assets/images/Frame 1686560577.png', 'joined': true},
+                    //   {'title': 'Memory Lane', 'image': 'assets/images/Frame 73 (2).png', 'joined': false},
+                    // ],
                   ),
                 );
-              } else if (controller.othersGroups.isEmpty) {
-                return Center(child: Text("No nearby groups found"));
-              }
-              final groupsToShow = controller.othersGroups.take(2).toList();
+              }),
+              SizedBox(height: 10.h),
+              Obx(() {
+                if (controller.getOthersGroupsStatus.value ==
+                    RequestStatus.loading) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (controller.getOthersGroupsStatus.value ==
+                    RequestStatus.error) {
+                  return Center(
+                    child: Text(
+                      controller.groupLocationErrorMessage.value.isEmpty
+                          ? "Unable to load nearby groups"
+                          : controller.groupLocationErrorMessage.value,
+                    ),
+                  );
+                } else if (controller.othersGroups.isEmpty) {
+                  return Center(child: Text("No nearby groups found"));
+                }
+                final groupsToShow = controller.othersGroups.take(2).toList();
 
-              return SizedBox(
-                height: 230.h,
+                return SizedBox(
+                  height: 230.h,
 
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    shrinkWrap: true,
 
-                  itemCount: groupsToShow.length,
+                    itemCount: groupsToShow.length,
 
-                  itemBuilder: (context, index) {
-                    final othersGroup = groupsToShow[index];
+                    itemBuilder: (context, index) {
+                      final othersGroup = groupsToShow[index];
 
-                    return GestureDetector(
-                      onTap: () {
-                        _log(
-                          'Featured group tapped: groupId=${othersGroup.id}, name=${othersGroup.name}, memberCount=${othersGroup.memberCount}',
-                        );
-                        groupChatcontroller
-                            .joinGroupChatRoom(othersGroup.id.toString())
-                            .then((joined) {
-                              if (!joined) return;
-                              _log(
-                                'Navigation to group chat after join API: groupId=${othersGroup.id}, conversationId=${groupChatcontroller.groupConversationId.value}, status=${groupChatcontroller.joinGrouoChatRoomRequestStatus.value}',
-                              );
-                              Get.to(
-                                () => GrouoChatScreen(
-                                  userName: othersGroup.name ?? "",
-                                  groupDetails: othersGroup,
-                                ),
-                              );
-                            });
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.all(6.w),
-                        child: GroupCardWidget(
-                          title: othersGroup.name ?? "",
-                          members: "${othersGroup.memberCount.toString()}+",
-                          action:
-                              othersGroup.groupPrivacy?.toUpperCase() ==
-                                  "PRIVATE"
-                              ? "Request"
-                              : "Join",
-                          imagePath: othersGroup.image ?? "",
-                          membersImages: othersGroup.participants?.users ?? [],
-                          joined: false,
-                          width: 210.w,
-                          distanceKm: othersGroup.distanceKm,
+                      return GestureDetector(
+                        onTap: () {
+                          _log(
+                            'Featured group tapped: groupId=${othersGroup.id}, name=${othersGroup.name}, memberCount=${othersGroup.memberCount}',
+                          );
+                          groupChatcontroller
+                              .joinGroupChatRoom(othersGroup.id.toString())
+                              .then((joined) {
+                                if (!joined) return;
+                                _log(
+                                  'Navigation to group chat after join API: groupId=${othersGroup.id}, conversationId=${groupChatcontroller.groupConversationId.value}, status=${groupChatcontroller.joinGrouoChatRoomRequestStatus.value}',
+                                );
+                                Get.to(
+                                  () => GrouoChatScreen(
+                                    userName: othersGroup.name ?? "",
+                                    groupDetails: othersGroup,
+                                  ),
+                                );
+                              });
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.all(6.w),
+                          child: GroupCardWidget(
+                            title: othersGroup.name ?? "",
+                            members: "${othersGroup.memberCount.toString()}+",
+                            action:
+                                othersGroup.groupPrivacy?.toUpperCase() ==
+                                    "PRIVATE"
+                                ? "Request"
+                                : "Join",
+                            imagePath: othersGroup.image ?? "",
+                            membersImages:
+                                othersGroup.participants?.users ?? [],
+                            joined: false,
+                            width: 210.w,
+                            distanceKm: othersGroup.distanceKm,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              );
-            }),
+                      );
+                    },
+                  ),
+                );
+              }),
 
-            // SizedBox(
-            //   height: 220.w,
-            //   child: ListView(
-            //     scrollDirection: Axis.horizontal,
-            //     children: [
-            //       _groupCard("Tea & Tales", "4k+", "View", "assets/images/Frame 1686560577.png", joined: true),
-            //       const SizedBox(width: 12),
-            //       _groupCard("Memory Lane", "4k+", "Join", "assets/images/Frame 73 (2).png", joined: false),
-            //     ],
-            //   ),
-            // ),
-            SizedBox(height: 20.h),
+              // SizedBox(
+              //   height: 220.w,
+              //   child: ListView(
+              //     scrollDirection: Axis.horizontal,
+              //     children: [
+              //       _groupCard("Tea & Tales", "4k+", "View", "assets/images/Frame 1686560577.png", joined: true),
+              //       const SizedBox(width: 12),
+              //       _groupCard("Memory Lane", "4k+", "Join", "assets/images/Frame 73 (2).png", joined: false),
+              //     ],
+              //   ),
+              // ),
+              SizedBox(height: 20.h),
 
-            _sectionHeader("Your Groups", () {
-              if (!Get.isRegistered<CreateGroupController>()) {
-                Get.put(CreateGroupController());
-              }
+              _sectionHeader("Your Groups", () {
+                if (!Get.isRegistered<CreateGroupController>()) {
+                  Get.put(CreateGroupController());
+                }
 
-              Get.to(
-                () => OnlyYourGroups(
-                  title: "Your Groups",
-                  controller: controller,
-                ),
-              );
-            }),
-            SizedBox(height: 10.h),
-            Obx(() {
-              if (controller.getYourGroupsStatus.value ==
-                  RequestStatus.loading) {
-                return Center(child: CircularProgressIndicator());
-              } else if (controller.getYourGroupsStatus.value ==
-                  RequestStatus.error) {
-                return Center(child: Text("Failed to load groups"));
-              } else if (controller.myGroups.isEmpty) {
-                return Center(child: Text("No groups found"));
-              }
-              final groupsToShow = controller.myGroups.length > 2
-                  ? controller.myGroups.sublist(0, 2)
-                  : controller.myGroups;
+                Get.to(
+                  () => OnlyYourGroups(
+                    title: "Your Groups",
+                    controller: controller,
+                  ),
+                );
+              }),
+              SizedBox(height: 10.h),
+              Obx(() {
+                if (controller.getYourGroupsStatus.value ==
+                    RequestStatus.loading) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (controller.getYourGroupsStatus.value ==
+                    RequestStatus.error) {
+                  return Center(child: Text("Failed to load groups"));
+                } else if (controller.myGroups.isEmpty) {
+                  return Center(child: Text("No groups found"));
+                }
+                final groupsToShow = controller.myGroups.length > 2
+                    ? controller.myGroups.sublist(0, 2)
+                    : controller.myGroups;
 
-              return SizedBox(
-                height: 230.h,
+                return SizedBox(
+                  height: 230.h,
 
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    shrinkWrap: true,
 
-                  itemCount: groupsToShow.length,
+                    itemCount: groupsToShow.length,
 
-                  itemBuilder: (context, index) {
-                    final group = groupsToShow[index];
+                    itemBuilder: (context, index) {
+                      final group = groupsToShow[index];
 
-                    return GestureDetector(
-                      onTap: () {
-                        _log(
-                          'Your group tapped: groupId=${group.id}, name=${group.name}, memberCount=${group.memberCount}',
-                        );
-                        _openJoinedGroupChat(group);
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.all(6.w),
-                        child: GroupCardWidget(
-                          title: group.name ?? "",
-                          members: "${group.memberCount.toString()}+",
-                          action: "View",
-                          imagePath: group.image ?? "",
-                          membersImages: group.participants?.users ?? [],
-                          joined: true,
-                          width: 210.w,
+                      return GestureDetector(
+                        onTap: () {
+                          _log(
+                            'Your group tapped: groupId=${group.id}, name=${group.name}, memberCount=${group.memberCount}',
+                          );
+                          _openJoinedGroupChat(group);
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.all(6.w),
+                          child: GroupCardWidget(
+                            title: group.name ?? "",
+                            members: "${group.memberCount.toString()}+",
+                            action: "View",
+                            imagePath: group.image ?? "",
+                            membersImages: group.participants?.users ?? [],
+                            joined: true,
+                            width: 210.w,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              );
-            }),
+                      );
+                    },
+                  ),
+                );
+              }),
 
-            SizedBox(height: 20.h),
+              SizedBox(height: 20.h),
 
-            170.verticalSpace,
-          ],
+              170.verticalSpace,
+            ],
+          ),
         ),
       ),
       floatingActionButton: Padding(
