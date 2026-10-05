@@ -2,15 +2,60 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ollie/Models/supplement_model.dart';
 import 'package:ollie/common/common.dart';
+import 'package:ollie/home/Dailytask/device_time_zone_service.dart';
 import 'package:ollie/home/Supplements/supplement_repository.dart';
 import 'package:ollie/request_status.dart';
 import 'package:ollie/services/firebase_service.dart';
+
+const int maxReminderTimes = 6;
+
+/// What the add/edit sheet collects about when a supplement is taken.
+class SupplementScheduleInput {
+  SupplementScheduleInput({
+    required this.reminderEnabled,
+    required this.frequency,
+    required this.times,
+    this.daysOfWeek = const {},
+    this.intervalDays = 2,
+    required this.startDate,
+    this.endDate,
+  });
+
+  final bool reminderEnabled;
+  final SupplementFrequency frequency;
+  final List<TimeOfDay> times;
+
+  /// 0 = Sunday ... 6 = Saturday.
+  final Set<int> daysOfWeek;
+  final int intervalDays;
+  final DateTime startDate;
+  final DateTime? endDate;
+
+  Map<String, dynamic> toPayload(String Function(TimeOfDay) formatTime) {
+    final sortedTimes = times.map(formatTime).toSet().toList()..sort();
+    return {
+      'reminderEnabled': reminderEnabled,
+      'frequency': frequency.apiValue,
+      'reminderTimes': sortedTimes,
+      'daysOfWeek': frequency == SupplementFrequency.weekly
+          ? (daysOfWeek.toList()..sort())
+          : null,
+      'intervalDays': frequency == SupplementFrequency.interval
+          ? intervalDays
+          : null,
+      'startDate': SupplementData.formatDate(startDate),
+      'endDate': endDate == null ? null : SupplementData.formatDate(endDate!),
+    };
+  }
+}
 
 class SupplementController extends GetxController {
   final SupplementRepository _repository = SupplementRepository();
 
   final supplements = <SupplementData>[].obs;
-  final takenTodayIds = <String>{}.obs;
+
+  /// Supplement id -> dose times taken today (see [SupplementData.doseKeysOn]).
+  final takenToday = <String, Set<String>>{}.obs;
   final getSupplementsStatus = RequestStatus.idle.obs;
   final saveSupplementStatus = RequestStatus.idle.obs;
   final deleteSupplementStatus = RequestStatus.idle.obs;
@@ -58,24 +103,27 @@ class SupplementController extends GetxController {
   }
 
   Future<void> _loadTakenTodayState(List<SupplementData> items) async {
-    final takenIds = <String>{};
+    final taken = <String, Set<String>>{};
     for (final supplement in items) {
       final id = supplement.id?.trim();
       if (id == null || id.isEmpty) continue;
-      if (await FirebaseService.instance.isSupplementTakenToday(id)) {
-        takenIds.add(id);
-      }
+      taken[id] = await FirebaseService.instance.supplementDosesTakenToday(id);
     }
-    takenTodayIds.assignAll(takenIds);
+    takenToday.assignAll(taken);
   }
 
   Future<void> refreshTakenTodayState() async {
     await _loadTakenTodayState(supplements);
   }
 
-  bool isTakenToday(String? supplementId) {
-    final id = supplementId?.trim();
-    return id != null && id.isNotEmpty && takenTodayIds.contains(id);
+  /// Doses due today for [supplement] and how many of them are taken.
+  ({int taken, int total}) todayProgress(SupplementData supplement) {
+    final doses = supplement.doseKeysOn(DateTime.now());
+    final taken = takenToday[supplement.id?.trim()] ?? const <String>{};
+    if (taken.contains(supplementAnyTimeDose)) {
+      return (taken: doses.length, total: doses.length);
+    }
+    return (taken: doses.where(taken.contains).length, total: doses.length);
   }
 
   Future<void> markSupplementTaken(SupplementData supplement) async {
@@ -85,33 +133,35 @@ class SupplementController extends GetxController {
       return;
     }
 
-    await FirebaseService.instance.markSupplementTakenToday(supplementId);
-    takenTodayIds.add(supplementId);
-    takenTodayIds.refresh();
-    await FirebaseService.instance.syncSupplementAlarms(supplements);
+    // Doses are taken in order: mark the earliest one not yet taken today.
+    final taken = takenToday[supplementId] ?? const <String>{};
+    final dose = supplement
+        .doseKeysOn(DateTime.now())
+        .where((time) => !taken.contains(time))
+        .firstOrNull;
+    if (dose == null || taken.contains(supplementAnyTimeDose)) {
+      appSnackbar("Done", "No more doses due today.");
+      return;
+    }
+
+    await FirebaseService.instance.markSupplementDoseTaken(supplement, dose);
+    takenToday[supplementId] = {...taken, dose};
     appSnackbar("Done", "${supplement.name ?? "Supplement"} marked as taken");
   }
 
   Future<void> createSupplement({
     required String name,
     required String dosage,
-    required bool reminderEnabled,
-    TimeOfDay? reminderTime,
+    required SupplementScheduleInput schedule,
   }) async {
-    await _saveSupplement(
-      name: name,
-      dosage: dosage,
-      reminderEnabled: reminderEnabled,
-      reminderTime: reminderTime,
-    );
+    await _saveSupplement(name: name, dosage: dosage, schedule: schedule);
   }
 
   Future<void> updateSupplement({
     required String supplementId,
     required String name,
     required String dosage,
-    required bool reminderEnabled,
-    TimeOfDay? reminderTime,
+    required SupplementScheduleInput schedule,
   }) async {
     if (supplementId.isEmpty) {
       appSnackbar("Error", "Supplement id is missing.");
@@ -122,17 +172,39 @@ class SupplementController extends GetxController {
       supplementId: supplementId,
       name: name,
       dosage: dosage,
-      reminderEnabled: reminderEnabled,
-      reminderTime: reminderTime,
+      schedule: schedule,
     );
+  }
+
+  /// Returns an error message, or null when [schedule] can be saved.
+  String? validateSchedule(SupplementScheduleInput schedule) {
+    if (schedule.reminderEnabled && schedule.times.isEmpty) {
+      return "Please add at least one reminder time.";
+    }
+    if (schedule.times.length > maxReminderTimes) {
+      return "You can add up to $maxReminderTimes reminder times.";
+    }
+    if (schedule.frequency == SupplementFrequency.weekly &&
+        schedule.daysOfWeek.isEmpty) {
+      return "Please choose at least one day.";
+    }
+    if (schedule.frequency == SupplementFrequency.interval &&
+        (schedule.intervalDays < 1 || schedule.intervalDays > 365)) {
+      return "Repeat interval must be between 1 and 365 days.";
+    }
+    final endDate = schedule.endDate;
+    if (endDate != null &&
+        SupplementData.daysBetween(schedule.startDate, endDate) < 0) {
+      return "End date cannot be before the start date.";
+    }
+    return null;
   }
 
   Future<void> _saveSupplement({
     String? supplementId,
     required String name,
     required String dosage,
-    required bool reminderEnabled,
-    TimeOfDay? reminderTime,
+    required SupplementScheduleInput schedule,
   }) async {
     final cleanName = name.trim();
     final cleanDosage = dosage.trim();
@@ -145,16 +217,17 @@ class SupplementController extends GetxController {
       appSnackbar("Error", "Please enter dosage.");
       return;
     }
-    if (reminderEnabled && reminderTime == null) {
-      appSnackbar("Error", "Please choose reminder time.");
+    final scheduleError = validateSchedule(schedule);
+    if (scheduleError != null) {
+      appSnackbar("Error", scheduleError);
       return;
     }
 
     final payload = <String, dynamic>{
       'name': cleanName,
       'dosage': cleanDosage,
-      'reminderEnabled': reminderEnabled,
-      if (reminderEnabled) 'reminderTime': formatTimeForApi(reminderTime!),
+      ...schedule.toPayload(formatTimeForApi),
+      'timeZone': await DeviceTimeZoneService.getIanaTimeZone(),
     };
 
     saveSupplementStatus.value = RequestStatus.loading;
@@ -187,7 +260,7 @@ class SupplementController extends GetxController {
     final result = await _repository.deleteMySupplement(supplementId);
     if (result['success'] == true) {
       supplements.removeWhere((item) => item.id == supplementId);
-      takenTodayIds.remove(supplementId);
+      takenToday.remove(supplementId);
       await FirebaseService.instance.cancelSupplementAlarm(supplementId);
       deleteSupplementStatus.value = RequestStatus.success;
       appSnackbar("Success", result['message'] ?? "Supplement deleted");

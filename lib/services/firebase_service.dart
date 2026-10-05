@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:ollie/Models/supplement_model.dart';
 import 'package:ollie/firebase_options.dart';
+import 'package:ollie/home/Supplements/supplement_alarm_plan.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -52,76 +52,173 @@ Map<String, dynamic> _decodeSupplementPayload(String? payload) {
   return const {};
 }
 
-int _supplementNotificationIdFor(String supplementId) {
+/// Single id used per supplement before recurring schedules; still cancelled so
+/// alarms scheduled by older builds don't linger.
+int _legacySupplementNotificationIdFor(String supplementId) {
   return 700000 + supplementId.hashCode.abs() % 200000;
 }
 
 String _todayIsoDate() {
-  final now = DateTime.now();
-  return '${now.year.toString().padLeft(4, '0')}-'
-      '${now.month.toString().padLeft(2, '0')}-'
-      '${now.day.toString().padLeft(2, '0')}';
+  return SupplementData.formatDate(DateTime.now());
 }
 
 String _supplementTakenStorageKey(String supplementId) {
   return '$_supplementTakenStoragePrefix:$supplementId';
 }
 
-Future<void> _writeSupplementTakenToday(String supplementId) async {
+/// Dose times ("HH:mm:ss", or [supplementAnyTimeDose]) taken today.
+Future<Set<String>> _readSupplementTakenToday(String supplementId) async {
+  final cleanId = supplementId.trim();
+  if (cleanId.isEmpty) return <String>{};
+  final stored = await const FlutterSecureStorage().read(
+    key: _supplementTakenStorageKey(cleanId),
+  );
+  if (stored == null || stored.isEmpty) return <String>{};
+
+  final today = _todayIsoDate();
+  // Older builds stored only the date the supplement was taken.
+  if (stored == today) return {supplementAnyTimeDose};
+
+  try {
+    final decoded = jsonDecode(stored);
+    if (decoded is Map && decoded['date'] == today && decoded['times'] is List) {
+      return (decoded['times'] as List).map((item) => item.toString()).toSet();
+    }
+  } catch (_) {}
+  return <String>{};
+}
+
+Future<void> _writeSupplementDoseTaken(String supplementId, String dose) async {
   final cleanId = supplementId.trim();
   if (cleanId.isEmpty) return;
+  final taken = await _readSupplementTakenToday(cleanId)..add(dose);
   await const FlutterSecureStorage().write(
     key: _supplementTakenStorageKey(cleanId),
-    value: _todayIsoDate(),
+    value: jsonEncode({'date': _todayIsoDate(), 'times': taken.toList()}),
   );
 }
 
-TimeOfDay? _parseSupplementReminderTime(String? value) {
-  final parts = value?.trim().split(':') ?? const [];
-  if (parts.length < 2) return null;
+const String _scheduledSupplementIdsKey = 'scheduledSupplementAlarmIds';
 
-  final hour = int.tryParse(parts[0]);
-  final minute = int.tryParse(parts[1]);
-  if (hour == null ||
-      minute == null ||
-      hour < 0 ||
-      hour > 23 ||
-      minute < 0 ||
-      minute > 59) {
-    return null;
-  }
-
-  return TimeOfDay(hour: hour, minute: minute);
-}
-
-tz.TZDateTime _nextSupplementReminder(
-  TimeOfDay time, {
-  bool skipToday = false,
-}) {
-  final now = tz.TZDateTime.now(tz.local);
-  var scheduled = tz.TZDateTime(
-    tz.local,
-    now.year,
-    now.month,
-    now.day,
-    time.hour,
-    time.minute,
+Future<List<int>> _readScheduledSupplementIds() async {
+  final raw = await const FlutterSecureStorage().read(
+    key: _scheduledSupplementIdsKey,
   );
+  if (raw == null || raw.isEmpty) return <int>[];
 
-  if (skipToday || !scheduled.isAfter(now)) {
-    final isCurrentMinute =
-        scheduled.year == now.year &&
-        scheduled.month == now.month &&
-        scheduled.day == now.day &&
-        scheduled.hour == now.hour &&
-        scheduled.minute == now.minute;
-    if (!skipToday && isCurrentMinute) {
-      return now.add(const Duration(seconds: 10));
+  try {
+    final decoded = jsonDecode(raw);
+    if (decoded is List) {
+      return decoded
+          .map((item) => int.tryParse(item.toString()))
+          .whereType<int>()
+          .toList();
     }
-    scheduled = scheduled.add(const Duration(days: 1));
+  } catch (_) {}
+  return <int>[];
+}
+
+Future<void> _writeScheduledSupplementIds(Iterable<int> ids) async {
+  await const FlutterSecureStorage().write(
+    key: _scheduledSupplementIdsKey,
+    value: jsonEncode(ids.toSet().toList()),
+  );
+}
+
+bool _isInSupplementBlock(int notificationId, String supplementId) {
+  final base = supplementAlarmBaseId(supplementId);
+  return notificationId >= base &&
+      notificationId < base + supplementAlarmSlotCount;
+}
+
+/// Cancels every alarm this supplement has scheduled, by this or an older build.
+Future<void> _cancelSupplementAlarms(
+  FlutterLocalNotificationsPlugin plugin,
+  String supplementId,
+) async {
+  final scheduledIds = await _readScheduledSupplementIds();
+  final ids = {
+    _legacySupplementNotificationIdFor(supplementId),
+    ...scheduledIds.where((id) => _isInSupplementBlock(id, supplementId)),
+  };
+  for (final id in ids) {
+    await plugin.cancel(id);
+  }
+  await _writeScheduledSupplementIds(
+    scheduledIds.where((id) => !ids.contains(id)),
+  );
+}
+
+/// Schedules [supplement]'s planned alarms and returns their notification ids.
+/// Expects its existing alarms to have been cancelled already.
+Future<List<int>> _scheduleSupplementAlarms(
+  FlutterLocalNotificationsPlugin plugin,
+  SupplementData supplement,
+) async {
+  final supplementId = supplement.id?.trim() ?? '';
+  if (supplementId.isEmpty) return const [];
+
+  final alarms = planSupplementAlarms(
+    supplement,
+    now: DateTime.now(),
+    takenToday: await _readSupplementTakenToday(supplementId),
+  );
+
+  final dosage = (supplement.dosage ?? '').trim();
+  final body =
+      'It is time to take ${supplement.name ?? "your supplement"}'
+      '${dosage.isEmpty ? "" : " - $dosage"}';
+  final baseId = supplementAlarmBaseId(supplementId);
+  final ids = <int>[];
+
+  for (final alarm in alarms) {
+    final notificationId = baseId + alarm.slot;
+    final payload = jsonEncode({
+      'type': 'supplement',
+      'id': supplementId,
+      'name': supplement.name ?? 'your supplement',
+      'dosage': supplement.dosage ?? '',
+      'reminderTime': alarm.time,
+      'time': alarm.time,
+      'supplement': supplement.toJson(),
+    });
+    final repeat = switch (alarm.repeat) {
+      SupplementAlarmRepeat.daily => DateTimeComponents.time,
+      SupplementAlarmRepeat.weekly => DateTimeComponents.dayOfWeekAndTime,
+      SupplementAlarmRepeat.none => null,
+    };
+    final scheduledAt = tz.TZDateTime.from(alarm.at, tz.local);
+
+    Future<void> schedule(AndroidScheduleMode mode) {
+      return plugin.zonedSchedule(
+        notificationId,
+        'Supplement time',
+        body,
+        scheduledAt,
+        _supplementAlarmNotificationDetails(),
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        androidScheduleMode: mode,
+        matchDateTimeComponents: repeat,
+        payload: payload,
+      );
+    }
+
+    try {
+      await schedule(AndroidScheduleMode.exactAllowWhileIdle);
+    } catch (e) {
+      debugPrint('[FCM] Exact supplement alarm failed, using inexact schedule: $e');
+      await schedule(AndroidScheduleMode.inexactAllowWhileIdle);
+    }
+
+    ids.add(notificationId);
+    debugPrint(
+      '[FCM] Scheduled supplement alarm id=$notificationId at $scheduledAt '
+      '(${alarm.repeat.name})',
+    );
   }
 
-  return scheduled;
+  return ids;
 }
 
 NotificationDetails _supplementAlarmNotificationDetails() {
@@ -129,7 +226,7 @@ NotificationDetails _supplementAlarmNotificationDetails() {
     android: AndroidNotificationDetails(
       _supplementAlarmChannelId,
       'Supplement Alarms',
-      channelDescription: 'Daily supplement reminders with alarm sound',
+      channelDescription: 'Supplement reminders with alarm sound',
       importance: Importance.max,
       priority: Priority.max,
       playSound: true,
@@ -208,31 +305,27 @@ Future<void> _markSupplementTakenFromNotification(
   if (supplementId.isEmpty) return;
 
   await _prepareTimezoneForNotificationAction();
-  await _writeSupplementTakenToday(supplementId);
-
-  final reminderTime = _parseSupplementReminderTime(
-    payload['reminderTime']?.toString(),
+  final time = (payload['time'] ?? payload['reminderTime'])?.toString().trim();
+  await _writeSupplementDoseTaken(
+    supplementId,
+    time == null || time.isEmpty ? supplementAnyTimeDose : time,
   );
-  if (reminderTime == null) return;
 
-  final name = payload['name']?.toString() ?? 'your supplement';
-  final dosage = payload['dosage']?.toString() ?? '';
-  final body =
-      'It is time to take $name${dosage.trim().isEmpty ? "" : " - ${dosage.trim()}"}';
-  final notificationId = _supplementNotificationIdFor(supplementId);
-
-  await FlutterLocalNotificationsPlugin().zonedSchedule(
-    notificationId,
-    'Supplement time',
-    body,
-    _nextSupplementReminder(reminderTime, skipToday: true),
-    _supplementAlarmNotificationDetails(),
-    uiLocalNotificationDateInterpretation:
-        UILocalNotificationDateInterpretation.absoluteTime,
-    androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-    matchDateTimeComponents: DateTimeComponents.time,
-    payload: jsonEncode(payload),
-  );
+  // Re-plan so this dose doesn't fire again today. Payloads from older builds
+  // carry no schedule; those alarms are just cancelled until the app re-syncs.
+  final plugin = FlutterLocalNotificationsPlugin();
+  await _cancelSupplementAlarms(plugin, supplementId);
+  final rawSupplement = payload['supplement'];
+  if (rawSupplement is Map) {
+    final supplement = SupplementData.fromJson(
+      rawSupplement.map((key, value) => MapEntry(key.toString(), value)),
+    );
+    final ids = await _scheduleSupplementAlarms(plugin, supplement);
+    await _writeScheduledSupplementIds([
+      ...await _readScheduledSupplementIds(),
+      ...ids,
+    ]);
+  }
 }
 
 class FirebaseService {
@@ -266,14 +359,12 @@ class FirebaseService {
       AndroidNotificationChannel(
         _supplementAlarmChannelId,
         'Supplement Alarms',
-        description: 'Daily supplement reminders with alarm sound',
+        description: 'Supplement reminders with alarm sound',
         importance: Importance.max,
         playSound: true,
         enableVibration: true,
       );
 
-  static const String _scheduledSupplementIdsKey =
-      'scheduledSupplementAlarmIds';
 
   void _logFcm(String message, {RemoteMessage? remoteMessage}) {
     if (remoteMessage == null) {
@@ -405,66 +496,34 @@ class FirebaseService {
     _timezoneInitialized = true;
   }
 
-  int _supplementNotificationId(String supplementId) {
-    return _supplementNotificationIdFor(supplementId);
-  }
-
-  TimeOfDay? _parseReminderTime(String? value) {
-    return _parseSupplementReminderTime(value);
-  }
-
-  tz.TZDateTime _nextDailyReminder(TimeOfDay time, {bool skipToday = false}) {
-    return _nextSupplementReminder(time, skipToday: skipToday);
-  }
-
-  Future<List<int>> _readScheduledSupplementIds() async {
-    final raw = await _storage.read(key: _scheduledSupplementIdsKey);
-    if (raw == null || raw.isEmpty) return const [];
-
-    try {
-      final decoded = jsonDecode(raw);
-      if (decoded is List) {
-        return decoded
-            .map((item) => int.tryParse(item.toString()))
-            .whereType<int>()
-            .toList();
-      }
-    } catch (_) {}
-    return const [];
-  }
-
-  Future<void> _writeScheduledSupplementIds(List<int> ids) async {
-    await _storage.write(
-      key: _scheduledSupplementIdsKey,
-      value: jsonEncode(ids.toSet().toList()),
-    );
-  }
-
   Future<void> cancelSupplementAlarm(String supplementId) async {
     if (supplementId.trim().isEmpty) return;
-    final notificationId = _supplementNotificationId(supplementId);
-    await _localNotifications.cancel(notificationId);
-
-    final scheduledIds = await _readScheduledSupplementIds();
-    scheduledIds.remove(notificationId);
-    await _writeScheduledSupplementIds(scheduledIds);
-    debugPrint('[FCM] Cancelled supplement alarm id=$notificationId');
+    await _cancelSupplementAlarms(_localNotifications, supplementId.trim());
+    debugPrint('[FCM] Cancelled supplement alarms for $supplementId');
   }
 
-  Future<bool> isSupplementTakenToday(String supplementId) async {
-    final cleanId = supplementId.trim();
-    if (cleanId.isEmpty) return false;
-    final stored = await _storage.read(
-      key: _supplementTakenStorageKey(cleanId),
-    );
-    return stored == _todayIsoDate();
+  Future<Set<String>> supplementDosesTakenToday(String supplementId) {
+    return _readSupplementTakenToday(supplementId);
   }
 
-  Future<void> markSupplementTakenToday(String supplementId) async {
-    final cleanId = supplementId.trim();
-    if (cleanId.isEmpty) return;
-    await _writeSupplementTakenToday(cleanId);
-    await cancelSupplementAlarm(cleanId);
+  /// Records [dose] (a reminder time, or [supplementAnyTimeDose]) as taken today
+  /// and re-plans that supplement's alarms so the dose doesn't fire again today.
+  Future<void> markSupplementDoseTaken(
+    SupplementData supplement,
+    String dose,
+  ) async {
+    final supplementId = supplement.id?.trim() ?? '';
+    if (supplementId.isEmpty) return;
+    await initialize();
+    await _initTimezone();
+
+    await _writeSupplementDoseTaken(supplementId, dose);
+    await _cancelSupplementAlarms(_localNotifications, supplementId);
+    final ids = await _scheduleSupplementAlarms(_localNotifications, supplement);
+    await _writeScheduledSupplementIds([
+      ...await _readScheduledSupplementIds(),
+      ...ids,
+    ]);
   }
 
   Future<void> syncSupplementAlarms(List<SupplementData> supplements) async {
@@ -475,73 +534,18 @@ class FirebaseService {
     for (final id in oldIds) {
       await _localNotifications.cancel(id);
     }
+    for (final supplement in supplements) {
+      final supplementId = supplement.id?.trim() ?? '';
+      if (supplementId.isEmpty) continue;
+      await _localNotifications.cancel(
+        _legacySupplementNotificationIdFor(supplementId),
+      );
+    }
 
     final activeIds = <int>[];
     for (final supplement in supplements) {
-      if (!supplement.reminderEnabled) continue;
-
-      final supplementId = supplement.id?.trim();
-      final reminderTime = _parseReminderTime(supplement.reminderTime);
-      if (supplementId == null ||
-          supplementId.isEmpty ||
-          reminderTime == null) {
-        continue;
-      }
-
-      final notificationId = _supplementNotificationId(supplementId);
-      final takenToday = await isSupplementTakenToday(supplementId);
-      final title = 'Supplement time';
-      final body =
-          'It is time to take ${supplement.name ?? "your supplement"}'
-          '${(supplement.dosage ?? "").trim().isEmpty ? "" : " - ${supplement.dosage!.trim()}"}';
-      final scheduledAt = _nextDailyReminder(
-        reminderTime,
-        skipToday: takenToday,
-      );
-
-      final notificationDetails = _supplementAlarmNotificationDetails();
-      final payload = jsonEncode({
-        'type': 'supplement',
-        'id': supplementId,
-        'name': supplement.name ?? 'your supplement',
-        'dosage': supplement.dosage ?? '',
-        'reminderTime': supplement.reminderTime ?? '',
-      });
-
-      try {
-        await _localNotifications.zonedSchedule(
-          notificationId,
-          title,
-          body,
-          scheduledAt,
-          notificationDetails,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          matchDateTimeComponents: DateTimeComponents.time,
-          payload: payload,
-        );
-      } catch (e) {
-        debugPrint(
-          '[FCM] Exact supplement alarm failed, using inexact schedule: $e',
-        );
-        await _localNotifications.zonedSchedule(
-          notificationId,
-          title,
-          body,
-          scheduledAt,
-          notificationDetails,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-          matchDateTimeComponents: DateTimeComponents.time,
-          payload: payload,
-        );
-      }
-
-      activeIds.add(notificationId);
-      debugPrint(
-        '[FCM] Scheduled supplement alarm id=$notificationId at $scheduledAt',
+      activeIds.addAll(
+        await _scheduleSupplementAlarms(_localNotifications, supplement),
       );
     }
 

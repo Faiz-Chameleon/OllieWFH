@@ -166,17 +166,7 @@ class UserData {
       'Wallet': wallet,
       'ConnectPurchase': connectPurchase,
       'UserSubscription': userSubscription,
-      'userSupplements': userSupplements
-          ?.map(
-            (item) => {
-              'id': item.id,
-              'name': item.name,
-              'dosage': item.dosage,
-              'reminderEnabled': item.reminderEnabled,
-              'reminderTime': item.reminderTime,
-            },
-          )
-          .toList(),
+      'userSupplements': userSupplements?.map((item) => item.toJson()).toList(),
       'userToken': userToken,
     };
   }
