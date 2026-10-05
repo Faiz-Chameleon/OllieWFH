@@ -22,9 +22,11 @@ class HomeRepository {
   ) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
+    final requestBody =
+        await DeviceTimeZoneService.requestBodyWithDeviceTimeZone(data);
     return ApiService.putMethod(
       '${ApiUrls.rescheduleTask}/$taskId',
-      data: data,
+      data: requestBody,
       token: requiredToken,
     );
   }
@@ -34,28 +36,66 @@ class HomeRepository {
     final requiredToken = await storage.read(key: 'userToken');
 
     return ApiService.getMethod(
-      '${ApiUrls.getByDateTask}?date=$date',
+      '${ApiUrls.getByDateTask}?date=$date&limit=100',
       token: requiredToken,
     );
   }
 
-  Future<Map<String, dynamic>> markTaskCompleted(taskId) async {
+  /// Per-day `{total, completed}` between two YYYY-MM-DD dates (max 62 days).
+  Future<Map<String, dynamic>> getTaskSummary(String from, String to) async {
+    final storage = FlutterSecureStorage();
+    final requiredToken = await storage.read(key: 'userToken');
+
+    return ApiService.getMethod(
+      '${ApiUrls.getTaskSummary}?from=$from&to=$to',
+      token: requiredToken,
+    );
+  }
+
+  /// [date] picks the occurrence of a recurring task (YYYY-MM-DD).
+  Future<Map<String, dynamic>> markTaskCompleted(
+    String taskId, {
+    bool completed = true,
+    String? date,
+  }) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
 
     return ApiService.putMethod(
       '${ApiUrls.markTaskAsComplete}/$taskId',
-      data: {},
+      data: {'completed': completed, if (date != null) 'date': date},
       token: requiredToken,
     );
   }
 
-  Future<Map<String, dynamic>> deleteTask(String taskId) async {
+  Future<Map<String, dynamic>> toggleChecklistItem(
+    String taskId, {
+    required String itemId,
+    required bool done,
+    String? date,
+  }) async {
     final storage = FlutterSecureStorage();
     final requiredToken = await storage.read(key: 'userToken');
 
+    return ApiService.putMethod(
+      '${ApiUrls.toggleTaskChecklistItem}/$taskId',
+      data: {'itemId': itemId, 'done': done, if (date != null) 'date': date},
+      token: requiredToken,
+    );
+  }
+
+  /// With [onlyDate], removes that one day of a recurring task instead of
+  /// deleting the whole task.
+  Future<Map<String, dynamic>> deleteTask(
+    String taskId, {
+    String? onlyDate,
+  }) async {
+    final storage = FlutterSecureStorage();
+    final requiredToken = await storage.read(key: 'userToken');
+    final query = onlyDate == null ? '' : '?scope=occurrence&date=$onlyDate';
+
     return ApiService.deleteMethod(
-      '${ApiUrls.deleteUserTask}/$taskId',
+      '${ApiUrls.deleteUserTask}/$taskId$query',
       token: requiredToken,
     );
   }

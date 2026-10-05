@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:ollie/Constants/constants.dart';
-import 'package:ollie/home/Dailytask/daily_task_screen.dart';
+import 'package:ollie/home/Dailytask/tasks_screen.dart';
 import 'package:ollie/olliebot/new_ollie_bot_next_screen.dart';
 import 'package:ollie/olliebot/ollie_chat_screen.dart';
 import 'package:ollie/olliebot/conversational_chat_screen.dart';
@@ -85,7 +85,7 @@ class _OllieScreenState extends State<OllieScreen> with SingleTickerProviderStat
           // ),
           // GestureDetector(
           //   onTap: () {
-          //     Get.to(() => TodoListScreen(), transition: Transition.fadeIn);
+          //     Get.to(() => const TasksScreen(), transition: Transition.fadeIn);
           //   },
           //   child: Padding(
           //     padding: EdgeInsets.only(right: 16),

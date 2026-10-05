@@ -123,7 +123,7 @@ class _NextOllieBotScreenState extends State<NextOllieBotScreen> {
             // ),
             // GestureDetector(
             //   onTap: () {
-            //     Get.to(() => TodoListScreen(), transition: Transition.fadeIn);
+            //     Get.to(() => const TasksScreen(), transition: Transition.fadeIn);
             //   },
             //   child: Padding(
             //     padding: EdgeInsets.only(right: 16),

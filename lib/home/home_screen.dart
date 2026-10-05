@@ -11,8 +11,9 @@ import 'package:ollie/HomeMain/HomeMain.dart';
 import 'package:ollie/HomeMain/bottomController.dart';
 import 'package:ollie/Subscription/credits/credits_sreen.dart';
 import 'package:ollie/Volunteers/socket_controller.dart';
-import 'package:ollie/home/Dailytask/easy_date_picker_controller.dart';
-import 'package:ollie/home/Dailytask/easy_date_picker_demo.dart';
+import 'package:ollie/home/Dailytask/task_controller.dart';
+import 'package:ollie/home/Dailytask/task_widgets.dart';
+import 'package:ollie/home/Dailytask/today_tasks_card.dart';
 import 'package:ollie/home/HomeController.dart';
 import 'package:ollie/home/Supplements/supplements_screen.dart';
 
@@ -33,9 +34,7 @@ class _Home_ScreenState extends State<Home_Screen> {
   final HomeController controller = Get.put(HomeController());
   final SocketController socketController = Get.find<SocketController>();
   final UserController userController = Get.find<UserController>();
-  final EasyDatePickerController taskController = Get.put(
-    EasyDatePickerController(),
-  );
+  final TaskController taskController = findTaskController();
 
   @override
   void initState() {
@@ -43,7 +42,7 @@ class _Home_ScreenState extends State<Home_Screen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       socketController.connectSocket();
-      taskController.userTaskByDateOnHome();
+      taskController.loadToday();
     });
   }
 
@@ -150,81 +149,7 @@ class _Home_ScreenState extends State<Home_Screen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                GestureDetector(
-                  onTap: () {
-                    Get.to(
-                      () => EasyDatePickerDemoScreen(),
-                      transition: Transition.fadeIn,
-                    );
-                  },
-                  child: Container(
-                    width: 1.sw,
-                    padding: EdgeInsets.all(18.w),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF1C5),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Daily Tasks",
-                          style: GoogleFonts.darkerGrotesque(
-                            fontWeight: FontWeight.bold,
-                            fontSize: responsiveFontSize(28, min: 24, max: 32),
-                          ),
-                        ),
-                        SizedBox(height: 6.h),
-                        Text(
-                          "See how much you have achieved today!",
-                          style: GoogleFonts.darkerGrotesque(
-                            fontSize: responsiveFontSize(20, min: 18, max: 24),
-                          ),
-                        ),
-                        SizedBox(height: 12.h),
-                        Obx(() {
-                          if (taskController.getTaskStatusOnHome.value ==
-                              RequestStatus.loading) {
-                            return Center(child: CircularProgressIndicator());
-                          } else if (taskController.getTaskStatusOnHome.value ==
-                              RequestStatus.error) {
-                            return Center(child: Text("Failed to load tasks"));
-                          } else {
-                            return Column(
-                              children: [
-                                if (taskController.tasksOnHome.isEmpty)
-                                  Text(
-                                    "No tasks for today",
-                                    style: GoogleFonts.darkerGrotesque(
-                                      fontSize: responsiveFontSize(
-                                        20,
-                                        min: 18,
-                                        max: 24,
-                                      ),
-                                    ),
-                                  )
-                                else
-                                  ...taskController.tasksOnHome.map((task) {
-                                    return Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 4.h,
-                                      ),
-                                      child: TaskTile(
-                                        text:
-                                            task['taskName'] ?? "No task name",
-                                        isDone: task['markAsComplete'] ?? false,
-                                        onTap: () {},
-                                      ),
-                                    );
-                                  }).toList(),
-                              ],
-                            );
-                          }
-                        }),
-                      ],
-                    ),
-                  ),
-                ),
+                TodayTasksCard(controller: taskController),
                 const SizedBox(height: 20),
                 Padding(
                   padding: EdgeInsets.only(bottom: 110.h),
@@ -346,52 +271,6 @@ class _Home_ScreenState extends State<Home_Screen> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class TaskTile extends StatelessWidget {
-  final String text;
-  final bool isDone;
-  final VoidCallback onTap;
-
-  const TaskTile({
-    super.key,
-    required this.text,
-    required this.isDone,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 14.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              isDone ? Icons.check_circle : Icons.radio_button_unchecked,
-              color: isDone ? const Color(0xFFF4BD2A) : Colors.grey,
-            ),
-            SizedBox(width: 10.w),
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: responsiveFontSize(16, min: 14, max: 20),
-                decoration: isDone
-                    ? TextDecoration.lineThrough
-                    : TextDecoration.none,
-                color: isDone ? Colors.black38 : Colors.black87,
-              ),
-            ),
-          ],
         ),
       ),
     );

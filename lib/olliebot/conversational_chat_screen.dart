@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:ollie/Constants/constants.dart';
-import 'package:ollie/home/Dailytask/daily_task_screen.dart';
+import 'package:ollie/home/Dailytask/tasks_screen.dart';
 
 import 'conversational_chat_controller.dart';
 
@@ -71,7 +71,7 @@ class ConversationalChatScreen extends StatelessWidget {
               padding: const EdgeInsets.only(right: 16),
               child: GestureDetector(
                 onTap: () {
-                  Get.to(() => TodoListScreen(), transition: Transition.fadeIn);
+                  Get.to(() => const TasksScreen(), transition: Transition.fadeIn);
                 },
                 child: const Icon(Icons.menu, color: Black),
               ),

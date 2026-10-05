@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:ollie/Constants/constants.dart';
-import 'package:ollie/home/Dailytask/daily_task_screen.dart';
+import 'package:ollie/home/Dailytask/tasks_screen.dart';
 import 'ollie_chat_controller.dart';
 
 class OllieChatScreen extends StatelessWidget {
@@ -49,7 +49,7 @@ class OllieChatScreen extends StatelessWidget {
             padding: EdgeInsets.only(right: 16),
             child: GestureDetector(
               onTap: () {
-                Get.to(() => TodoListScreen(), transition: Transition.fadeIn);
+                Get.to(() => const TasksScreen(), transition: Transition.fadeIn);
               },
               child: Icon(Icons.menu, color: Black),
             ),

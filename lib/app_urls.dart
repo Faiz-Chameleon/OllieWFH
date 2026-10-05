@@ -22,6 +22,9 @@ class ApiUrls {
   static const String getByDateTask = "/user/task/getTaskByDate";
 
   static const String markTaskAsComplete = "/user/task/markAsCompletedTask";
+  static const String toggleTaskChecklistItem =
+      "/user/task/toggleChecklistItem";
+  static const String getTaskSummary = "/user/task/getTaskSummary";
   static const String getMySupplements = "/user/supplement/getMySupplements";
   static const String createMySupplement =
       "/user/supplement/createMySupplement";
